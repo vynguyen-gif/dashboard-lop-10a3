@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v6',
+  STUDENTS: 'dashboard10a3_official_45_students_v8',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v5'
+  SEATING: 'dashboard10a3_official_45_seating_v7'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Đảm bảo luôn sử dụng đúng danh sách 45 học sinh chính thức theo ảnh sổ lớp
   const hasBalancedRoster = appState.students.length === 45 && 
-                            appState.students.some(s => s.fullName === 'Trần Lê Hồng Nhung' && s.role === 'Lớp trưởng');
+                            appState.students.some(s => s.fullName === 'Tạ Thanh Ngọc Giàu' && s.role === 'Bí thư');
   if (!hasBalancedRoster) {
     injectOfficial45Students(false);
   }
@@ -741,35 +741,50 @@ function renderStudentsTable() {
 }
 
 function getRoleBadgeHtml(role) {
-  switch (role) {
-    case 'Lớp trưởng':
-      return `<span class="badge-role-lead px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-crown mr-1"></i>Lớp trưởng</span>`;
-    case 'Lớp phó':
-    case 'Lớp phó Học tập':
-    case 'Lớp phó Lao động':
-      return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-user-graduate mr-1"></i>${escapeHtml(role)}</span>`;
-    case 'Bí thư':
-      return `<span class="badge-role-sec px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-flag mr-1"></i>Bí thư</span>`;
-    case 'Tổ trưởng':
-      return `<span class="badge-role-group px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-sitemap mr-1"></i>Tổ trưởng</span>`;
-    case 'Cán sự Toán':
-      return `<span class="badge-role-math px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-calculator mr-1"></i>Cán sự Toán</span>`;
-    case 'Cán sự Lý':
-      return `<span class="badge-role-phys px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-atom mr-1"></i>Cán sự Lý</span>`;
-    case 'Cán sự Hóa':
-      return `<span class="badge-role-chem px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-flask mr-1"></i>Cán sự Hóa</span>`;
-    case 'Cán sự Anh':
-    case 'Cán sự Tiếng Anh':
-      return `<span class="badge-role-eng px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-language mr-1"></i>Cán sự Anh</span>`;
-    case 'Cán sự Sinh':
-      return `<span class="badge-role-bio px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-dna mr-1"></i>Cán sự Sinh</span>`;
-    case 'Cán sự Văn':
-      return `<span class="badge-role-lit px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-book-open mr-1"></i>Cán sự Văn</span>`;
-    case 'Sao đỏ':
-      return `<span class="badge-role-redstar px-2.5 py-0.5 rounded-full text-xs font-bold"><i class="fa-solid fa-star mr-1"></i>Sao đỏ</span>`;
-    default:
-      return `<span class="text-xs text-slate-500">${escapeHtml(role || 'Thành viên')}</span>`;
+  if (!role || role === 'Thành viên') {
+    return `<span class="text-xs text-slate-500">Thành viên</span>`;
   }
+
+  // Hỗ trợ cán sự kiêm nhiệm nhiều chức danh (nối bằng '&')
+  const parts = role.split('&').map(p => p.trim());
+  return parts.map(part => {
+    switch (part) {
+      case 'Lớp trưởng':
+        return `<span class="badge-role-lead px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-crown mr-1"></i>Lớp trưởng</span>`;
+      case 'Lớp phó':
+      case 'Lớp phó Học tập':
+        return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-user-graduate mr-1"></i>Lớp phó</span>`;
+      case 'Lớp phó Lao động':
+        return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-broom mr-1"></i>Lớp phó LĐ</span>`;
+      case 'Bí thư':
+        return `<span class="badge-role-sec px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-flag mr-1"></i>Bí thư</span>`;
+      case 'Tổ trưởng':
+        return `<span class="badge-role-group px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-sitemap mr-1"></i>Tổ trưởng</span>`;
+      case 'Cán sự Toán':
+      case 'CS Toán':
+        return `<span class="badge-role-math px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-calculator mr-1"></i>CS Toán</span>`;
+      case 'Cán sự Lý':
+      case 'CS Lý':
+        return `<span class="badge-role-phys px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-atom mr-1"></i>CS Lý</span>`;
+      case 'Cán sự Hóa':
+      case 'CS Hóa':
+        return `<span class="badge-role-chem px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-flask mr-1"></i>CS Hóa</span>`;
+      case 'Cán sự Anh':
+      case 'CS Anh':
+      case 'Cán sự Tiếng Anh':
+        return `<span class="badge-role-eng px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-language mr-1"></i>CS Anh</span>`;
+      case 'Cán sự Sinh':
+      case 'CS Sinh':
+        return `<span class="badge-role-bio px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-dna mr-1"></i>CS Sinh</span>`;
+      case 'Cán sự Văn':
+      case 'CS Văn':
+        return `<span class="badge-role-lit px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-book-open mr-1"></i>CS Văn</span>`;
+      case 'Sao đỏ':
+        return `<span class="badge-role-redstar px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-star mr-1"></i>Sao đỏ</span>`;
+      default:
+        return `<span class="text-xs text-slate-500">${escapeHtml(part)}</span>`;
+    }
+  }).join(' ');
 }
 
 // ==================== MODAL THÊM / SỬA HỌC SINH ====================
@@ -1071,60 +1086,60 @@ function inject10SampleStudents(notify = true) {
 const OFFICIAL_10A3_STUDENTS = [
   // ===== TỔ 1 (8 học sinh • Điểm TB Lực Học: 34.44) =====
   { id: 'hs_10a3_43', code: '1704246671', fullName: 'Dương Lục Yến Vy', dob: '24/09/2011', academicScore: 34, groupNumber: 1, role: 'Tổ trưởng', isSpecialSupport: false },
-  { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 1, role: 'Sao đỏ', isSpecialSupport: false },
-  { id: 'hs_10a3_26', code: '1703554579', fullName: 'Cao Ngọc An Nhiên', dob: '14/12/2011', academicScore: 39, groupNumber: 1, role: 'Cán sự Anh', isSpecialSupport: false },
-  { id: 'hs_10a3_30', code: '1701941035', fullName: 'Trần Thị Ngọc Phúc', dob: '09/09/2011', academicScore: 36, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_26', code: '1703554579', fullName: 'Cao Ngọc An Nhiên', dob: '14/12/2011', academicScore: 39, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_30', code: '1701941035', fullName: 'Trần Thị Ngọc Phúc', dob: '09/09/2011', academicScore: 36, groupNumber: 1, role: 'Sao đỏ', isSpecialSupport: false },
   { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 25, groupNumber: 1, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phạm Ngọc Tường Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 1, role: 'Thành viên', isSpecialSupport: true },
-  { id: 'hs_10a3_32', code: '1704379981', fullName: 'Lê Tuấn Phát Tài', dob: '17/07/2011', academicScore: 34, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_32', code: '1704379981', fullName: 'Lê Tuấn Phát Tài', dob: '17/07/2011', academicScore: 34, groupNumber: 1, role: 'Cán sự Toán', isSpecialSupport: false },
   { id: 'hs_10a3_28', code: '1805586438', fullName: 'Võ Thành Phát', dob: '14/11/2011', academicScore: 36, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 2 (8 học sinh • Điểm TB Lực Học: 34.50) =====
-  { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyễn Hoàng Gia Nguyên', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyễn Hoàng Gia Nguyên', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Tổ trưởng & CS Hóa', isSpecialSupport: false },
   { id: 'hs_10a3_08', code: '1702997106', fullName: 'Ngô Thị Diễm Hằng', dob: '18/11/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyễn Thị Thanh Tuyền', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
-  { id: 'hs_10a3_25', code: '1702780397', fullName: 'Võ Thị Yến Nhi', dob: '16/04/2011', academicScore: 34, groupNumber: 2, role: 'Sao đỏ', isSpecialSupport: false },
-  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Lớp phó', isSpecialSupport: false },
+  { id: 'hs_10a3_25', code: '1702780397', fullName: 'Võ Thị Yến Nhi', dob: '16/04/2011', academicScore: 34, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Lớp phó & CS Văn', isSpecialSupport: false },
   { id: 'hs_10a3_41', code: '1701472685', fullName: 'Lê Gia Vũ', dob: '08/03/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.62) =====
   { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_33', code: '1703412028', fullName: 'Đỗ Quốc Thành', dob: '19/08/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tạ Thanh Ngọc Giàu', dob: '13/02/2011', academicScore: 26, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tạ Thanh Ngọc Giàu', dob: '13/02/2011', academicScore: 26, groupNumber: 3, role: 'Bí thư', isSpecialSupport: true },
   { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 3, role: 'Sao đỏ', isSpecialSupport: false },
+  { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 4 (7 học sinh • Điểm TB Lực Học: 34.71) =====
   { id: 'hs_10a3_35', code: '1703919858', fullName: 'Nguyễn Ngọc Trinh', dob: '18/04/2011', academicScore: 29, groupNumber: 4, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 35, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyễn Thị Thanh Tuyền', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_22', code: '1701941028', fullName: 'Nguyễn Hữu Đan Mạch', dob: '01/01/2011', academicScore: 39, groupNumber: 4, role: 'Cán sự Toán', isSpecialSupport: false },
+  { id: 'hs_10a3_22', code: '1701941028', fullName: 'Nguyễn Hữu Đan Mạch', dob: '01/01/2011', academicScore: 39, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_34', code: '1704831627', fullName: 'Nguyễn Ngọc Anh Thư', dob: '24/10/2011', academicScore: 29, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
-  { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 4, role: 'Cán sự Sinh', isSpecialSupport: false },
+  { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 5 (7 học sinh • Điểm TB Lực Học: 34.57) =====
-  { id: 'hs_10a3_27', code: '1702997079', fullName: 'Trần Lê Hồng Nhung', dob: '20/10/2011', academicScore: 36, groupNumber: 5, role: 'Lớp trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_27', code: '1702997079', fullName: 'Trần Lê Hồng Nhung', dob: '20/10/2011', academicScore: 36, groupNumber: 5, role: 'Lớp trưởng & CS Anh', isSpecialSupport: false },
   { id: 'hs_10a3_42', code: '1702780409', fullName: 'Lê Văn Vũ', dob: '03/01/2011', academicScore: 39, groupNumber: 5, role: 'Cán sự Lý', isSpecialSupport: false },
-  { id: 'hs_10a3_09', code: '1701980221', fullName: 'Nguyễn Vinh Hoa', dob: '15/07/2011', academicScore: 37, groupNumber: 5, role: 'Bí thư', isSpecialSupport: false },
-  { id: 'hs_10a3_18', code: '1702780393', fullName: 'Nguyễn Đỗ Kim Yến Linh', dob: '19/06/2011', academicScore: 37, groupNumber: 5, role: 'Sao đỏ', isSpecialSupport: false },
+  { id: 'hs_10a3_09', code: '1701980221', fullName: 'Nguyễn Vinh Hoa', dob: '15/07/2011', academicScore: 37, groupNumber: 5, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_18', code: '1702780393', fullName: 'Nguyễn Đỗ Kim Yến Linh', dob: '19/06/2011', academicScore: 37, groupNumber: 5, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_31', code: '1704684848', fullName: 'Hoàng Thế Tài', dob: '04/10/2011', academicScore: 35, groupNumber: 5, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_12', code: '1701384874', fullName: 'Đỗ Tuấn Hưng', dob: '17/06/2011', academicScore: 29, groupNumber: 5, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_40', code: '1803521194', fullName: 'Trần Phúc Vinh', dob: '06/09/2011', academicScore: 29, groupNumber: 5, role: 'Thành viên', isSpecialSupport: true },
 
   // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 34.57) =====
-  { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng', isSpecialSupport: false },
-  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 38, groupNumber: 6, role: 'Cán sự Hóa', isSpecialSupport: false },
-  { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Cán sự Văn', isSpecialSupport: false },
-  { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Sao đỏ', isSpecialSupport: false },
-  { id: 'hs_10a3_45', code: '1703509575', fullName: 'Đỗ Khôi Vỹ', dob: '08/12/2011', academicScore: 36, groupNumber: 6, role: 'Sao đỏ', isSpecialSupport: false },
-  { id: 'hs_10a3_37', code: '1701981799', fullName: 'Võ Bách Tùng', dob: '19/08/2011', academicScore: 34, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_11', code: '1701470035', fullName: 'Nguyễn Quốc Huy', dob: '19/09/2011', academicScore: 23, groupNumber: 6, role: 'Thành viên', isSpecialSupport: true }
+  { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng & CS Sinh', isSpecialSupport: false },
+  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_45', code: '1703509575', fullName: 'Đỗ Khôi Vỹ', dob: '08/12/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_37', code: '1701981799', fullName: 'Võ Bách Tùng', dob: '19/08/2011', academicScore: 34, groupNumber: 6, role: 'Sao đỏ', isSpecialSupport: false },
+  { id: 'hs_10a3_11', code: '1701470035', fullName: 'Nguyễn Quốc Huy', dob: '19/09/2011', academicScore: 23, groupNumber: 6, role: 'Lớp phó Lao động', isSpecialSupport: true }
 ];
 
 // Khởi tạo toàn bộ 45 học sinh lớp 10A3 chuẩn cân bằng 6 tổ
@@ -1374,7 +1389,7 @@ function getDefaultSeating() {
       pairWithTable: 6,
       title: 'Bàn 5',
       subtitle: 'Ghép Bàn 6',
-      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (Lớp phó - 33đ)
+      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (Lớp phó & CS Văn - 33đ)
       rightSeat: { seatId: 'seat_r1_g2_t1_r', position: 'right', studentId: 'hs_10a3_38' } // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đôi bạn cùng tiến]
     },
     {
@@ -1399,7 +1414,7 @@ function getDefaultSeating() {
       pairWithTable: 8,
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
-      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (TỔ TRƯỞNG TỔ 2 - 38đ)
+      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (TỔ TRƯỞNG TỔ 2 & CS Hóa - 38đ)
       rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
     },
     {
@@ -1427,7 +1442,7 @@ function getDefaultSeating() {
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
       leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_19' }, // Bùi Nguyễn Hoàng Long (Sao đỏ - 38đ)
-      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Hỗ trợ - 26đ) [Đôi bạn cùng tiến]
+      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Bí thư - 26đ) [Đôi bạn cùng tiến]
     },
     {
       tableId: 'tbl_d1_t10',
@@ -1531,7 +1546,7 @@ function getDefaultSeating() {
       pairWithTable: 6,
       title: 'Bàn 5',
       subtitle: 'Ghép Bàn 6',
-      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng - 36đ)
+      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng & CS Anh - 36đ)
       rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_12' } // Đỗ Tuấn Hưng (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
     },
     {
@@ -1556,7 +1571,7 @@ function getDefaultSeating() {
       pairWithTable: 8,
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
-      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (Bí thư - 37đ)
+      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (37đ)
       rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_18' } // Nguyễn Đỗ Kim Yến Linh (Sao đỏ - 37đ)
     },
     {
@@ -1584,7 +1599,7 @@ function getDefaultSeating() {
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
       leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_21' }, // Trần Minh Luân (CS Hóa - 38đ)
-      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Hỗ trợ - 23đ) [Đôi bạn cùng tiến bàn đầu]
+      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Lớp phó Lao động - 23đ) [Hỗ trợ & Quản lý bàn đầu]
     },
     {
       tableId: 'tbl_d2_t10',
@@ -1608,7 +1623,7 @@ function getDefaultSeating() {
       pairWithTable: 12,
       title: 'Bàn 11',
       subtitle: 'Ghép Bàn 12',
-      leftSeat: { seatId: 'seat_r2_g6_t3_l', position: 'left', studentId: 'hs_10a3_23' }, // Trương Thị Mỹ Ngân (TỔ TRƯỞNG TỔ 6 - 38đ)
+      leftSeat: { seatId: 'seat_r2_g6_t3_l', position: 'left', studentId: 'hs_10a3_23' }, // Trương Thị Mỹ Ngân (TỔ TRƯỞNG TỔ 6 & CS Sinh - 38đ)
       rightSeat: { seatId: 'seat_r2_g6_t3_r', position: 'right', studentId: 'hs_10a3_13' } // Lê Minh Khải (Sao đỏ - 37đ)
     },
     {
@@ -1775,20 +1790,23 @@ function renderSeatSlot(table, seat) {
   slot.draggable = true;
   slot.ondragstart = (e) => handleSeatDragStart(e, seat.seatId);
 
-  // Chức danh nhỏ gọn
+  // Chức danh nhỏ gọn (hỗ trợ kiêm nhiệm chức vụ)
   let roleBadgeHtml = '';
-  if (student.role === 'Lớp trưởng') {
-    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-lead">LT</span>';
-  } else if (student.role === 'Lớp phó') {
-    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP</span>';
-  } else if (student.role === 'Bí thư') {
-    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-sec">BT</span>';
-  } else if (student.role === 'Tổ trưởng') {
-    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-group">TT</span>';
-  } else if (student.role === 'Sao đỏ') {
-    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-redstar">SĐ</span>';
-  } else if (student.role && student.role.startsWith('Cán sự')) {
-    roleBadgeHtml = `<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-teal-50 text-teal-700 border border-teal-200">${student.role.replace('Cán sự ', 'CS ')}</span>`;
+  if (student.role && student.role !== 'Thành viên') {
+    const badges = [];
+    if (student.role.includes('Lớp trưởng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-lead">LT</span>');
+    if (student.role.includes('Lớp phó Lao động')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP LĐ</span>');
+    else if (student.role.includes('Lớp phó')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP</span>');
+    if (student.role.includes('Bí thư')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-sec">BT</span>');
+    if (student.role.includes('Tổ trưởng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-group">TT</span>');
+    if (student.role.includes('Sao đỏ')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-redstar">SĐ</span>');
+    if (student.role.includes('Toán')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200">Toán</span>');
+    if (student.role.includes('Lý')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">Lý</span>');
+    if (student.role.includes('Hóa')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-purple-50 text-purple-700 border border-purple-200">Hóa</span>');
+    if (student.role.includes('Anh')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Anh</span>');
+    if (student.role.includes('Sinh')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-teal-50 text-teal-700 border border-teal-200">Sinh</span>');
+    if (student.role.includes('Văn')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-pink-50 text-pink-700 border border-pink-200">Văn</span>');
+    roleBadgeHtml = badges.join('');
   }
 
   const peerBadgeHtml = student.isSpecialSupport ? 
@@ -2123,7 +2141,7 @@ function applySeatingFilters() {
     // Kiểm tra filter
     let matchFilter = true;
     if (filter === 'leaders') {
-      matchFilter = ['Lớp trưởng', 'Lớp phó', 'Bí thư', 'Tổ trưởng', 'Sao đỏ'].includes(student.role) || (student.role && student.role.startsWith('Cán sự'));
+      matchFilter = ['Lớp trưởng', 'Lớp phó', 'Bí thư', 'Tổ trưởng', 'Sao đỏ'].some(k => student.role && student.role.includes(k)) || (student.role && (student.role.includes('Cán sự') || student.role.includes('CS')));
     } else if (filter === 'special') {
       matchFilter = !!student.isSpecialSupport;
     } else if (filter === 'tutoring') {
@@ -2172,16 +2190,23 @@ function generatePrintSeatingHTML() {
   }
 
   const getStudentRoleTag = (student) => {
-    if (!student) return '';
-    let roleStr = '';
-    if (student.role === 'Lớp trưởng') roleStr = ' (LT)';
-    else if (student.role === 'Lớp phó') roleStr = ' (LP)';
-    else if (student.role === 'Bí thư') roleStr = ' (BT)';
-    else if (student.role === 'Tổ trưởng') roleStr = ' (TT)';
-    else if (student.role === 'Sao đỏ') roleStr = ' (SĐ)';
-    else if (student.role && student.role.startsWith('Cán sự')) {
-      roleStr = ` (${student.role.replace('Cán sự ', 'CS ')})`;
+    if (!student || !student.role || student.role === 'Thành viên') {
+      return student && student.isSpecialSupport ? ' 🤝' : '';
     }
+    const tags = [];
+    if (student.role.includes('Lớp trưởng')) tags.push('LT');
+    if (student.role.includes('Lớp phó Lao động')) tags.push('LP LĐ');
+    else if (student.role.includes('Lớp phó')) tags.push('LP');
+    if (student.role.includes('Bí thư')) tags.push('BT');
+    if (student.role.includes('Tổ trưởng')) tags.push('TT');
+    if (student.role.includes('Sao đỏ')) tags.push('SĐ');
+    if (student.role.includes('Toán')) tags.push('CS Toán');
+    if (student.role.includes('Lý')) tags.push('CS Lý');
+    if (student.role.includes('Hóa')) tags.push('CS Hóa');
+    if (student.role.includes('Anh')) tags.push('CS Anh');
+    if (student.role.includes('Sinh')) tags.push('CS Sinh');
+    if (student.role.includes('Văn')) tags.push('CS Văn');
+    const roleStr = tags.length > 0 ? ` (${tags.join(', ')})` : '';
     const htStr = student.isSpecialSupport ? ' 🤝' : '';
     return `${roleStr}${htStr}`;
   };

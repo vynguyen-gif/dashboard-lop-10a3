@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v15',
+  STUDENTS: 'dashboard10a3_official_45_students_v16',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v14'
+  SEATING: 'dashboard10a3_official_45_seating_v15'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1095,8 +1095,8 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_28', code: '1805586438', fullName: 'Võ Thành Phát', dob: '14/11/2011', academicScore: 36, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 2 (8 học sinh • Điểm TB Lực Học: 34.56) =====
-  { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyễn Hoàng Gia Nguyên', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Tổ trưởng', isSpecialSupport: false },
-  { id: 'hs_10a3_08', code: '1702997106', fullName: 'Ngô Thị Diễm Hằng', dob: '18/11/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyễn Hoàng Gia Nguyên', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_08', code: '1702997106', fullName: 'Ngô Thị Diễm Hằng', dob: '18/11/2011', academicScore: 37, groupNumber: 2, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyễn Thị Thanh Tuyền (12/01)', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
@@ -1401,10 +1401,10 @@ function getDefaultSeating() {
       pairWithTable: 5,
       title: 'Bàn 6',
       subtitle: 'Ghép Bàn 5',
-      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_08' }, // Ngô Thị Diễm Hằng (37đ)
-      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (Hỗ trợ - 34.5đ)
+      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_08' }, // Ngô Thị Diễm Hằng (TỔ TRƯỞNG TỔ 2 - 37đ, nghiêm túc)
+      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ) [Diễm Hằng kèm giữ trật tự cho Giang]
     },
-    // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
+    // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TÁCH GIA NGUYÊN & GIA VŨ VỀ 2 PHÍA NGOÀI CÙNG]
     {
       tableId: 'tbl_d1_t7',
       row: 1,
@@ -1414,8 +1414,8 @@ function getDefaultSeating() {
       pairWithTable: 8,
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
-      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (TỔ TRƯỞNG TỔ 2 - 38đ)
-      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
+      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (38đ) [Ghế ngoài cùng bên trái]
+      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (Hỗ trợ - 34.5đ) [Bức tường ngăn cách 1]
     },
     {
       tableId: 'tbl_d1_t8',
@@ -1426,8 +1426,8 @@ function getDefaultSeating() {
       pairWithTable: 7,
       title: 'Bàn 8',
       subtitle: 'Ghép Bàn 7',
-      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_41' }, // Lê Gia Vũ (35đ)
-      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_02' } // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ) [Gia Vũ kèm Kim Bơ]
+      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_02' }, // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ) [Bức tường ngăn cách 2]
+      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_41' } // Lê Gia Vũ (35đ) [Ghế ngoài cùng bên phải, cách xa Gia Nguyên & Trường Giang]
     },
 
     // --- TỔ 3 (Bàn 9 -> 12) ---

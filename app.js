@@ -9,7 +9,7 @@
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v6',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v2'
+  SEATING: 'dashboard10a3_official_45_seating_v3'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1309,13 +1309,16 @@ function getDefaultSeating() {
   return [
     // ==================== DÃY 1 (Phía Cửa Sổ) - 12 BÀN (TỔ 1, 2, 3) ====================
     // --- TỔ 1 (Bàn 1 -> 4) ---
+    // [HÀNG 1: BÀN 1 GHÉP BÀN 2]
     {
       tableId: 'tbl_d1_t1',
       row: 1,
       groupNumber: 1,
       tableInGroup: 1,
       globalTable: 1,
-      title: 'Bàn 1 (Tổ 1)',
+      pairWithTable: 2,
+      title: 'Bàn 1',
+      subtitle: 'Ghép Bàn 2',
       leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_43' }, // Dương Lục Yến Vy (Tổ trưởng - 34đ)
       rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (Hỗ trợ - 25đ) [Đôi bạn cùng tiến]
     },
@@ -1325,17 +1328,22 @@ function getDefaultSeating() {
       groupNumber: 1,
       tableInGroup: 2,
       globalTable: 2,
-      title: 'Bàn 2 (Tổ 1)',
+      pairWithTable: 1,
+      title: 'Bàn 2',
+      subtitle: 'Ghép Bàn 1',
       leftSeat: { seatId: 'seat_r1_g1_t2_l', position: 'left', studentId: 'hs_10a3_26' }, // Cao Ngọc An Nhiên (Cán sự Anh - 39đ)
       rightSeat: { seatId: 'seat_r1_g1_t2_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (Hỗ trợ - 34.5đ) [Đôi bạn cùng tiến]
     },
+    // [HÀNG 2: BÀN 3 GHÉP BÀN 4]
     {
       tableId: 'tbl_d1_t3',
       row: 1,
       groupNumber: 1,
       tableInGroup: 3,
       globalTable: 3,
-      title: 'Bàn 3 (Tổ 1)',
+      pairWithTable: 4,
+      title: 'Bàn 3',
+      subtitle: 'Ghép Bàn 4',
       leftSeat: { seatId: 'seat_r1_g1_t3_l', position: 'left', studentId: 'hs_10a3_16' }, // Nguyễn Tấn Kỳ (Sao đỏ - 37đ)
       rightSeat: { seatId: 'seat_r1_g1_t3_r', position: 'right', studentId: 'hs_10a3_32' } // Lê Tuấn Phát Tài (34đ)
     },
@@ -1345,19 +1353,24 @@ function getDefaultSeating() {
       groupNumber: 1,
       tableInGroup: 4,
       globalTable: 4,
-      title: 'Bàn 4 (Tổ 1)',
+      pairWithTable: 3,
+      title: 'Bàn 4',
+      subtitle: 'Ghép Bàn 3',
       leftSeat: { seatId: 'seat_r1_g1_t4_l', position: 'left', studentId: 'hs_10a3_30' }, // Trần Thị Ngọc Phúc (36đ)
       rightSeat: { seatId: 'seat_r1_g1_t4_r', position: 'right', studentId: 'hs_10a3_28' } // Võ Thành Phát (36đ)
     },
 
     // --- TỔ 2 (Bàn 5 -> 8) ---
+    // [HÀNG 3: BÀN 5 GHÉP BÀN 6]
     {
       tableId: 'tbl_d1_t5',
       row: 1,
       groupNumber: 2,
       tableInGroup: 1,
       globalTable: 5,
-      title: 'Bàn 5 (Tổ 2 - Bàn 1)',
+      pairWithTable: 6,
+      title: 'Bàn 5',
+      subtitle: 'Ghép Bàn 6',
       leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (Lớp phó - 33đ)
       rightSeat: { seatId: 'seat_r1_g2_t1_r', position: 'right', studentId: 'hs_10a3_38' } // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đôi bạn cùng tiến]
     },
@@ -1367,17 +1380,22 @@ function getDefaultSeating() {
       groupNumber: 2,
       tableInGroup: 2,
       globalTable: 6,
-      title: 'Bàn 6 (Tổ 2 - Bàn 2)',
+      pairWithTable: 5,
+      title: 'Bàn 6',
+      subtitle: 'Ghép Bàn 5',
       leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (Tổ trưởng - 38đ)
       rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_02' } // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ) [Đôi bạn cùng tiến]
     },
+    // [HÀNG 4: BÀN 7 GHÉP BÀN 8]
     {
       tableId: 'tbl_d1_t7',
       row: 1,
       groupNumber: 2,
       tableInGroup: 3,
       globalTable: 7,
-      title: 'Bàn 7 (Tổ 2 - Bàn 3)',
+      pairWithTable: 8,
+      title: 'Bàn 7',
+      subtitle: 'Ghép Bàn 8',
       leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_25' }, // Võ Thị Yến Nhi (Sao đỏ - 34đ)
       rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
     },
@@ -1387,19 +1405,24 @@ function getDefaultSeating() {
       groupNumber: 2,
       tableInGroup: 4,
       globalTable: 8,
-      title: 'Bàn 8 (Tổ 2 - Bàn 4)',
+      pairWithTable: 7,
+      title: 'Bàn 8',
+      subtitle: 'Ghép Bàn 7',
       leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_08' }, // Ngô Thị Diễm Hằng (37đ)
       rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_41' } // Lê Gia Vũ (35đ)
     },
 
     // --- TỔ 3 (Bàn 9 -> 12) ---
+    // [HÀNG 5: BÀN 9 GHÉP BÀN 10]
     {
       tableId: 'tbl_d1_t9',
       row: 1,
       groupNumber: 3,
       tableInGroup: 1,
       globalTable: 9,
-      title: 'Bàn 9 (Tổ 3 - Bàn 1)',
+      pairWithTable: 10,
+      title: 'Bàn 9',
+      subtitle: 'Ghép Bàn 10',
       leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_10' }, // Trần Bảo Phi Hoàng (Tổ trưởng - 39đ)
       rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Hỗ trợ - 26đ) [Đôi bạn cùng tiến]
     },
@@ -1409,17 +1432,22 @@ function getDefaultSeating() {
       groupNumber: 3,
       tableInGroup: 2,
       globalTable: 10,
-      title: 'Bàn 10 (Tổ 3 - Bàn 2)',
+      pairWithTable: 9,
+      title: 'Bàn 10',
+      subtitle: 'Ghép Bàn 9',
       leftSeat: { seatId: 'seat_r1_g3_t2_l', position: 'left', studentId: 'hs_10a3_19' }, // Bùi Nguyễn Hoàng Long (Sao đỏ - 38đ)
       rightSeat: { seatId: 'seat_r1_g3_t2_r', position: 'right', studentId: 'hs_10a3_05' } // Trần Hữu Đồng (Hỗ trợ - 33đ) [Đôi bạn cùng tiến]
     },
+    // [HÀNG 6: BÀN 11 GHÉP BÀN 12]
     {
       tableId: 'tbl_d1_t11',
       row: 1,
       groupNumber: 3,
       tableInGroup: 3,
       globalTable: 11,
-      title: 'Bàn 11 (Tổ 3 - Bàn 3)',
+      pairWithTable: 12,
+      title: 'Bàn 11',
+      subtitle: 'Ghép Bàn 12',
       leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: 'hs_10a3_01' }, // Phan Thị Ngọc Ẩn (35đ)
       rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_04' } // Võ Ngọc Mỹ Duyên (37đ)
     },
@@ -1429,20 +1457,25 @@ function getDefaultSeating() {
       groupNumber: 3,
       tableInGroup: 4,
       globalTable: 12,
-      title: 'Bàn 12 (Tổ 3 - Bàn 4)',
+      pairWithTable: 11,
+      title: 'Bàn 12',
+      subtitle: 'Ghép Bàn 11',
       leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_33' }, // Đỗ Quốc Thành (35đ)
       rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (34đ)
     },
 
     // ==================== DÃY 2 (Phía Cửa Ra Vào) - 12 BÀN (TỔ 4, 5, 6) ====================
     // --- TỔ 4 (Bàn 1 -> 4) ---
+    // [HÀNG 1: BÀN 1 GHÉP BÀN 2]
     {
       tableId: 'tbl_d2_t1',
       row: 2,
       groupNumber: 4,
       tableInGroup: 1,
       globalTable: 1,
-      title: 'Bàn 1 (Tổ 4)',
+      pairWithTable: 2,
+      title: 'Bàn 1',
+      subtitle: 'Ghép Bàn 2',
       leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_35' }, // Nguyễn Ngọc Trinh (Tổ trưởng - 29đ)
       rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_34' } // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
     },
@@ -1452,17 +1485,22 @@ function getDefaultSeating() {
       groupNumber: 4,
       tableInGroup: 2,
       globalTable: 2,
-      title: 'Bàn 2 (Tổ 4)',
+      pairWithTable: 1,
+      title: 'Bàn 2',
+      subtitle: 'Ghép Bàn 1',
       leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_22' }, // Nguyễn Hữu Đan Mạch (CS Toán - 39đ)
       rightSeat: { seatId: 'seat_r2_g4_t2_r', position: 'right', studentId: 'hs_10a3_15' } // Võ Quốc Duy Khôi (35đ)
     },
+    // [HÀNG 2: BÀN 3 GHÉP BÀN 4]
     {
       tableId: 'tbl_d2_t3',
       row: 2,
       groupNumber: 4,
       tableInGroup: 3,
       globalTable: 3,
-      title: 'Bàn 3 (Tổ 4)',
+      pairWithTable: 4,
+      title: 'Bàn 3',
+      subtitle: 'Ghép Bàn 4',
       leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_29' }, // Nguyễn Xuân Phúc (CS Sinh - 38đ)
       rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (35đ)
     },
@@ -1472,19 +1510,24 @@ function getDefaultSeating() {
       groupNumber: 4,
       tableInGroup: 4,
       globalTable: 4,
-      title: 'Bàn 4 (Tổ 4)',
+      pairWithTable: 3,
+      title: 'Bàn 4',
+      subtitle: 'Ghép Bàn 3',
       leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06 - 38đ)
       rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
     },
 
     // --- TỔ 5 (Bàn 5 -> 8) ---
+    // [HÀNG 3: BÀN 5 GHÉP BÀN 6]
     {
       tableId: 'tbl_d2_t5',
       row: 2,
       groupNumber: 5,
       tableInGroup: 1,
       globalTable: 5,
-      title: 'Bàn 5 (Tổ 5 - Bàn 1)',
+      pairWithTable: 6,
+      title: 'Bàn 5',
+      subtitle: 'Ghép Bàn 6',
       leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng - 36đ)
       rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_12' } // Đỗ Tuấn Hưng (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
     },
@@ -1494,17 +1537,22 @@ function getDefaultSeating() {
       groupNumber: 5,
       tableInGroup: 2,
       globalTable: 6,
-      title: 'Bàn 6 (Tổ 5 - Bàn 2)',
+      pairWithTable: 5,
+      title: 'Bàn 6',
+      subtitle: 'Ghép Bàn 5',
       leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_42' }, // Lê Văn Vũ (CS Lý - 39đ)
       rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
     },
+    // [HÀNG 4: BÀN 7 GHÉP BÀN 8]
     {
       tableId: 'tbl_d2_t7',
       row: 2,
       groupNumber: 5,
       tableInGroup: 3,
       globalTable: 7,
-      title: 'Bàn 7 (Tổ 5 - Bàn 3)',
+      pairWithTable: 8,
+      title: 'Bàn 7',
+      subtitle: 'Ghép Bàn 8',
       leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (Bí thư - 37đ)
       rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_18' } // Nguyễn Đỗ Kim Yến Linh (Sao đỏ - 37đ)
     },
@@ -1514,19 +1562,24 @@ function getDefaultSeating() {
       groupNumber: 5,
       tableInGroup: 4,
       globalTable: 8,
-      title: 'Bàn 8 (Tổ 5 - Bàn 4)',
+      pairWithTable: 7,
+      title: 'Bàn 8',
+      subtitle: 'Ghép Bàn 7',
       leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_31' }, // Hoàng Thế Tài (35đ)
       rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
     },
 
     // --- TỔ 6 (Bàn 9 -> 12) ---
+    // [HÀNG 5: BÀN 9 GHÉP BÀN 10]
     {
       tableId: 'tbl_d2_t9',
       row: 2,
       groupNumber: 6,
       tableInGroup: 1,
       globalTable: 9,
-      title: 'Bàn 9 (Tổ 6 - Bàn 1)',
+      pairWithTable: 10,
+      title: 'Bàn 9',
+      subtitle: 'Ghép Bàn 10',
       leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_23' }, // Trương Thị Mỹ Ngân (Tổ trưởng - 38đ)
       rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Hỗ trợ - 23đ) [Đôi bạn cùng tiến]
     },
@@ -1536,17 +1589,22 @@ function getDefaultSeating() {
       groupNumber: 6,
       tableInGroup: 2,
       globalTable: 10,
-      title: 'Bàn 10 (Tổ 6 - Bàn 2)',
+      pairWithTable: 9,
+      title: 'Bàn 10',
+      subtitle: 'Ghép Bàn 9',
       leftSeat: { seatId: 'seat_r2_g6_t2_l', position: 'left', studentId: 'hs_10a3_21' }, // Trần Minh Luân (CS Hóa - 38đ)
       rightSeat: { seatId: 'seat_r2_g6_t2_r', position: 'right', studentId: 'hs_10a3_37' } // Võ Bách Tùng (34đ)
     },
+    // [HÀNG 6: BÀN 11 GHÉP BÀN 12]
     {
       tableId: 'tbl_d2_t11',
       row: 2,
       groupNumber: 6,
       tableInGroup: 3,
       globalTable: 11,
-      title: 'Bàn 11 (Tổ 6 - Bàn 3)',
+      pairWithTable: 12,
+      title: 'Bàn 11',
+      subtitle: 'Ghép Bàn 12',
       leftSeat: { seatId: 'seat_r2_g6_t3_l', position: 'left', studentId: 'hs_10a3_17' }, // Lê Thị Mỹ Linh (CS Văn - 36đ)
       rightSeat: { seatId: 'seat_r2_g6_t3_r', position: 'right', studentId: 'hs_10a3_13' } // Lê Minh Khải (Sao đỏ - 37đ)
     },
@@ -1556,7 +1614,9 @@ function getDefaultSeating() {
       groupNumber: 6,
       tableInGroup: 4,
       globalTable: 12,
-      title: 'Bàn 12 (Tổ 6 - Bàn 4)',
+      pairWithTable: 11,
+      title: 'Bàn 12',
+      subtitle: 'Ghép Bàn 11',
       leftSeat: { seatId: 'seat_r2_g6_t4_l', position: 'left', studentId: 'hs_10a3_45' }, // Đỗ Khôi Vỹ (Sao đỏ - 36đ)
       rightSeat: { seatId: 'seat_r2_g6_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
     }
@@ -1604,7 +1664,7 @@ function renderSeatingPlan() {
     loadSeatingData();
   }
 
-  // Render 6 tổ (mỗi tổ 4 bàn)
+  // Render 6 tổ: Mỗi tổ có 4 bàn, GHÉP ĐÔI thành 2 Cụm Bàn Ghép (Mỗi cụm gồm 2 bàn kê sát nhau = 4 học sinh)
   for (let g = 1; g <= 6; g++) {
     const container = document.getElementById(`group-${g}-tables`);
     if (!container) continue;
@@ -1612,10 +1672,17 @@ function renderSeatingPlan() {
     const groupTables = appState.seating.filter(t => t.groupNumber === g);
     container.innerHTML = '';
 
-    groupTables.forEach(table => {
-      const deskEl = renderDeskElement(table);
-      container.appendChild(deskEl);
-    });
+    // CỤM 1: Bàn 1 ghép Bàn 2 (hoặc Bàn 5 ghép Bàn 6, Bàn 9 ghép Bàn 10)
+    if (groupTables.length >= 2) {
+      const pair1El = renderPairedDesksCluster(groupTables[0], groupTables[1], g);
+      container.appendChild(pair1El);
+    }
+
+    // CỤM 2: Bàn 3 ghép Bàn 4 (hoặc Bàn 7 ghép Bàn 8, Bàn 11 ghép Bàn 12)
+    if (groupTables.length >= 4) {
+      const pair2El = renderPairedDesksCluster(groupTables[2], groupTables[3], g);
+      container.appendChild(pair2El);
+    }
   }
 
   // Áp dụng bộ lọc hoặc tìm kiếm nếu có
@@ -1623,31 +1690,72 @@ function renderSeatingPlan() {
 }
 
 /**
+ * Tạo phần tử DOM cho 1 Cụm Bàn Ghép (2 bàn kê ghép sát nhau: Bàn 1 + Bàn 2; Bàn 3 + Bàn 4...)
+ */
+function renderPairedDesksCluster(table1, table2, groupNumber) {
+  const cluster = document.createElement('div');
+  cluster.className = 'paired-desk-cluster bg-gradient-to-r from-slate-50 via-teal-50/20 to-slate-50 p-3 rounded-2xl border-2 border-dashed border-teal-300 shadow-sm space-y-2';
+
+  // Header của cụm bàn ghép: Bàn X ghép với Bàn Y
+  const clusterHeader = document.createElement('div');
+  clusterHeader.className = 'flex items-center justify-between pb-1.5 px-1 border-b border-teal-200/80 text-xs';
+  clusterHeader.innerHTML = `
+    <div class="flex items-center space-x-2">
+      <span class="px-2 py-0.5 rounded-md bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center space-x-1 shadow-xs">
+        <i class="fa-solid fa-link text-[9px]"></i>
+        <span>Ghép Đôi</span>
+      </span>
+      <span class="font-extrabold text-slate-800 text-xs">
+        ${table1.title} GHÉP VỚI ${table2.title}
+      </span>
+    </div>
+    <div class="flex items-center space-x-1.5 text-[10px] font-bold text-teal-800 bg-teal-100/70 px-2 py-0.5 rounded-full border border-teal-200">
+      <i class="fa-solid fa-users text-teal-600"></i>
+      <span>4 Chỗ / Hàng Ghép</span>
+    </div>
+  `;
+  cluster.appendChild(clusterHeader);
+
+  // 2 bàn ghép sát nhau (Bàn Trái & Bàn Phải)
+  const desksGrid = document.createElement('div');
+  desksGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-2.5 items-stretch';
+
+  const desk1 = renderDeskElement(table1, 'Bàn Trái');
+  const desk2 = renderDeskElement(table2, 'Bàn Phải');
+
+  desksGrid.appendChild(desk1);
+  desksGrid.appendChild(desk2);
+  cluster.appendChild(desksGrid);
+
+  return cluster;
+}
+
+/**
  * Tạo phần tử DOM cho 1 bàn học đôi
  */
-function renderDeskElement(table) {
+function renderDeskElement(table, sideTag) {
   const desk = document.createElement('div');
-  desk.className = 'classroom-desk';
+  desk.className = 'classroom-desk bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between';
   desk.id = table.tableId;
 
   // Thanh tiêu đề bàn
   const header = document.createElement('div');
-  header.className = 'desk-wood-bar px-3 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-600';
+  header.className = 'desk-wood-bar px-3 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-700 bg-slate-100/80 border-b border-slate-200 rounded-t-xl';
   header.innerHTML = `
-    <span class="flex items-center space-x-1.5">
-      <i class="fa-solid fa-desktop text-slate-400 text-[10px]"></i>
-      <span>${table.title}</span>
-    </span>
-    <span class="text-[10px] text-slate-400 font-mono">Dãy ${table.row} • Bàn ${table.globalTable}</span>
+    <div class="flex items-center space-x-1.5 truncate">
+      <i class="fa-solid fa-desktop text-teal-600 text-[10px]"></i>
+      <span class="font-black text-slate-800 truncate">${table.title}</span>
+    </div>
+    <span class="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.2 rounded font-mono font-semibold border border-teal-200">${sideTag} (${table.subtitle || ''})</span>
   `;
   desk.appendChild(header);
 
   // Thân bàn gồm 2 chỗ ngồi (Trái & Phải)
   const seatsContainer = document.createElement('div');
-  seatsContainer.className = 'p-2.5 grid grid-cols-2 gap-2';
+  seatsContainer.className = 'p-2 grid grid-cols-2 gap-1.5';
 
-  const leftSeatEl = renderSeatSlot(table, table.leftSeat, 'Vị trí 1 (Trái)');
-  const rightSeatEl = renderSeatSlot(table, table.rightSeat, 'Vị trí 2 (Phải)');
+  const leftSeatEl = renderSeatSlot(table, table.leftSeat, 'Ghế 1');
+  const rightSeatEl = renderSeatSlot(table, table.rightSeat, 'Ghế 2');
 
   seatsContainer.appendChild(leftSeatEl);
   seatsContainer.appendChild(rightSeatEl);

@@ -1,7 +1,7 @@
 # Cẩm Nang Bàn Giao & Hướng Dẫn Sử Dụng Dashboard Quản Trị Lớp 10A3
 **Trường THPT Bùi Thị Xuân - Mũi Né | Sở GD&ĐT Lâm Đồng**
 
-Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản Toàn Diện - Token Economy)** đã được cập nhật **chuẩn danh sách chính thức 45 học sinh**, phân bổ **cân bằng tuyệt đối lực học đầu vào cho 6 tổ tự quản** (chênh lệch điểm TB giữa các tổ chỉ 0.27 điểm), và gán đầy đủ chức danh Ban cán sự theo đúng chỉ định của Giáo viên Chủ nhiệm (đã loại trừ 4 học sinh chuyển/nghỉ: Huỳnh Nhã Uyên, Đồng Lê Thanh Thủy, Ngô Quang Nhân, Huỳnh Khánh Như).
+Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản Toàn Diện - Token Economy)** đã được cập nhật **chuẩn danh sách chính thức 45 học sinh**, phân bổ **cân bằng tuyệt đối lực học đầu vào cho 6 tổ tự quản** (chênh lệch điểm TB giữa các tổ chỉ 0.27 điểm), gán đầy đủ chức danh Ban cán sự theo chỉ định của Giáo viên Chủ nhiệm, và tích hợp **Sơ đồ lớp học ghép đôi thực tế (2 Dãy • 24 Bàn • Bàn 1 ghép Bàn 2, Bàn 3 ghép Bàn 4...)**.
 
 ---
 
@@ -38,68 +38,41 @@ Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản
 | **Tổ 5** | 7 | **34.57** | • Trần Lê Hồng Nhung (**Lớp trưởng** - 36đ)<br>• Lê Văn Vũ (**Cán sự Lý** - 39đ)<br>• Nguyễn Vinh Hoa (**Bí thư** - 37đ)<br>• Nguyễn Đỗ Kim Yến Linh (**Sao đỏ** - 37đ)<br>• Hoàng Thế Tài (35đ) | **8.** Đỗ Tuấn Hưng (29đ)<br>**9.** Trần Phúc Vinh (29đ) |
 | **Tổ 6** | 7 | **34.57** | • Trương Thị Mỹ Ngân (**Tổ trưởng** - 38đ)<br>• Trần Minh Luân (**Cán sự Hóa** - 38đ)<br>• Lê Thị Mỹ Linh (**Cán sự Văn** - 36đ)<br>• Lê Minh Khải (**Sao đỏ** - 37đ)<br>• Đỗ Khôi Vỹ (**Sao đỏ** - 36đ)<br>• Võ Bách Tùng (34đ) | **10.** Nguyễn Quốc Huy (23đ) |
 
-> [!NOTE]
-> Điểm trung bình lực học của cả 6 tổ dao động cực kỳ đồng đều từ **34.44 đến 34.71** (Chênh lệch biên chỉ 0.27 điểm), phân bố đều 10 học sinh diện cần hỗ trợ kèm cặp vào 6 tổ, đảm bảo tính công bằng cao nhất cho phong trào thi đua "Đôi bạn cùng tiến".
+---
+
+## 3. Sơ Đồ Lớp Học Ghép Đôi Thực Tế (2 Dãy • 6 Tổ • 24 Bàn Đôi)
+
+Sơ đồ được thiết kế theo đúng quy cách thực tế của lớp học:
+- **Dãy 1 (Phía Cửa Sổ - 12 Bàn):** Gồm Tổ 1, Tổ 2, Tổ 3 (24 học sinh).
+  - **Tổ 1:**
+    - **Hàng 1:** **Bàn 1 GHÉP VỚI Bàn 2** &rarr; 4 học sinh (Dương Lục Yến Vy, Nguyễn Bảo Long + Cao Ngọc An Nhiên, Phạm Ngọc Tường Vy).
+    - **Hàng 2:** **Bàn 3 GHÉP VỚI Bàn 4** &rarr; 4 học sinh (Nguyễn Tấn Kỳ, Lê Tuấn Phát Tài + Trần Thị Ngọc Phúc, Võ Thành Phát).
+  - **Tổ 2:**
+    - **Hàng 3:** **Bàn 5 GHÉP VỚI Bàn 6** &rarr; 4 học sinh (Từ Diệu Yên Diễm, Nguyễn Thị Thanh Tuyền + Nguyễn Hoàng Gia Nguyên, Nguyễn Thị Kim Bơ).
+    - **Hàng 4:** **Bàn 7 GHÉP VỚI Bàn 8** &rarr; 4 học sinh (Võ Thị Yến Nhi, Trương Nguyễn Trường Giang + Ngô Thị Diễm Hằng, Lê Gia Vũ).
+  - **Tổ 3:**
+    - **Hàng 5:** **Bàn 9 GHÉP VỚI Bàn 10** &rarr; 4 học sinh (Trần Bảo Phi Hoàng, Tạ Thanh Ngọc Giàu + Bùi Nguyễn Hoàng Long, Trần Hữu Đồng).
+    - **Hàng 6:** **Bàn 11 GHÉP VỚI Bàn 12** &rarr; 4 học sinh (Phan Thị Ngọc Ẩn, Võ Ngọc Mỹ Duyên + Đỗ Quốc Thành, Lê Thị Kim Trúc).
+
+- **Dãy 2 (Phía Cửa Ra Vào - 12 Bàn):** Gồm Tổ 4, Tổ 5, Tổ 6 (21 học sinh + 3 ghế trống).
+  - **Tổ 4:**
+    - **Hàng 1:** **Bàn 1 GHÉP VỚI Bàn 2** &rarr; 4 học sinh (Nguyễn Ngọc Trinh, Nguyễn Ngọc Anh Thư + Nguyễn Hữu Đan Mạch, Võ Quốc Duy Khôi).
+    - **Hàng 2:** **Bàn 3 GHÉP VỚI Bàn 4** &rarr; 3 học sinh + 1 ghế trống (Nguyễn Xuân Phúc, Nguyễn Vinh Khang + Nguyễn Thị Thanh Tuyền 14/06, [Ghế trống]).
+  - **Tổ 5:**
+    - **Hàng 3:** **Bàn 5 GHÉP VỚI Bàn 6** &rarr; 4 học sinh (Trần Lê Hồng Nhung, Đỗ Tuấn Hưng + Lê Văn Vũ, Trần Phúc Vinh).
+    - **Hàng 4:** **Bàn 7 GHÉP VỚI Bàn 8** &rarr; 3 học sinh + 1 ghế trống (Nguyễn Vinh Hoa, Nguyễn Đỗ Kim Yến Linh + Hoàng Thế Tài, [Ghế trống]).
+  - **Tổ 6:**
+    - **Hàng 5:** **Bàn 9 GHÉP VỚI Bàn 10** &rarr; 4 học sinh (Trương Thị Mỹ Ngân, Nguyễn Quốc Huy + Trần Minh Luân, Võ Bách Tùng).
+    - **Hàng 6:** **Bàn 11 GHÉP VỚI Bàn 12** &rarr; 3 học sinh + 1 ghế trống (Lê Thị Mỹ Linh, Lê Minh Khải + Đỗ Khôi Vỹ, [Ghế trống]).
 
 ---
 
-## 3. Khôi Phục & Quản Lý Dữ Liệu
+## 4. Các Tiện Ích Vận Hành Sơ Đồ Lớp Học
 
-- **Khôi phục lại danh sách 45 học sinh chuẩn:** Trong tab **"Dữ Liệu & Cài Đặt"**, bấm nút **"Chuẩn Hóa 45 HS"** bất cứ lúc nào.
-- **Thêm/Sửa học sinh:** Trong tab **"Quản Lý Học Sinh"**, có thể tìm kiếm theo tên, sửa Mã HS, Ngày sinh, đổi tổ hoặc gán vai trò.
-- **Sao lưu định kỳ:** Bấm nút **"Tải File Backup (.json)"** hàng tuần để lưu hồ sơ về máy.
-
----
-
-## 4. Quy Trình Vận Hành Hàng Ngày Dành Cho Ban Cán Sự / Sao Đỏ
-
-1. **Ghi Nhận Điểm Nhanh:**
-   - Vào tab **"Chấm Điểm & Sao Đỏ"**.
-   - **Bước 1:** Chọn ngày và nhập tên người trực (Ví dụ: *Sao đỏ Tổ 1*, *Lớp trưởng*...).
-   - **Bước 2:** Bấm chọn nhanh Tổ cần chấm &rarr; Click chọn tên học sinh (có thể chọn 1 em, nhiều em hoặc chọn nút *"Chọn cả tổ"* khi cả tổ làm bài tập).
-   - **Bước 3:** Click vào 1 tiêu chí điểm trong danh sách **Điểm Cộng (Xanh lá)** hoặc **Điểm Trừ (Đỏ)**.
-   - Nhập ghi chú nếu có (Ví dụ: *Tiết Toán Thầy Tuấn*) &rarr; Bấm **"Ghi Nhận & Lưu"**.
-   - *Hệ thống sẽ cập nhật ngay lập tức vào điểm số cá nhân và điểm trung bình của Tổ.*
-
-2. **Xử Lý Khi Ghi Nhầm:**
-   - Vào tab **"Sổ Nhật Ký Thi Đua"**.
-   - Tìm kiếm lượt ghi điểm cần chỉnh sửa &rarr; Bấm biểu tượng thùng rác.
-   - Hệ thống sẽ xóa bản ghi và tự động hoàn trả điểm số chuẩn xác cho học sinh.
-
-3. **Theo Dõi & Tuyên Dương Trên Dashboard:**
-   - **Bảng Vàng Thi Đua:** Tuyên dương Top 5 học sinh dẫn đầu vào mỗi tiết sinh hoạt lớp.
-   - **Đua Top 6 Tổ:** Biểu đồ cột trực quan tạo không khí thi đua sôi nổi giữa các tổ.
-   - **Cảnh Báo Kỷ Luật & Cần Hỗ Trợ:** Giúp GVCN phát hiện sớm học sinh bị trừ điểm hoặc học sinh diện đầu vào thấp để cử bạn kèm cặp kịp thời theo tiêu chí *"+10 điểm cho cả hai khi kèm bạn yếu"*.
-
-
----
-
-## 5. Sơ Đồ Lớp Học Thông Minh (2 Dãy • 6 Tổ • 24 Bàn Đôi)
-
-Sơ đồ phòng học được thiết kế sát thực tế:
-- **Phía trước:** Bục giảng, Bàn Giáo viên, Bảng đen trung tâm (*"Tiên Học Lễ &mdash; Hậu Học Văn"*), Cửa ra vào và Lối đi trung tâm rộng rãi giữa 2 dãy bàn.
-- **Dãy 1 (Phía Cửa Sổ):** 12 bàn chia đều cho 3 tổ:
-  - **Tổ 1:** Bàn 1 &rarr; Bàn 4 (8 HS)
-  - **Tổ 2:** Bàn 5 &rarr; Bàn 8 (8 HS)
-  - **Tổ 3:** Bàn 9 &rarr; Bàn 12 (8 HS)
-- **Dãy 2 (Phía Cửa Ra Vào):** 12 bàn chia đều cho 3 tổ:
-  - **Tổ 4:** Bàn 1 &rarr; Bàn 4 (7 HS + 1 ghế trống)
-  - **Tổ 5:** Bàn 5 &rarr; Bàn 8 (7 HS + 1 ghế trống)
-  - **Tổ 6:** Bàn 9 &rarr; Bàn 12 (7 HS + 1 ghế trống)
-- **Mô hình "Đôi bạn cùng tiến":** 100% học sinh diện cần hỗ trợ đầu vào (10 em) đều được bố trí ngồi cùng bàn với Lớp trưởng, Lớp phó, Tổ trưởng, Sao đỏ hoặc Cán sự bộ môn để tiện kèm cặp, giúp đỡ nhau học tập.
-
-### Các Tính Năng Tương Tác Trên Sơ Đồ:
-1. **Chấm Điểm Nhanh Tại Chỗ:** Bấm trực tiếp vào ghế ngồi của bất kỳ học sinh nào &rarr; Cửa sổ thao tác nhanh hiện lên cho phép:
-   - Thưởng điểm nhanh (+10đ Lên bảng đúng, +10đ Kèm bạn yếu, +5đ Hoàn thành bài tập...).
-   - Trừ điểm nhanh (-5đ Đi muộn/đồng phục, -5đ Làm việc riêng, -10đ Không làm bài...).
-   - Điểm số và xếp loại cập nhật ngay lập tức vào bảng thi đua.
-2. **Kéo Thả & Đổi Chỗ (Swap Mode):**
-   - **Kéo thả chuột (Drag & Drop):** Giữ chuột và kéo học sinh thả sang bàn khác hoặc ghế trống để hoán đổi chỗ ngồi.
-   - **Bấm Đổi Chỗ (Thân thiện trên điện thoại/màn hình cảm ứng):** Bấm nút **"Chế Độ Đổi Chỗ"** &rarr; Bấm chọn học sinh thứ nhất &rarr; Bấm chọn học sinh thứ hai (hoặc ghế trống) để đổi ngay.
-   - Mọi thay đổi chỗ ngồi được lưu tự động và vĩnh viễn vào trình duyệt (`window.localStorage`).
-3. **Tìm Kiếm & Lọc Vị Trí:**
-   - Gõ tên học sinh để làm sáng bừng vị trí ngồi trên lớp.
-   - Lọc nhanh: Chỉ xem Ban cán sự, Chỉ xem 10 HS diện hỗ trợ, Chỉ xem các Đôi bạn cùng tiến, hoặc Học sinh điểm thi đua dưới 80.
-4. **Khôi Phục Chuẩn & In Ấn (A4):**
-   - Nút **"Xếp Chuẩn"**: Tự động khôi phục lại cách sắp xếp đôi bạn cùng tiến tối ưu ban đầu.
-   - Nút **"In Sơ Đồ (A4)"**: Tối ưu định dạng in ngang (Landscape) để GVCN in ra giấy A4 dán tại bàn giáo viên hoặc bảng tin lớp.
+1. **Chấm Điểm Trực Tiếp Tại Chỗ:** Bấm vào học sinh trên sơ đồ để mở popup thưởng / phạt điểm nhanh (*Lên bảng đúng +10đ, Kèm bạn yếu +10đ, Hoàn thành bài tập +5đ, Đi muộn -5đ, Không làm bài -10đ...*).
+2. **Kéo Thả & Đổi Chỗ Linh Hoạt:**
+   - Kéo thả bằng chuột giữa 2 ghế.
+   - Bấm nút **"Chế Độ Đổi Chỗ"** để đổi chỗ bằng cách click 2 học sinh (hoặc ghế trống).
+   - Tự động lưu vĩnh viễn vào `window.localStorage`.
+3. **Tìm Kiếm & Bộ Lọc Nhanh:** Tìm tên học sinh trên lớp, hoặc lọc nhanh chỉ xem Cán sự, chỉ xem 10 HS diện hỗ trợ, hoặc các cặp đôi bạn cùng tiến.
+4. **Nút "In Sơ Đồ (A4)":** Tự động dàn trang in khổ giấy A4 ngang chuyên nghiệp cho GVCN.

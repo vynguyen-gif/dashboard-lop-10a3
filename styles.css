@@ -301,3 +301,12 @@ body {
     border: 1px solid #cbd5e1 !important;
   }
 }
+
+
+.paired-desk-cluster {
+  transition: all 0.2s ease;
+}
+.paired-desk-cluster:hover {
+  border-color: #0d9488 !important;
+  box-shadow: 0 4px 15px -3px rgba(13, 148, 136, 0.12);
+}

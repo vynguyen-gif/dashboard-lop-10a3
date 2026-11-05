@@ -80,6 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialHash = window.location.hash.replace('#', '');
   if (initialHash && ['dashboard', 'scoring', 'students', 'seating', 'logs', 'backup'].includes(initialHash)) {
     switchTab(initialHash);
+  } else if (initialHash === 'print-preview') {
+    switchTab('seating');
+    setTimeout(() => openPrintPreviewModal(), 200);
   } else {
     refreshAllUI();
   }
@@ -2160,10 +2163,199 @@ function confirmResetDefaultSeating() {
 /**
  * In sơ đồ lớp học ra file A4
  */
+/**
+ * Sinh mã HTML cho Bản In Sơ Đồ Lớp Học Chuẩn A4 Khổ Ngang (Fit 1 Trang 100%)
+ */
+function generatePrintSeatingHTML() {
+  if (!appState.seating || appState.seating.length !== 24) {
+    loadSeatingData();
+  }
+
+  const getStudentRoleTag = (student) => {
+    if (!student) return '';
+    let roleStr = '';
+    if (student.role === 'Lớp trưởng') roleStr = ' (LT)';
+    else if (student.role === 'Lớp phó') roleStr = ' (LP)';
+    else if (student.role === 'Bí thư') roleStr = ' (BT)';
+    else if (student.role === 'Tổ trưởng') roleStr = ' (TT)';
+    else if (student.role === 'Sao đỏ') roleStr = ' (SĐ)';
+    else if (student.role && student.role.startsWith('Cán sự')) {
+      roleStr = ` (${student.role.replace('Cán sự ', 'CS ')})`;
+    }
+    const htStr = student.isSpecialSupport ? ' 🤝' : '';
+    return `${roleStr}${htStr}`;
+  };
+
+  const renderPrintSeat = (seat) => {
+    if (!seat || !seat.studentId) {
+      return `<div class="print-seat-cell flex items-center justify-center text-center p-1 border border-slate-400 bg-slate-50 min-h-[30px] rounded"><span class="text-[10px] text-slate-400 italic">(Trống)</span></div>`;
+    }
+    const student = appState.students.find(s => s.id === seat.studentId);
+    if (!student) {
+      return `<div class="print-seat-cell flex items-center justify-center text-center p-1 border border-slate-400 min-h-[30px] rounded"><span class="text-[10px] italic">(Trống)</span></div>`;
+    }
+    const roleTag = getStudentRoleTag(student);
+    return `
+      <div class="print-seat-cell flex flex-col justify-center items-center text-center p-1 border border-black min-h-[30px] rounded bg-white">
+        <span class="font-bold text-[11px] leading-tight text-black">${student.fullName}${roleTag ? `<span class="text-[9px] text-blue-800 font-semibold">${roleTag}</span>` : ''}</span>
+      </div>
+    `;
+  };
+
+  const renderPrintCluster = (table1, table2) => {
+    return `
+      <div class="grid grid-cols-4 gap-1.5 w-full">
+        ${renderPrintSeat(table1.leftSeat)}
+        ${renderPrintSeat(table1.rightSeat)}
+        ${renderPrintSeat(table2.leftSeat)}
+        ${renderPrintSeat(table2.rightSeat)}
+      </div>
+    `;
+  };
+
+  const renderPrintGroup = (gNum, groupTitle) => {
+    const groupTables = appState.seating.filter(t => t.groupNumber === gNum);
+    if (groupTables.length < 4) return '';
+    return `
+      <div class="border border-slate-400 rounded p-1.5 bg-white space-y-1">
+        <div class="flex items-center justify-between text-[10px] font-bold border-b border-slate-300 pb-0.5">
+          <span class="text-black uppercase">${groupTitle}</span>
+          <span class="text-slate-600 font-normal">(${gNum <= 3 ? '8 HS' : '7 HS + 1 Trống'})</span>
+        </div>
+        <!-- Hàng 1: Bàn lẻ + Bàn chẵn -->
+        ${renderPrintCluster(groupTables[0], groupTables[1])}
+        <!-- Hàng 2: Bàn lẻ + Bàn chẵn -->
+        ${renderPrintCluster(groupTables[2], groupTables[3])}
+      </div>
+    `;
+  };
+
+  const todayStr = new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  return `
+    <div class="print-page-box bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[280mm] mx-auto p-2">
+      <!-- QUỐC HIỆU & TIÊU NGỮ -->
+      <div class="grid grid-cols-12 items-start pb-1 border-b-2 border-black mb-1.5">
+        <div class="col-span-5 text-center">
+          <p class="text-[10px] uppercase font-bold text-slate-700">SỞ GD&ĐT LÂM ĐỒNG</p>
+          <p class="text-[11px] uppercase font-bold text-black tracking-wide">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</p>
+        </div>
+        <div class="col-span-7 text-center">
+          <p class="text-[11px] uppercase font-bold text-black tracking-wide">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+          <p class="text-[10px] italic font-semibold text-slate-800">Độc lập &mdash; Tự do &mdash; Hạnh phúc</p>
+        </div>
+      </div>
+
+      <!-- TIÊU ĐỀ SƠ ĐỒ LỚP -->
+      <div class="text-center my-1">
+        <h1 class="text-base font-black tracking-wider uppercase text-black">
+          SƠ ĐỒ CHỖ NGỒI HỌC SINH &mdash; LỚP 10A3
+        </h1>
+        <p class="text-[10px] italic text-slate-700">
+          Năm học 2026 - 2027 &bull; Sĩ số: 45 học sinh (6 tổ &bull; 2 dãy &bull; 24 bàn đôi ghép lại)
+        </p>
+      </div>
+
+      <!-- PHÍA TRƯỚC LỚP HỌC: BÀN GV & BẢNG ĐEN -->
+      <div class="grid grid-cols-12 gap-2 items-center my-1 py-1 px-2 border border-black rounded bg-slate-100 text-center text-[10px]">
+        <div class="col-span-3 border border-black bg-white py-0.5 rounded font-bold">
+          [ BÀN GIÁO VIÊN ]
+        </div>
+        <div class="col-span-6 bg-slate-800 text-white py-0.5 rounded font-bold uppercase tracking-wider">
+          BẢNG ĐEN LỚP 10A3 ("Tiên Học Lễ &mdash; Hậu Học Văn")
+        </div>
+        <div class="col-span-3 border border-black bg-white py-0.5 rounded font-bold">
+          [ CỬA CHÍNH RA VÀO ]
+        </div>
+      </div>
+
+      <!-- LƯỚI 2 DÃY BÀN HỌC ĐẶT SONG SONG 100% -->
+      <div class="grid grid-cols-12 gap-2 items-start my-1.5">
+        <!-- DÃY 1: TỔ 1, TỔ 2, TỔ 3 (BÊN TRÁI - PHÍA CỬA SỔ) -->
+        <div class="col-span-6 space-y-1.5">
+          <div class="text-center font-bold text-[10px] bg-slate-200 py-0.5 border border-slate-400 rounded uppercase">
+            &larr; DÃY 1: TỔ 1 &bull; TỔ 2 &bull; TỔ 3 (Phía Cửa Sổ - 24 HS)
+          </div>
+          ${renderPrintGroup(1, 'Tổ 1 (Bàn 1 + Bàn 2 & Bàn 3 + Bàn 4)')}
+          ${renderPrintGroup(2, 'Tổ 2 (Bàn 5 + Bàn 6 & Bàn 7 + Bàn 8)')}
+          ${renderPrintGroup(3, 'Tổ 3 (Bàn 9 + Bàn 10 & Bàn 11 + Bàn 12)')}
+        </div>
+
+        <!-- DÃY 2: TỔ 4, TỔ 5, TỔ 6 (BÊN PHẢI - PHÍA CỬA RA VÀO) -->
+        <div class="col-span-6 space-y-1.5">
+          <div class="text-center font-bold text-[10px] bg-slate-200 py-0.5 border border-slate-400 rounded uppercase">
+            DÃY 2: TỔ 4 &bull; TỔ 5 &bull; TỔ 6 (Phía Cửa Ra Vào - 21 HS) &rarr;
+          </div>
+          ${renderPrintGroup(4, 'Tổ 4 (Bàn 1 + Bàn 2 & Bàn 3 + Bàn 4)')}
+          ${renderPrintGroup(5, 'Tổ 5 (Bàn 5 + Bàn 6 & Bàn 7 + Bàn 8)')}
+          ${renderPrintGroup(6, 'Tổ 6 (Bàn 9 + Bàn 10 & Bàn 11 + Bàn 12)')}
+        </div>
+      </div>
+
+      <!-- GHI CHÚ VÀ CHỮ KÝ GVCN -->
+      <div class="grid grid-cols-12 pt-1 border-t border-slate-300 mt-1 items-end text-[10px]">
+        <div class="col-span-7 italic text-slate-700">
+          <p><strong>* Ghi chú chức danh:</strong> (LT): Lớp trưởng; (LP): Lớp phó; (BT): Bí thư; (TT): Tổ trưởng; (SĐ): Sao đỏ; (CS): Cán sự bộ môn; (🤝): Diện theo dõi kèm cặp.</p>
+          <p>* Mỗi hàng gồm 2 bàn ghép đôi nằm ngang (Bàn 1 ghép Bàn 2, Bàn 3 ghép Bàn 4...).</p>
+        </div>
+        <div class="col-span-5 text-center">
+          <p class="italic text-[10px]">Mũi Né, ngày ... tháng ... năm 2026</p>
+          <p class="font-bold text-[11px] uppercase mt-0.5">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="text-[9px] italic text-slate-500 mt-6">(Ký và ghi rõ họ tên)</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Mở cửa sổ xem trước bản in A4 trực tiếp trên màn hình
+ */
+function openPrintPreviewModal() {
+  const modal = document.getElementById('modal-print-preview');
+  const content = document.getElementById('print-preview-content');
+  if (!modal || !content) {
+    // Nếu chưa có modal, in trực tiếp
+    printSeatingChart();
+    return;
+  }
+
+  // Cập nhật nội dung xem trước
+  content.innerHTML = generatePrintSeatingHTML();
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closePrintPreviewModal() {
+  const modal = document.getElementById('modal-print-preview');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+/**
+ * Thực hiện in sơ đồ lớp học: Đảm bảo thấy hết 100% lớp học trong 1 trang A4
+ */
 function printSeatingChart() {
-  // Chuyển sang tab sơ đồ nếu chưa ở đây
-  switchTab('seating');
+  // Cập nhật khung in ẩn cho chế độ print của trình duyệt
+  let printContainer = document.getElementById('print-seating-container');
+  if (!printContainer) {
+    printContainer = document.createElement('div');
+    printContainer.id = 'print-seating-container';
+    printContainer.className = 'hidden print:block';
+    const section = document.getElementById('section-seating');
+    if (section) section.appendChild(printContainer);
+  }
+  printContainer.innerHTML = generatePrintSeatingHTML();
+
+  // Đóng modal xem trước nếu đang mở để tránh in đè
+  closePrintPreviewModal();
+
+  // Kích hoạt in trình duyệt
   setTimeout(() => {
     window.print();
-  }, 200);
+  }, 150);
 }
+

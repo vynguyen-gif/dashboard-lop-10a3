@@ -268,39 +268,80 @@ body {
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.4) !important;
 }
 
-/* Print Layout for Seating Chart */
+/* ==================== CHẾ ĐỘ IN SƠ ĐỒ LỚP CHUẨN A4 KHỔ NGANG (1 TRANG DUY NHẤT) ==================== */
 @media print {
   @page {
-    size: landscape;
-    margin: 8mm;
+    size: A4 landscape !important;
+    margin: 5mm 8mm !important;
   }
-  aside, #top-bar, .no-print, #toast-container, .modal-backdrop {
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Plus Jakarta Sans', Arial, Helvetica, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ẨN TOÀN BỘ GIAO DIỆN WEB KHI IN */
+  aside, #top-bar, nav, header, .no-print, #toast-container, .modal-backdrop,
+  #section-dashboard, #section-scoring, #section-students, #section-logs, #section-backup,
+  #swap-mode-banner, #classroom-seating-container, .modal-open {
     display: none !important;
   }
+
   main {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
   }
+
   #section-seating {
     display: block !important;
-  }
-  #classroom-seating-container {
-    background: white !important;
-    border: none !important;
+    margin: 0 !important;
     padding: 0 !important;
-    box-shadow: none !important;
+    width: 100% !important;
   }
-  .classroom-desk {
-    box-shadow: none !important;
-    border: 1px solid #94a3b8 !important;
-    page-break-inside: avoid;
+
+  /* CHỈ HIỂN THỊ KHUNG IN CHUẨN 1 TRANG A4 */
+  #print-seating-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
-  .seat-card {
-    box-shadow: none !important;
-    border: 1px solid #cbd5e1 !important;
+
+  .print-page-box {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-seat-cell {
+    border: 1px solid #000000 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
   }
 }
+
+/* Modal xem trước bản in */
+.print-preview-modal-body {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
 
 
 .paired-desk-cluster {

@@ -70,3 +70,36 @@ Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản
    - **Bảng Vàng Thi Đua:** Tuyên dương Top 5 học sinh dẫn đầu vào mỗi tiết sinh hoạt lớp.
    - **Đua Top 6 Tổ:** Biểu đồ cột trực quan tạo không khí thi đua sôi nổi giữa các tổ.
    - **Cảnh Báo Kỷ Luật & Cần Hỗ Trợ:** Giúp GVCN phát hiện sớm học sinh bị trừ điểm hoặc học sinh diện đầu vào thấp để cử bạn kèm cặp kịp thời theo tiêu chí *"+10 điểm cho cả hai khi kèm bạn yếu"*.
+
+
+---
+
+## 5. Sơ Đồ Lớp Học Thông Minh (2 Dãy • 6 Tổ • 24 Bàn Đôi)
+
+Sơ đồ phòng học được thiết kế sát thực tế:
+- **Phía trước:** Bục giảng, Bàn Giáo viên, Bảng đen trung tâm (*"Tiên Học Lễ &mdash; Hậu Học Văn"*), Cửa ra vào và Lối đi trung tâm rộng rãi giữa 2 dãy bàn.
+- **Dãy 1 (Phía Cửa Sổ):** 12 bàn chia đều cho 3 tổ:
+  - **Tổ 1:** Bàn 1 &rarr; Bàn 4 (8 HS)
+  - **Tổ 2:** Bàn 5 &rarr; Bàn 8 (8 HS)
+  - **Tổ 3:** Bàn 9 &rarr; Bàn 12 (8 HS)
+- **Dãy 2 (Phía Cửa Ra Vào):** 12 bàn chia đều cho 3 tổ:
+  - **Tổ 4:** Bàn 1 &rarr; Bàn 4 (7 HS + 1 ghế trống)
+  - **Tổ 5:** Bàn 5 &rarr; Bàn 8 (7 HS + 1 ghế trống)
+  - **Tổ 6:** Bàn 9 &rarr; Bàn 12 (7 HS + 1 ghế trống)
+- **Mô hình "Đôi bạn cùng tiến":** 100% học sinh diện cần hỗ trợ đầu vào (10 em) đều được bố trí ngồi cùng bàn với Lớp trưởng, Lớp phó, Tổ trưởng, Sao đỏ hoặc Cán sự bộ môn để tiện kèm cặp, giúp đỡ nhau học tập.
+
+### Các Tính Năng Tương Tác Trên Sơ Đồ:
+1. **Chấm Điểm Nhanh Tại Chỗ:** Bấm trực tiếp vào ghế ngồi của bất kỳ học sinh nào &rarr; Cửa sổ thao tác nhanh hiện lên cho phép:
+   - Thưởng điểm nhanh (+10đ Lên bảng đúng, +10đ Kèm bạn yếu, +5đ Hoàn thành bài tập...).
+   - Trừ điểm nhanh (-5đ Đi muộn/đồng phục, -5đ Làm việc riêng, -10đ Không làm bài...).
+   - Điểm số và xếp loại cập nhật ngay lập tức vào bảng thi đua.
+2. **Kéo Thả & Đổi Chỗ (Swap Mode):**
+   - **Kéo thả chuột (Drag & Drop):** Giữ chuột và kéo học sinh thả sang bàn khác hoặc ghế trống để hoán đổi chỗ ngồi.
+   - **Bấm Đổi Chỗ (Thân thiện trên điện thoại/màn hình cảm ứng):** Bấm nút **"Chế Độ Đổi Chỗ"** &rarr; Bấm chọn học sinh thứ nhất &rarr; Bấm chọn học sinh thứ hai (hoặc ghế trống) để đổi ngay.
+   - Mọi thay đổi chỗ ngồi được lưu tự động và vĩnh viễn vào trình duyệt (`window.localStorage`).
+3. **Tìm Kiếm & Lọc Vị Trí:**
+   - Gõ tên học sinh để làm sáng bừng vị trí ngồi trên lớp.
+   - Lọc nhanh: Chỉ xem Ban cán sự, Chỉ xem 10 HS diện hỗ trợ, Chỉ xem các Đôi bạn cùng tiến, hoặc Học sinh điểm thi đua dưới 80.
+4. **Khôi Phục Chuẩn & In Ấn (A4):**
+   - Nút **"Xếp Chuẩn"**: Tự động khôi phục lại cách sắp xếp đôi bạn cùng tiến tối ưu ban đầu.
+   - Nút **"In Sơ Đồ (A4)"**: Tối ưu định dạng in ngang (Landscape) để GVCN in ra giấy A4 dán tại bàn giáo viên hoặc bảng tin lớp.

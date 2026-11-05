@@ -8,7 +8,8 @@
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v6',
-  LOGS: 'dashboard10a3_official_45_logs_v6'
+  LOGS: 'dashboard10a3_official_45_logs_v6',
+  SEATING: 'dashboard10a3_official_45_seating_v2'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -53,7 +54,13 @@ let appState = {
   charts: {
     groupsChart: null,
     ratingsChart: null
-  }
+  },
+  seating: [],
+  seatingFilter: 'all',
+  seatingSearch: '',
+  swapSourceSeatId: null,
+  isSwapMode: false,
+  activeModalSeat: null
 };
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
@@ -71,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Kiểm tra URL hash (vd: #scoring, #students) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
-  if (initialHash && ['dashboard', 'scoring', 'students', 'logs', 'backup'].includes(initialHash)) {
+  if (initialHash && ['dashboard', 'scoring', 'students', 'seating', 'logs', 'backup'].includes(initialHash)) {
     switchTab(initialHash);
   } else {
     refreshAllUI();
@@ -99,6 +106,7 @@ function loadDataFromStorage() {
 
     appState.students = rawStudents ? JSON.parse(rawStudents) : [];
     appState.dailyLogs = rawLogs ? JSON.parse(rawLogs) : [];
+    loadSeatingData();
   } catch (err) {
     console.error('Lỗi khi đọc LocalStorage:', err);
     showToast('Lỗi khi tải dữ liệu từ bộ nhớ trình duyệt!', 'error');
@@ -162,6 +170,7 @@ function switchTab(tabName) {
     dashboard: document.getElementById('section-dashboard'),
     scoring: document.getElementById('section-scoring'),
     students: document.getElementById('section-students'),
+    seating: document.getElementById('section-seating'),
     logs: document.getElementById('section-logs'),
     backup: document.getElementById('section-backup')
   };
@@ -170,6 +179,7 @@ function switchTab(tabName) {
     dashboard: document.getElementById('nav-dashboard'),
     scoring: document.getElementById('nav-scoring'),
     students: document.getElementById('nav-students'),
+    seating: document.getElementById('nav-seating'),
     logs: document.getElementById('nav-logs'),
     backup: document.getElementById('nav-backup')
   };
@@ -178,6 +188,7 @@ function switchTab(tabName) {
     dashboard: 'Bảng Điều Khiển Tổng Quan Thi Đua Lớp 10A3',
     scoring: 'Phiếu Ghi Nhận Điểm Thi Đua Tự Quản (Ban Cán Sự / Sao Đỏ)',
     students: 'Danh Sách & Quản Trị Học Sinh Lớp 10A3',
+    seating: 'Sơ Đồ Chỗ Ngồi Lớp Học 10A3 (2 Dãy • 6 Tổ • 24 Bàn)',
     logs: 'Sổ Tra Cứu & Nhật Ký Ghi Nhận Điểm',
     backup: 'Trung Tâm Dữ Liệu, Cài Đặt & Sao Lưu'
   };
@@ -209,6 +220,8 @@ function switchTab(tabName) {
     renderScoringStudentPills();
   } else if (tabName === 'students') {
     renderStudentsTable();
+  } else if (tabName === 'seating') {
+    renderSeatingPlan();
   } else if (tabName === 'logs') {
     renderLogsTable();
   }
@@ -1280,4 +1293,812 @@ function escapeHtml(string) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+
+// ==========================================================================
+// ==================== CHỨC NĂNG SƠ ĐỒ LỚP HỌC (SEATING PLAN) ====================
+// ==================== 2 DÃY • 6 TỔ • 24 BÀN ĐÔI • 48 VỊ TRÍ NGỒI ====================
+// ==========================================================================
+
+/**
+ * Tạo danh sách sơ đồ chỗ ngồi chuẩn ban đầu
+ * Phân bổ đôi bạn cùng tiến (10 HS diện hỗ trợ ngồi cạnh Lớp trưởng, Tổ trưởng, Sao đỏ, Cán sự)
+ */
+function getDefaultSeating() {
+  return [
+    // ==================== DÃY 1 (Phía Cửa Sổ) - 12 BÀN (TỔ 1, 2, 3) ====================
+    // --- TỔ 1 (Bàn 1 -> 4) ---
+    {
+      tableId: 'tbl_d1_t1',
+      row: 1,
+      groupNumber: 1,
+      tableInGroup: 1,
+      globalTable: 1,
+      title: 'Bàn 1 (Tổ 1)',
+      leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_43' }, // Dương Lục Yến Vy (Tổ trưởng - 34đ)
+      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (Hỗ trợ - 25đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d1_t2',
+      row: 1,
+      groupNumber: 1,
+      tableInGroup: 2,
+      globalTable: 2,
+      title: 'Bàn 2 (Tổ 1)',
+      leftSeat: { seatId: 'seat_r1_g1_t2_l', position: 'left', studentId: 'hs_10a3_26' }, // Cao Ngọc An Nhiên (Cán sự Anh - 39đ)
+      rightSeat: { seatId: 'seat_r1_g1_t2_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (Hỗ trợ - 34.5đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d1_t3',
+      row: 1,
+      groupNumber: 1,
+      tableInGroup: 3,
+      globalTable: 3,
+      title: 'Bàn 3 (Tổ 1)',
+      leftSeat: { seatId: 'seat_r1_g1_t3_l', position: 'left', studentId: 'hs_10a3_16' }, // Nguyễn Tấn Kỳ (Sao đỏ - 37đ)
+      rightSeat: { seatId: 'seat_r1_g1_t3_r', position: 'right', studentId: 'hs_10a3_32' } // Lê Tuấn Phát Tài (34đ)
+    },
+    {
+      tableId: 'tbl_d1_t4',
+      row: 1,
+      groupNumber: 1,
+      tableInGroup: 4,
+      globalTable: 4,
+      title: 'Bàn 4 (Tổ 1)',
+      leftSeat: { seatId: 'seat_r1_g1_t4_l', position: 'left', studentId: 'hs_10a3_30' }, // Trần Thị Ngọc Phúc (36đ)
+      rightSeat: { seatId: 'seat_r1_g1_t4_r', position: 'right', studentId: 'hs_10a3_28' } // Võ Thành Phát (36đ)
+    },
+
+    // --- TỔ 2 (Bàn 5 -> 8) ---
+    {
+      tableId: 'tbl_d1_t5',
+      row: 1,
+      groupNumber: 2,
+      tableInGroup: 1,
+      globalTable: 5,
+      title: 'Bàn 5 (Tổ 2 - Bàn 1)',
+      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (Lớp phó - 33đ)
+      rightSeat: { seatId: 'seat_r1_g2_t1_r', position: 'right', studentId: 'hs_10a3_38' } // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d1_t6',
+      row: 1,
+      groupNumber: 2,
+      tableInGroup: 2,
+      globalTable: 6,
+      title: 'Bàn 6 (Tổ 2 - Bàn 2)',
+      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (Tổ trưởng - 38đ)
+      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_02' } // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d1_t7',
+      row: 1,
+      groupNumber: 2,
+      tableInGroup: 3,
+      globalTable: 7,
+      title: 'Bàn 7 (Tổ 2 - Bàn 3)',
+      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_25' }, // Võ Thị Yến Nhi (Sao đỏ - 34đ)
+      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
+    },
+    {
+      tableId: 'tbl_d1_t8',
+      row: 1,
+      groupNumber: 2,
+      tableInGroup: 4,
+      globalTable: 8,
+      title: 'Bàn 8 (Tổ 2 - Bàn 4)',
+      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_08' }, // Ngô Thị Diễm Hằng (37đ)
+      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_41' } // Lê Gia Vũ (35đ)
+    },
+
+    // --- TỔ 3 (Bàn 9 -> 12) ---
+    {
+      tableId: 'tbl_d1_t9',
+      row: 1,
+      groupNumber: 3,
+      tableInGroup: 1,
+      globalTable: 9,
+      title: 'Bàn 9 (Tổ 3 - Bàn 1)',
+      leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_10' }, // Trần Bảo Phi Hoàng (Tổ trưởng - 39đ)
+      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Hỗ trợ - 26đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d1_t10',
+      row: 1,
+      groupNumber: 3,
+      tableInGroup: 2,
+      globalTable: 10,
+      title: 'Bàn 10 (Tổ 3 - Bàn 2)',
+      leftSeat: { seatId: 'seat_r1_g3_t2_l', position: 'left', studentId: 'hs_10a3_19' }, // Bùi Nguyễn Hoàng Long (Sao đỏ - 38đ)
+      rightSeat: { seatId: 'seat_r1_g3_t2_r', position: 'right', studentId: 'hs_10a3_05' } // Trần Hữu Đồng (Hỗ trợ - 33đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d1_t11',
+      row: 1,
+      groupNumber: 3,
+      tableInGroup: 3,
+      globalTable: 11,
+      title: 'Bàn 11 (Tổ 3 - Bàn 3)',
+      leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: 'hs_10a3_01' }, // Phan Thị Ngọc Ẩn (35đ)
+      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_04' } // Võ Ngọc Mỹ Duyên (37đ)
+    },
+    {
+      tableId: 'tbl_d1_t12',
+      row: 1,
+      groupNumber: 3,
+      tableInGroup: 4,
+      globalTable: 12,
+      title: 'Bàn 12 (Tổ 3 - Bàn 4)',
+      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_33' }, // Đỗ Quốc Thành (35đ)
+      rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (34đ)
+    },
+
+    // ==================== DÃY 2 (Phía Cửa Ra Vào) - 12 BÀN (TỔ 4, 5, 6) ====================
+    // --- TỔ 4 (Bàn 1 -> 4) ---
+    {
+      tableId: 'tbl_d2_t1',
+      row: 2,
+      groupNumber: 4,
+      tableInGroup: 1,
+      globalTable: 1,
+      title: 'Bàn 1 (Tổ 4)',
+      leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_35' }, // Nguyễn Ngọc Trinh (Tổ trưởng - 29đ)
+      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_34' } // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d2_t2',
+      row: 2,
+      groupNumber: 4,
+      tableInGroup: 2,
+      globalTable: 2,
+      title: 'Bàn 2 (Tổ 4)',
+      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_22' }, // Nguyễn Hữu Đan Mạch (CS Toán - 39đ)
+      rightSeat: { seatId: 'seat_r2_g4_t2_r', position: 'right', studentId: 'hs_10a3_15' } // Võ Quốc Duy Khôi (35đ)
+    },
+    {
+      tableId: 'tbl_d2_t3',
+      row: 2,
+      groupNumber: 4,
+      tableInGroup: 3,
+      globalTable: 3,
+      title: 'Bàn 3 (Tổ 4)',
+      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_29' }, // Nguyễn Xuân Phúc (CS Sinh - 38đ)
+      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (35đ)
+    },
+    {
+      tableId: 'tbl_d2_t4',
+      row: 2,
+      groupNumber: 4,
+      tableInGroup: 4,
+      globalTable: 4,
+      title: 'Bàn 4 (Tổ 4)',
+      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06 - 38đ)
+      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
+    },
+
+    // --- TỔ 5 (Bàn 5 -> 8) ---
+    {
+      tableId: 'tbl_d2_t5',
+      row: 2,
+      groupNumber: 5,
+      tableInGroup: 1,
+      globalTable: 5,
+      title: 'Bàn 5 (Tổ 5 - Bàn 1)',
+      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng - 36đ)
+      rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_12' } // Đỗ Tuấn Hưng (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d2_t6',
+      row: 2,
+      groupNumber: 5,
+      tableInGroup: 2,
+      globalTable: 6,
+      title: 'Bàn 6 (Tổ 5 - Bàn 2)',
+      leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_42' }, // Lê Văn Vũ (CS Lý - 39đ)
+      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d2_t7',
+      row: 2,
+      groupNumber: 5,
+      tableInGroup: 3,
+      globalTable: 7,
+      title: 'Bàn 7 (Tổ 5 - Bàn 3)',
+      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (Bí thư - 37đ)
+      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_18' } // Nguyễn Đỗ Kim Yến Linh (Sao đỏ - 37đ)
+    },
+    {
+      tableId: 'tbl_d2_t8',
+      row: 2,
+      groupNumber: 5,
+      tableInGroup: 4,
+      globalTable: 8,
+      title: 'Bàn 8 (Tổ 5 - Bàn 4)',
+      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_31' }, // Hoàng Thế Tài (35đ)
+      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
+    },
+
+    // --- TỔ 6 (Bàn 9 -> 12) ---
+    {
+      tableId: 'tbl_d2_t9',
+      row: 2,
+      groupNumber: 6,
+      tableInGroup: 1,
+      globalTable: 9,
+      title: 'Bàn 9 (Tổ 6 - Bàn 1)',
+      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_23' }, // Trương Thị Mỹ Ngân (Tổ trưởng - 38đ)
+      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Hỗ trợ - 23đ) [Đôi bạn cùng tiến]
+    },
+    {
+      tableId: 'tbl_d2_t10',
+      row: 2,
+      groupNumber: 6,
+      tableInGroup: 2,
+      globalTable: 10,
+      title: 'Bàn 10 (Tổ 6 - Bàn 2)',
+      leftSeat: { seatId: 'seat_r2_g6_t2_l', position: 'left', studentId: 'hs_10a3_21' }, // Trần Minh Luân (CS Hóa - 38đ)
+      rightSeat: { seatId: 'seat_r2_g6_t2_r', position: 'right', studentId: 'hs_10a3_37' } // Võ Bách Tùng (34đ)
+    },
+    {
+      tableId: 'tbl_d2_t11',
+      row: 2,
+      groupNumber: 6,
+      tableInGroup: 3,
+      globalTable: 11,
+      title: 'Bàn 11 (Tổ 6 - Bàn 3)',
+      leftSeat: { seatId: 'seat_r2_g6_t3_l', position: 'left', studentId: 'hs_10a3_17' }, // Lê Thị Mỹ Linh (CS Văn - 36đ)
+      rightSeat: { seatId: 'seat_r2_g6_t3_r', position: 'right', studentId: 'hs_10a3_13' } // Lê Minh Khải (Sao đỏ - 37đ)
+    },
+    {
+      tableId: 'tbl_d2_t12',
+      row: 2,
+      groupNumber: 6,
+      tableInGroup: 4,
+      globalTable: 12,
+      title: 'Bàn 12 (Tổ 6 - Bàn 4)',
+      leftSeat: { seatId: 'seat_r2_g6_t4_l', position: 'left', studentId: 'hs_10a3_45' }, // Đỗ Khôi Vỹ (Sao đỏ - 36đ)
+      rightSeat: { seatId: 'seat_r2_g6_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
+    }
+  ];
+}
+
+/**
+ * Tải dữ liệu sơ đồ chỗ ngồi từ LocalStorage
+ */
+function loadSeatingData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.SEATING);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Kiểm tra tính toàn vẹn (đủ 24 bàn và chứa các học sinh của lớp)
+      if (Array.isArray(parsed) && parsed.length === 24) {
+        appState.seating = parsed;
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('Lỗi khi đọc sơ đồ chỗ ngồi từ storage:', err);
+  }
+  // Mặc định tạo mới
+  appState.seating = getDefaultSeating();
+  saveSeatingData();
+}
+
+/**
+ * Lưu dữ liệu sơ đồ chỗ ngồi vào LocalStorage
+ */
+function saveSeatingData() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.SEATING, JSON.stringify(appState.seating));
+  } catch (err) {
+    console.error('Không thể lưu sơ đồ lớp:', err);
+  }
+}
+
+/**
+ * Render toàn bộ sơ đồ lớp học 24 bàn (4 bàn / tổ, 3 tổ / dãy)
+ */
+function renderSeatingPlan() {
+  if (!appState.seating || appState.seating.length !== 24) {
+    loadSeatingData();
+  }
+
+  // Render 6 tổ (mỗi tổ 4 bàn)
+  for (let g = 1; g <= 6; g++) {
+    const container = document.getElementById(`group-${g}-tables`);
+    if (!container) continue;
+
+    const groupTables = appState.seating.filter(t => t.groupNumber === g);
+    container.innerHTML = '';
+
+    groupTables.forEach(table => {
+      const deskEl = renderDeskElement(table);
+      container.appendChild(deskEl);
+    });
+  }
+
+  // Áp dụng bộ lọc hoặc tìm kiếm nếu có
+  applySeatingFilters();
+}
+
+/**
+ * Tạo phần tử DOM cho 1 bàn học đôi
+ */
+function renderDeskElement(table) {
+  const desk = document.createElement('div');
+  desk.className = 'classroom-desk';
+  desk.id = table.tableId;
+
+  // Thanh tiêu đề bàn
+  const header = document.createElement('div');
+  header.className = 'desk-wood-bar px-3 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-600';
+  header.innerHTML = `
+    <span class="flex items-center space-x-1.5">
+      <i class="fa-solid fa-desktop text-slate-400 text-[10px]"></i>
+      <span>${table.title}</span>
+    </span>
+    <span class="text-[10px] text-slate-400 font-mono">Dãy ${table.row} • Bàn ${table.globalTable}</span>
+  `;
+  desk.appendChild(header);
+
+  // Thân bàn gồm 2 chỗ ngồi (Trái & Phải)
+  const seatsContainer = document.createElement('div');
+  seatsContainer.className = 'p-2.5 grid grid-cols-2 gap-2';
+
+  const leftSeatEl = renderSeatSlot(table, table.leftSeat, 'Vị trí 1 (Trái)');
+  const rightSeatEl = renderSeatSlot(table, table.rightSeat, 'Vị trí 2 (Phải)');
+
+  seatsContainer.appendChild(leftSeatEl);
+  seatsContainer.appendChild(rightSeatEl);
+  desk.appendChild(seatsContainer);
+
+  return desk;
+}
+
+/**
+ * Tạo phần tử DOM cho 1 chỗ ngồi (ghế học sinh hoặc ghế trống)
+ */
+function renderSeatSlot(table, seat, posLabel) {
+  const slot = document.createElement('div');
+  slot.dataset.seatId = seat.seatId;
+
+  // Drag & drop event listeners
+  slot.ondragover = handleSeatDragOver;
+  slot.ondragleave = handleSeatDragLeave;
+  slot.ondrop = (e) => handleSeatDrop(e, seat.seatId);
+
+  // Nếu là ghế trống
+  if (!seat.studentId) {
+    slot.className = 'seat-empty p-2 flex flex-col items-center justify-center text-center cursor-pointer min-h-[72px]';
+    slot.innerHTML = `
+      <i class="fa-regular fa-square-plus text-slate-300 text-sm mb-1"></i>
+      <span class="text-[10px] text-slate-400 font-medium">Ghế trống</span>
+      <span class="text-[9px] text-slate-300">${posLabel}</span>
+    `;
+    slot.onclick = () => handleSeatClick(seat.seatId, null);
+    return slot;
+  }
+
+  // Tìm học sinh
+  const student = appState.students.find(s => s.id === seat.studentId);
+  if (!student) {
+    slot.className = 'seat-empty p-2 flex flex-col items-center justify-center text-center cursor-pointer min-h-[72px]';
+    slot.innerHTML = `<span class="text-[10px] text-slate-400">Không tìm thấy HS</span>`;
+    return slot;
+  }
+
+  const score = calculateStudentScore(student.id);
+  const tier = getRankingTier(score);
+
+  // Kiểm tra nếu là ghế đang được chọn để swap
+  const isSwapSource = appState.swapSourceSeatId === seat.seatId;
+
+  // Class styling
+  slot.className = `seat-card p-2 min-h-[72px] flex flex-col justify-between relative ${isSwapSource ? 'seat-swap-source' : ''}`;
+  slot.draggable = true;
+  slot.ondragstart = (e) => handleSeatDragStart(e, seat.seatId);
+
+  // Badge role
+  let roleBadgeHtml = '';
+  if (student.role === 'Lớp trưởng') {
+    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-lead">Lớp trưởng</span>';
+  } else if (student.role === 'Lớp phó') {
+    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-deputy">Lớp phó</span>';
+  } else if (student.role === 'Bí thư') {
+    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-sec">Bí thư</span>';
+  } else if (student.role === 'Tổ trưởng') {
+    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-group">Tổ trưởng</span>';
+  } else if (student.role === 'Sao đỏ') {
+    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-redstar">Sao đỏ</span>';
+  } else if (student.role && student.role.startsWith('Cán sự')) {
+    roleBadgeHtml = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-teal-50 text-teal-700 border border-teal-200">${student.role}</span>`;
+  }
+
+  // Badge đôi bạn kèm cặp
+  const peerBadgeHtml = student.isSpecialSupport ? 
+    '<span class="text-[9px] px-1 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center space-x-0.5" title="Học sinh diện cần hỗ trợ kèm cặp"><i class="fa-solid fa-handshake-angle text-[8px]"></i><span>Hỗ trợ</span></span>' : '';
+
+  slot.innerHTML = `
+    <div>
+      <div class="flex items-center justify-between gap-1 mb-1">
+        <div class="flex items-center space-x-1 truncate">
+          <i class="fa-solid fa-circle-user text-slate-400 text-xs"></i>
+          <span class="font-bold text-slate-800 text-xs truncate" title="${student.fullName}">${student.fullName}</span>
+        </div>
+        <span class="text-[10px] font-black px-1.5 py-0.2 rounded ${tier.color}">${score}đ</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-1">
+        ${roleBadgeHtml}
+        ${peerBadgeHtml}
+      </div>
+    </div>
+    <div class="flex items-center justify-between text-[9px] text-slate-400 pt-1 mt-1 border-t border-slate-100">
+      <span class="font-mono">${student.studentCode || ''}</span>
+      <span class="italic">${posLabel}</span>
+    </div>
+  `;
+
+  slot.onclick = () => handleSeatClick(seat.seatId, student.id);
+  return slot;
+}
+
+// ==================== XỬ LÝ CLICK & ĐỔI CHỖ (SWAP & ACTIONS) ====================
+
+/**
+ * Bật / Tắt chế độ đổi chỗ
+ */
+function toggleSwapMode(forceState) {
+  if (typeof forceState === 'boolean') {
+    appState.isSwapMode = forceState;
+  } else {
+    appState.isSwapMode = !appState.isSwapMode;
+  }
+
+  appState.swapSourceSeatId = null;
+
+  const btn = document.getElementById('btn-toggle-swap');
+  const banner = document.getElementById('swap-mode-banner');
+  const btnText = document.getElementById('btn-swap-text');
+
+  if (appState.isSwapMode) {
+    if (btn) btn.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-xs transition';
+    if (btnText) btnText.textContent = 'Thoát Đổi Chỗ';
+    if (banner) banner.classList.remove('hidden');
+    showToast('Đã BẬT Chế độ Đổi chỗ: Hãy chọn học sinh thứ nhất!', 'info');
+  } else {
+    if (btn) btn.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition';
+    if (btnText) btnText.textContent = 'Chế Độ Đổi Chỗ';
+    if (banner) banner.classList.add('hidden');
+  }
+
+  renderSeatingPlan();
+}
+
+/**
+ * Click vào ghế ngồi
+ */
+function handleSeatClick(seatId, studentId) {
+  // Nếu đang ở Swap Mode
+  if (appState.isSwapMode) {
+    if (!appState.swapSourceSeatId) {
+      // Chọn nguồn
+      if (!studentId) {
+        showToast('Vui lòng chọn một học sinh trước để hoán đổi chỗ!', 'warning');
+        return;
+      }
+      appState.swapSourceSeatId = seatId;
+      const student = appState.students.find(s => s.id === studentId);
+      const bannerText = document.getElementById('swap-banner-text');
+      if (bannerText && student) {
+        bannerText.textContent = `Đang chọn: ${student.fullName}. Hãy bấm vào chỗ ngồi thứ hai (hoặc ghế trống) để đổi!`;
+      }
+      renderSeatingPlan();
+    } else {
+      // Đã có nguồn, chọn đích
+      if (appState.swapSourceSeatId === seatId) {
+        // Hủy chọn
+        appState.swapSourceSeatId = null;
+        renderSeatingPlan();
+        return;
+      }
+      // Thực hiện đổi chỗ
+      executeSeatSwap(appState.swapSourceSeatId, seatId);
+      appState.swapSourceSeatId = null;
+      renderSeatingPlan();
+    }
+    return;
+  }
+
+  // Nếu không ở Swap Mode
+  if (studentId) {
+    openSeatActionModal(seatId, studentId);
+  } else {
+    // Ghế trống: hỏi xem có muốn bật chế độ đổi chỗ để chuyển ai vào đây không
+    if (confirm('Ghế này hiện đang trống. Bạn có muốn chọn một học sinh để chuyển vào vị trí này không?')) {
+      toggleSwapMode(true);
+    }
+  }
+}
+
+/**
+ * Hoán đổi 2 ghế ngồi
+ */
+function executeSeatSwap(seatId1, seatId2) {
+  let seat1Ref = null;
+  let seat2Ref = null;
+
+  for (const table of appState.seating) {
+    if (table.leftSeat.seatId === seatId1) seat1Ref = table.leftSeat;
+    if (table.rightSeat.seatId === seatId1) seat1Ref = table.rightSeat;
+    if (table.leftSeat.seatId === seatId2) seat2Ref = table.leftSeat;
+    if (table.rightSeat.seatId === seatId2) seat2Ref = table.rightSeat;
+  }
+
+  if (!seat1Ref || !seat2Ref) {
+    showToast('Lỗi: Không tìm thấy vị trí ghế ngồi!', 'error');
+    return;
+  }
+
+  const tempStudentId = seat1Ref.studentId;
+  seat1Ref.studentId = seat2Ref.studentId;
+  seat2Ref.studentId = tempStudentId;
+
+  saveSeatingData();
+
+  const student1 = appState.students.find(s => s.id === seat1Ref.studentId);
+  const student2 = appState.students.find(s => s.id === seat2Ref.studentId);
+
+  const name1 = student1 ? student1.fullName : 'Ghế trống';
+  const name2 = student2 ? student2.fullName : 'Ghế trống';
+
+  showToast(`Đã hoán đổi chỗ ngồi giữa "${name1}" và "${name2}"!`, 'success');
+}
+
+// ==================== KÉO THẢ (DRAG & DROP) ====================
+
+function handleSeatDragStart(e, seatId) {
+  e.dataTransfer.setData('text/plain', seatId);
+  e.target.classList.add('seat-dragging');
+}
+
+function handleSeatDragOver(e) {
+  e.preventDefault();
+  const slot = e.currentTarget;
+  if (!slot.classList.contains('seat-drag-over')) {
+    slot.classList.add('seat-drag-over');
+  }
+}
+
+function handleSeatDragLeave(e) {
+  e.currentTarget.classList.remove('seat-drag-over');
+}
+
+function handleSeatDrop(e, targetSeatId) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('seat-drag-over');
+  const sourceSeatId = e.dataTransfer.getData('text/plain');
+
+  if (sourceSeatId && sourceSeatId !== targetSeatId) {
+    executeSeatSwap(sourceSeatId, targetSeatId);
+    renderSeatingPlan();
+  }
+}
+
+// ==================== MODAL THAO TÁC NHANH TRÊN GHẾ ====================
+
+function openSeatActionModal(seatId, studentId) {
+  const student = appState.students.find(s => s.id === studentId);
+  if (!student) return;
+
+  appState.activeModalSeat = { seatId, studentId };
+
+  // Tìm thông tin bàn
+  let tableInfo = '';
+  for (const t of appState.seating) {
+    if (t.leftSeat.seatId === seatId) tableInfo = `${t.title} • Dãy ${t.row} • Vị trí Trái`;
+    if (t.rightSeat.seatId === seatId) tableInfo = `${t.title} • Dãy ${t.row} • Vị trí Phải`;
+  }
+
+  const score = calculateStudentScore(student.id);
+  const tier = getRankingTier(score);
+
+  document.getElementById('seat-action-student-name').textContent = student.fullName;
+  document.getElementById('seat-action-meta').textContent = tableInfo || `Tổ ${student.groupNumber} • ${student.role}`;
+  document.getElementById('seat-action-score').textContent = `${score}đ`;
+  
+  const rankEl = document.getElementById('seat-action-rank');
+  rankEl.textContent = tier.label;
+  rankEl.className = `px-2 py-0.5 rounded-full font-bold text-[11px] ${tier.color}`;
+
+  const badgeEl = document.getElementById('seat-action-role-badge');
+  badgeEl.innerHTML = `<span class="px-2 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">${student.role}</span>`;
+
+  document.getElementById('modal-seat-action').classList.remove('hidden');
+  document.getElementById('modal-seat-action').classList.add('flex');
+}
+
+function closeSeatActionModal() {
+  document.getElementById('modal-seat-action').classList.add('hidden');
+  document.getElementById('modal-seat-action').classList.remove('flex');
+  appState.activeModalSeat = null;
+}
+
+/**
+ * Chấm điểm nhanh từ ghế ngồi
+ */
+function quickSeatScoring(ruleKey) {
+  if (!appState.activeModalSeat) return;
+  const { studentId, seatId } = appState.activeModalSeat;
+  const student = appState.students.find(s => s.id === studentId);
+  if (!student) return;
+
+  let rule = BONUS_RULES.find(r => r.key === ruleKey) || VIOLATION_RULES.find(r => r.key === ruleKey);
+  if (!rule) return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const newLog = {
+    id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    date: today,
+    studentId: student.id,
+    studentName: student.fullName,
+    groupNumber: student.groupNumber,
+    ruleKey: rule.key,
+    ruleLabel: rule.label,
+    pointsChanged: rule.points,
+    type: rule.points > 0 ? 'bonus' : 'violation',
+    recordedBy: 'GVCN / Sơ đồ lớp',
+    note: 'Chấm nhanh trên sơ đồ chỗ ngồi',
+    timestamp: Date.now()
+  };
+
+  appState.dailyLogs.unshift(newLog);
+  saveDataToStorage();
+
+  const newScore = calculateStudentScore(student.id);
+  const tier = getRankingTier(newScore);
+
+  // Update modal score
+  document.getElementById('seat-action-score').textContent = `${newScore}đ`;
+  const rankEl = document.getElementById('seat-action-rank');
+  rankEl.textContent = tier.label;
+  rankEl.className = `px-2 py-0.5 rounded-full font-bold text-[11px] ${tier.color}`;
+
+  showToast(`Đã ghi nhận: ${rule.label} (${rule.points > 0 ? '+' : ''}${rule.points}đ) cho ${student.fullName}!`, rule.points > 0 ? 'success' : 'warning');
+
+  // Cập nhật lại sơ đồ và thống kê
+  renderDashboardStats();
+  renderSeatingPlan();
+}
+
+/**
+ * Bắt đầu đổi chỗ từ Modal
+ */
+function startSwapFromModal() {
+  if (!appState.activeModalSeat) return;
+  const seatId = appState.activeModalSeat.seatId;
+  closeSeatActionModal();
+
+  appState.isSwapMode = true;
+  appState.swapSourceSeatId = seatId;
+
+  const btn = document.getElementById('btn-toggle-swap');
+  const banner = document.getElementById('swap-mode-banner');
+  const btnText = document.getElementById('btn-swap-text');
+
+  if (btn) btn.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-xs transition';
+  if (btnText) btnText.textContent = 'Thoát Đổi Chỗ';
+  if (banner) banner.classList.remove('hidden');
+
+  const student = appState.students.find(s => s.id === appState.activeModalSeat?.studentId);
+  const bannerText = document.getElementById('swap-banner-text');
+  if (bannerText && student) {
+    bannerText.textContent = `Đang chọn: ${student.fullName}. Bấm vào ghế thứ hai (hoặc ghế trống) để đổi!`;
+  }
+
+  showToast('Đang chọn học sinh. Hãy click vào vị trí bạn muốn hoán đổi!', 'info');
+  renderSeatingPlan();
+}
+
+/**
+ * Xem lịch sử học sinh từ Modal chỗ ngồi
+ */
+function viewStudentDetailsFromModal() {
+  if (!appState.activeModalSeat) return;
+  const studentId = appState.activeModalSeat.studentId;
+  closeSeatActionModal();
+  openDetailModal(studentId);
+}
+
+// ==================== TÌM KIẾM, BỘ LỌC & IN ẤN ====================
+
+function handleSeatingSearch(query) {
+  appState.seatingSearch = query.trim().toLowerCase();
+  applySeatingFilters();
+}
+
+function handleSeatingFilter(filterType) {
+  appState.seatingFilter = filterType;
+  applySeatingFilters();
+}
+
+function applySeatingFilters() {
+  const query = appState.seatingSearch;
+  const filter = appState.seatingFilter;
+
+  const seatElements = document.querySelectorAll('.seat-card');
+  seatElements.forEach(el => {
+    const seatId = el.dataset.seatId;
+    if (!seatId) return;
+
+    // Tìm học sinh
+    let studentId = null;
+    for (const t of appState.seating) {
+      if (t.leftSeat.seatId === seatId) studentId = t.leftSeat.studentId;
+      if (t.rightSeat.seatId === seatId) studentId = t.rightSeat.studentId;
+    }
+
+    if (!studentId) return;
+    const student = appState.students.find(s => s.id === studentId);
+    if (!student) return;
+
+    const score = calculateStudentScore(student.id);
+
+    // Kiểm tra search
+    let matchSearch = true;
+    if (query) {
+      const matchName = student.fullName.toLowerCase().includes(query);
+      const matchCode = (student.studentCode || '').toLowerCase().includes(query);
+      matchSearch = matchName || matchCode;
+    }
+
+    // Kiểm tra filter
+    let matchFilter = true;
+    if (filter === 'leaders') {
+      matchFilter = ['Lớp trưởng', 'Lớp phó', 'Bí thư', 'Tổ trưởng', 'Sao đỏ'].includes(student.role) || (student.role && student.role.startsWith('Cán sự'));
+    } else if (filter === 'special') {
+      matchFilter = !!student.isSpecialSupport;
+    } else if (filter === 'tutoring') {
+      // Học sinh hỗ trợ hoặc cán sự ngồi cùng bàn
+      matchFilter = !!student.isSpecialSupport || ['Lớp trưởng', 'Lớp phó', 'Tổ trưởng', 'Sao đỏ'].includes(student.role) || (student.role && student.role.startsWith('Cán sự'));
+    } else if (filter === 'low-score') {
+      matchFilter = score < 80;
+    }
+
+    // Áp dụng style
+    if (matchSearch && matchFilter) {
+      el.style.opacity = '1';
+      if (query && matchSearch) {
+        el.classList.add('seat-search-highlight');
+      } else {
+        el.classList.remove('seat-search-highlight');
+      }
+    } else {
+      el.style.opacity = '0.25';
+      el.classList.remove('seat-search-highlight');
+    }
+  });
+}
+
+/**
+ * Khôi phục sơ đồ chuẩn theo mô hình Đôi bạn cùng tiến
+ */
+function confirmResetDefaultSeating() {
+  if (confirm('Bạn có chắc chắn muốn khôi phục lại Sơ đồ chỗ ngồi chuẩn (Đôi bạn cùng tiến: 10 học sinh diện hỗ trợ ngồi cạnh Cán sự / Bạn học tốt)?')) {
+    appState.seating = getDefaultSeating();
+    saveSeatingData();
+    renderSeatingPlan();
+    showToast('Đã khôi phục Sơ đồ chỗ ngồi chuẩn thành công!', 'success');
+  }
+}
+
+/**
+ * In sơ đồ lớp học ra file A4
+ */
+function printSeatingChart() {
+  // Chuyển sang tab sơ đồ nếu chưa ở đây
+  switchTab('seating');
+  setTimeout(() => {
+    window.print();
+  }, 200);
 }

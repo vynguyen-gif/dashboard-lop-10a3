@@ -1158,13 +1158,6 @@ function injectOfficial45Students(notify = true) {
     showToast('Đã nạp danh sách 44 học sinh phân bổ cân bằng lực học 6 tổ!', 'success');
   }
 }
-  saveDataToStorage();
-  refreshAllUI();
-
-  if (notify) {
-    showToast('Đã nạp chính thức danh sách 45 học sinh THPT Bùi Thị Xuân - Mũi Né!', 'success');
-  }
-}
 
 // Reset toàn bộ về trắng
 function resetAllData() {

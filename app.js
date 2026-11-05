@@ -9,7 +9,7 @@
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v6',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v3'
+  SEATING: 'dashboard10a3_official_45_seating_v4'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1693,35 +1693,16 @@ function renderSeatingPlan() {
  * Tạo phần tử DOM cho 1 Cụm Bàn Ghép (2 bàn kê ghép sát nhau: Bàn 1 + Bàn 2; Bàn 3 + Bàn 4...)
  */
 function renderPairedDesksCluster(table1, table2, groupNumber) {
+  // Cụm 2 bàn ghép lại: Tạo thành 1 hàng bàn sạch sẽ, không có chữ tiêu đề thừa
   const cluster = document.createElement('div');
-  cluster.className = 'paired-desk-cluster bg-gradient-to-r from-slate-50 via-teal-50/20 to-slate-50 p-3 rounded-2xl border-2 border-dashed border-teal-300 shadow-sm space-y-2';
+  cluster.className = 'paired-desk-cluster bg-white p-2 sm:p-2.5 rounded-2xl border-2 border-slate-200 hover:border-teal-400 transition shadow-xs';
 
-  // Header của cụm bàn ghép: Bàn X ghép với Bàn Y
-  const clusterHeader = document.createElement('div');
-  clusterHeader.className = 'flex items-center justify-between pb-1.5 px-1 border-b border-teal-200/80 text-xs';
-  clusterHeader.innerHTML = `
-    <div class="flex items-center space-x-2">
-      <span class="px-2 py-0.5 rounded-md bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center space-x-1 shadow-xs">
-        <i class="fa-solid fa-link text-[9px]"></i>
-        <span>Ghép Đôi</span>
-      </span>
-      <span class="font-extrabold text-slate-800 text-xs">
-        ${table1.title} GHÉP VỚI ${table2.title}
-      </span>
-    </div>
-    <div class="flex items-center space-x-1.5 text-[10px] font-bold text-teal-800 bg-teal-100/70 px-2 py-0.5 rounded-full border border-teal-200">
-      <i class="fa-solid fa-users text-teal-600"></i>
-      <span>4 Chỗ / Hàng Ghép</span>
-    </div>
-  `;
-  cluster.appendChild(clusterHeader);
-
-  // 2 bàn ghép sát nhau (Bàn Trái & Bàn Phải)
+  // Lưới chứa 2 bàn ghép sát nhau (Bàn 1 bên trái, Bàn 2 bên phải)
   const desksGrid = document.createElement('div');
-  desksGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-2.5 items-stretch';
+  desksGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2 items-stretch';
 
-  const desk1 = renderDeskElement(table1, 'Bàn Trái');
-  const desk2 = renderDeskElement(table2, 'Bàn Phải');
+  const desk1 = renderDeskElement(table1);
+  const desk2 = renderDeskElement(table2);
 
   desksGrid.appendChild(desk1);
   desksGrid.appendChild(desk2);
@@ -1731,31 +1712,19 @@ function renderPairedDesksCluster(table1, table2, groupNumber) {
 }
 
 /**
- * Tạo phần tử DOM cho 1 bàn học đôi
+ * Tạo phần tử DOM cho 1 bàn học (gồm 2 chỗ ngồi, chỉ để lại tên học sinh)
  */
-function renderDeskElement(table, sideTag) {
+function renderDeskElement(table) {
   const desk = document.createElement('div');
-  desk.className = 'classroom-desk bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between';
+  desk.className = 'classroom-desk bg-slate-50/70 p-1.5 rounded-xl border border-slate-200 flex flex-col justify-center';
   desk.id = table.tableId;
 
-  // Thanh tiêu đề bàn
-  const header = document.createElement('div');
-  header.className = 'desk-wood-bar px-3 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-700 bg-slate-100/80 border-b border-slate-200 rounded-t-xl';
-  header.innerHTML = `
-    <div class="flex items-center space-x-1.5 truncate">
-      <i class="fa-solid fa-desktop text-teal-600 text-[10px]"></i>
-      <span class="font-black text-slate-800 truncate">${table.title}</span>
-    </div>
-    <span class="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.2 rounded font-mono font-semibold border border-teal-200">${sideTag} (${table.subtitle || ''})</span>
-  `;
-  desk.appendChild(header);
-
-  // Thân bàn gồm 2 chỗ ngồi (Trái & Phải)
+  // 2 chỗ ngồi
   const seatsContainer = document.createElement('div');
-  seatsContainer.className = 'p-2 grid grid-cols-2 gap-1.5';
+  seatsContainer.className = 'grid grid-cols-2 gap-1.5';
 
-  const leftSeatEl = renderSeatSlot(table, table.leftSeat, 'Ghế 1');
-  const rightSeatEl = renderSeatSlot(table, table.rightSeat, 'Ghế 2');
+  const leftSeatEl = renderSeatSlot(table, table.leftSeat);
+  const rightSeatEl = renderSeatSlot(table, table.rightSeat);
 
   seatsContainer.appendChild(leftSeatEl);
   seatsContainer.appendChild(rightSeatEl);
@@ -1767,7 +1736,7 @@ function renderDeskElement(table, sideTag) {
 /**
  * Tạo phần tử DOM cho 1 chỗ ngồi (ghế học sinh hoặc ghế trống)
  */
-function renderSeatSlot(table, seat, posLabel) {
+function renderSeatSlot(table, seat) {
   const slot = document.createElement('div');
   slot.dataset.seatId = seat.seatId;
 
@@ -1778,12 +1747,8 @@ function renderSeatSlot(table, seat, posLabel) {
 
   // Nếu là ghế trống
   if (!seat.studentId) {
-    slot.className = 'seat-empty p-2 flex flex-col items-center justify-center text-center cursor-pointer min-h-[72px]';
-    slot.innerHTML = `
-      <i class="fa-regular fa-square-plus text-slate-300 text-sm mb-1"></i>
-      <span class="text-[10px] text-slate-400 font-medium">Ghế trống</span>
-      <span class="text-[9px] text-slate-300">${posLabel}</span>
-    `;
+    slot.className = 'seat-empty p-2.5 flex items-center justify-center text-center cursor-pointer min-h-[58px] rounded-xl';
+    slot.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">(Trống)</span>`;
     slot.onclick = () => handleSeatClick(seat.seatId, null);
     return slot;
   }
@@ -1791,8 +1756,8 @@ function renderSeatSlot(table, seat, posLabel) {
   // Tìm học sinh
   const student = appState.students.find(s => s.id === seat.studentId);
   if (!student) {
-    slot.className = 'seat-empty p-2 flex flex-col items-center justify-center text-center cursor-pointer min-h-[72px]';
-    slot.innerHTML = `<span class="text-[10px] text-slate-400">Không tìm thấy HS</span>`;
+    slot.className = 'seat-empty p-2.5 flex items-center justify-center text-center cursor-pointer min-h-[58px] rounded-xl';
+    slot.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">(Trống)</span>`;
     return slot;
   }
 
@@ -1802,48 +1767,40 @@ function renderSeatSlot(table, seat, posLabel) {
   // Kiểm tra nếu là ghế đang được chọn để swap
   const isSwapSource = appState.swapSourceSeatId === seat.seatId;
 
-  // Class styling
-  slot.className = `seat-card p-2 min-h-[72px] flex flex-col justify-between relative ${isSwapSource ? 'seat-swap-source' : ''}`;
+  // Styling ghế: Tập trung hiển thị Họ và Tên học sinh rõ nét, không bị co ngắn
+  slot.className = `seat-card p-2 sm:p-2.5 min-h-[58px] flex flex-col justify-center items-center text-center relative rounded-xl border border-slate-200 bg-white hover:border-teal-500 hover:shadow-xs transition ${isSwapSource ? 'seat-swap-source' : ''}`;
   slot.draggable = true;
   slot.ondragstart = (e) => handleSeatDragStart(e, seat.seatId);
 
-  // Badge role
+  // Chức danh nhỏ gọn
   let roleBadgeHtml = '';
   if (student.role === 'Lớp trưởng') {
-    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-lead">Lớp trưởng</span>';
+    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-lead">LT</span>';
   } else if (student.role === 'Lớp phó') {
-    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-deputy">Lớp phó</span>';
+    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP</span>';
   } else if (student.role === 'Bí thư') {
-    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-sec">Bí thư</span>';
+    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-sec">BT</span>';
   } else if (student.role === 'Tổ trưởng') {
-    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-group">Tổ trưởng</span>';
+    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-group">TT</span>';
   } else if (student.role === 'Sao đỏ') {
-    roleBadgeHtml = '<span class="text-[9px] px-1.5 py-0.2 rounded font-bold badge-role-redstar">Sao đỏ</span>';
+    roleBadgeHtml = '<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-redstar">SĐ</span>';
   } else if (student.role && student.role.startsWith('Cán sự')) {
-    roleBadgeHtml = `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-teal-50 text-teal-700 border border-teal-200">${student.role}</span>`;
+    roleBadgeHtml = `<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-teal-50 text-teal-700 border border-teal-200">${student.role.replace('Cán sự ', 'CS ')}</span>`;
   }
 
-  // Badge đôi bạn kèm cặp
   const peerBadgeHtml = student.isSpecialSupport ? 
-    '<span class="text-[9px] px-1 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center space-x-0.5" title="Học sinh diện cần hỗ trợ kèm cặp"><i class="fa-solid fa-handshake-angle text-[8px]"></i><span>Hỗ trợ</span></span>' : '';
+    '<span class="text-[9px] text-amber-600 font-bold ml-1" title="Diện kèm cặp">🤝</span>' : '';
 
   slot.innerHTML = `
-    <div>
-      <div class="flex items-center justify-between gap-1 mb-1">
-        <div class="flex items-center space-x-1 truncate">
-          <i class="fa-solid fa-circle-user text-slate-400 text-xs"></i>
-          <span class="font-bold text-slate-800 text-xs truncate" title="${student.fullName}">${student.fullName}</span>
-        </div>
-        <span class="text-[10px] font-black px-1.5 py-0.2 rounded ${tier.color}">${score}đ</span>
-      </div>
-      <div class="flex flex-wrap items-center gap-1">
+    <div class="w-full flex items-center justify-between mb-0.5 px-0.5 text-[10px]">
+      <span class="font-bold ${tier.color.split(' ')[0]}">${score}đ</span>
+      <div class="flex items-center">
         ${roleBadgeHtml}
         ${peerBadgeHtml}
       </div>
     </div>
-    <div class="flex items-center justify-between text-[9px] text-slate-400 pt-1 mt-1 border-t border-slate-100">
-      <span class="font-mono">${student.studentCode || ''}</span>
-      <span class="italic">${posLabel}</span>
+    <div class="font-extrabold text-slate-800 text-xs sm:text-[13px] leading-tight text-center w-full px-0.5" title="${student.fullName}">
+      ${student.fullName}
     </div>
   `;
 

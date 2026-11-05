@@ -2,7 +2,7 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvynguyen-gif%2Fdashboard-lop-10a3)
 
-- 🌐 **Demo Trực Tuyến Trên Vercel:** [https://sonic-harp-a0kc1oh.tmp.now](https://sonic-harp-a0kc1oh.tmp.now)
+- 🌐 **Demo Trực Tuyến Trên Vercel:** [https://fast-gust-izgqogj.tmp.now](https://fast-gust-izgqogj.tmp.now)
 - 📦 **Mã Nguồn GitHub:** [https://github.com/vynguyen-gif/dashboard-lop-10a3](https://github.com/vynguyen-gif/dashboard-lop-10a3)
 
 Hệ thống quản lý lớp học (Token Economy) hỗ trợ Giáo viên Chủ nhiệm và Ban cán sự lớp 10A3 bứt phá thứ hạng thi đua toàn trường.

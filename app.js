@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v12',
+  STUDENTS: 'dashboard10a3_official_45_students_v13',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v11'
+  SEATING: 'dashboard10a3_official_45_seating_v12'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1401,8 +1401,8 @@ function getDefaultSeating() {
       pairWithTable: 5,
       title: 'Bàn 6',
       subtitle: 'Ghép Bàn 5',
-      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_44' }, // Phạm Ngọc Tường Vy (Hỗ trợ - 34.5đ)
-      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_02' } // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ)
+      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_08' }, // Ngô Thị Diễm Hằng (37đ)
+      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (Hỗ trợ - 34.5đ)
     },
     // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
@@ -1426,8 +1426,8 @@ function getDefaultSeating() {
       pairWithTable: 7,
       title: 'Bàn 8',
       subtitle: 'Ghép Bàn 7',
-      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_08' }, // Ngô Thị Diễm Hằng (37đ)
-      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_41' } // Lê Gia Vũ (35đ)
+      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_41' }, // Lê Gia Vũ (35đ)
+      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_02' } // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ) [Gia Vũ kèm Kim Bơ]
     },
 
     // --- TỔ 3 (Bàn 9 -> 12) ---
@@ -1559,7 +1559,7 @@ function getDefaultSeating() {
       title: 'Bàn 6',
       subtitle: 'Ghép Bàn 5',
       leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_42' }, // Lê Văn Vũ (CS Lý - 39đ)
-      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
+      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: 'hs_10a3_09' } // Nguyễn Vinh Hoa (37đ) [Cụm học tốt 39đ & 37đ]
     },
     // [HÀNG 4: BÀN 7 GHÉP BÀN 8]
     {
@@ -1571,8 +1571,8 @@ function getDefaultSeating() {
       pairWithTable: 8,
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
-      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (37đ)
-      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_18' } // Nguyễn Đỗ Kim Yến Linh (37đ)
+      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_18' }, // Nguyễn Đỗ Kim Yến Linh (37đ)
+      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến: Yến Linh kèm Phúc Vinh]
     },
     {
       tableId: 'tbl_d2_t8',

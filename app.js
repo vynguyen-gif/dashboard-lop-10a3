@@ -7,8 +7,8 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_students',
-  LOGS: 'dashboard10a3_logs'
+  STUDENTS: 'dashboard10a3_official_students_v3',
+  LOGS: 'dashboard10a3_official_logs_v3'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -62,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRuleButtons();
   loadDataFromStorage();
 
-  // Tự động nạp danh sách 45 học sinh chính thức THPT Bùi Thị Xuân - Mũi Né nếu chưa có hoặc đang là dữ liệu demo cũ
-  const isOldDemo = appState.students.length <= 10 && appState.students.some(s => s.fullName === 'Trần Minh Khang');
-  if (appState.students.length === 0 || isOldDemo) {
+  // Đảm bảo luôn sử dụng đúng danh sách chính thức 45 học sinh Trường THPT Bùi Thị Xuân - Mũi Né
+  const hasOfficialRoster = appState.students.length === 45 && 
+                            appState.students.some(s => s.code === '1702997113' && s.fullName === 'Phan Thị Ngọc Ẩn');
+  if (!hasOfficialRoster) {
     injectOfficial45Students(false);
   }
 
@@ -1089,6 +1090,14 @@ function injectFull45StudentsPrompt() {
 }
 
 function injectOfficial45Students(notify = true) {
+  // Tự động dọn dẹp các khóa lưu trữ cũ nếu có
+  try {
+    localStorage.removeItem('dashboard10a3_students');
+    localStorage.removeItem('dashboard10a3_logs');
+    localStorage.removeItem('dashboard10a3_students_v2');
+    localStorage.removeItem('dashboard10a3_logs_v2');
+  } catch (e) {}
+
   const today = new Date().toISOString().split('T')[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
@@ -1109,13 +1118,14 @@ function injectOfficial45Students(notify = true) {
     { id: 'log_08', date: today, studentId: 'hs_10a3_28', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: 'Đi muộn / sai đồng phục', pointsChanged: -5, recordedBy: 'Sao đỏ trực cổng', note: 'Muộn 10 phút tiết 1', timestamp: Date.now() - 8000 }
   ];
 
-  appState.students = OFFICIAL_10A3_STUDENTS;
+  // Nhân bản dữ liệu để tránh xung đột
+  appState.students = JSON.parse(JSON.stringify(OFFICIAL_10A3_STUDENTS));
   appState.dailyLogs = sampleLogs;
   saveDataToStorage();
   refreshAllUI();
 
   if (notify) {
-    showToast('Đã nạp danh sách chính thức 45 học sinh Lớp 10A3 Trường THPT Bùi Thị Xuân - Mũi Né!', 'success');
+    showToast('Đã nạp chính thức danh sách 45 học sinh THPT Bùi Thị Xuân - Mũi Né!', 'success');
   }
 }
 

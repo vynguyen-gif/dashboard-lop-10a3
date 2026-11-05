@@ -1,8 +1,9 @@
 # Cẩm Nang Bàn Giao & Hướng Dẫn Sử Dụng Dashboard Quản Trị Lớp 10A3
+**Trường THPT Bùi Thị Xuân - Mũi Né | Sở GD&ĐT Lâm Đồng**
 
 Kính gửi Thầy/Cô Chủ nhiệm Lớp 10A3,
 
-Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản Toàn Diện - Token Economy)** đã được hoàn thiện 100%, sẵn sàng đưa vào vận hành ngay để thúc đẩy phong trào thi đua của lớp.
+Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản Toàn Diện - Token Economy)** đã được tích hợp toàn bộ **danh sách chính thức 45 học sinh** của lớp (kèm Mã học sinh, Ngày sinh, phân 6 tổ, Ban cán sự và 10 học sinh diện theo dõi đặc biệt).
 
 ---
 
@@ -15,36 +16,29 @@ Hệ thống hoạt động hoàn toàn độc lập (Offline), không yêu cầ
    `C:\Users\admin\.gemini\antigravity\scratch\dashboard-10a3\`
 2. Click đúp chuột vào tệp [index.html](file:///C:/Users/admin/.gemini/antigravity/scratch/dashboard-10a3/index.html) (hoặc chuột phải chọn **Open with** &rarr; **Microsoft Edge** hoặc **Google Chrome**).
 
-### Cách 2: Chạy Web Server Cục Bộ (Tùy chọn chia sẻ trong mạng lớp học)
-Mở PowerShell tại thư mục trên và gõ:
-```powershell
-python -m http.server 8080
-```
-Sau đó truy cập: `http://localhost:8080` trên trình duyệt.
+### Cách 2: Truy cập Trực tuyến qua Vercel
+Thầy/Cô và học sinh có thể mở ngay từ điện thoại/máy tính bảng qua đường dẫn:
+[https://sonic-harp-a0kc1oh.tmp.now](https://sonic-harp-a0kc1oh.tmp.now)
 
 ---
 
-## 2. Cách Xóa Dữ Liệu Mẫu & Khởi Tạo Danh Sách Lớp Thật
+## 2. Danh Sách 45 Học Sinh & Cấu Trúc 6 Tổ
 
-Hệ thống đang tích hợp sẵn 10 học sinh mẫu (đầy đủ chức vụ và lịch sử điểm mô phỏng) để Thầy/Cô và Ban Cán Sự trải nghiệm thử. Khi bắt đầu áp dụng thực tế:
+Hệ thống đã nạp sẵn 100% danh sách học sinh theo hồ sơ nhà trường:
+- **Tổ 1 (8 HS):** Phan Thị Ngọc Ẩn (Lớp trưởng), Nguyễn Thị Kim Bơ (Tổ trưởng), Từ Diệu Yên Diễm, Võ Ngọc Mỹ Duyên, Trần Hữu Đồng (Sao đỏ), Trương Nguyễn Trường Giang [Diện hỗ trợ], Tạ Thanh Ngọc Giàu [Diện hỗ trợ], Ngô Thị Diễm Hằng.
+- **Tổ 2 (8 HS):** Nguyễn Vinh Hoa (Bí thư), Trần Bảo Phi Hoàng (Tổ trưởng), Nguyễn Quốc Huy [Diện hỗ trợ], Đỗ Tuấn Hưng, Lê Minh Khải (Sao đỏ), Nguyễn Vinh Khang, Võ Quốc Duy Khôi [Diện hỗ trợ], Nguyễn Tấn Kỳ.
+- **Tổ 3 (8 HS):** Lê Thị Mỹ Linh (Lớp phó Học tập), Nguyễn Đỗ Kim Yến Linh (Tổ trưởng), Bùi Nguyễn Hoàng Long, Nguyễn Bảo Long, Trần Minh Luân (Sao đỏ), Nguyễn Hữu Đan Mạch [Diện hỗ trợ], Trương Thị Mỹ Ngân, Nguyễn Hoàng Gia Nguyên.
+- **Tổ 4 (7 HS):** Võ Thị Yến Nhi (Lớp phó Lao động), Cao Ngọc An Nhiên (Tổ trưởng), Trần Lê Hồng Nhung, Võ Thành Phát [Diện hỗ trợ], Nguyễn Xuân Phúc, Trần Thị Ngọc Phúc [Diện hỗ trợ], Hoàng Thế Tài.
+- **Tổ 5 (7 HS):** Lê Tuấn Phát Tài (Tổ trưởng), Đỗ Quốc Thành (Sao đỏ), Nguyễn Ngọc Anh Thư, Nguyễn Ngọc Trinh [Diện hỗ trợ], Lê Thị Kim Trúc, Võ Bách Tùng, Nguyễn Thị Thanh Tuyền (12/01/2011).
+- **Tổ 6 (7 HS):** Nguyễn Thị Thanh Tuyền (14/06/2011), Trần Phúc Vinh (Tổ trưởng), Lê Gia Vũ [Diện hỗ trợ], Lê Văn Vũ, Dương Lục Yến Vy, Phạm Ngọc Tường Vy [Diện hỗ trợ], Đỗ Khôi Vỹ.
 
-### Bước 1: Xóa dữ liệu mẫu
-1. Trên thanh điều hướng (Sidebar bên trái), click vào mục **"Dữ Liệu & Cài Đặt"**.
-2. Nhấn vào nút đỏ: **"Xóa Toàn Bộ Dữ Liệu (Reset Về Trắng)"**.
-3. Chọn **OK** khi hộp thoại xác nhận hiện ra. Toàn bộ điểm số và danh sách giả lập sẽ được làm sạch hoàn toàn.
+---
 
-### Bước 2: Nạp Danh Sách 45 Học Sinh Lớp 10A3
-Thầy/Cô có 2 lựa chọn tiện lợi:
+## 3. Khôi Phục & Quản Lý Dữ Liệu
 
-* **Lựa chọn A (Khuyên dùng - Nhanh nhất):**
-  1. Trong mục **"Dữ Liệu & Cài Đặt"**, bấm nút: **"Nạp Đầy Đủ 45 Học Sinh Lớp 10A3 (6 Tổ, 10 em diện hỗ trợ)"**.
-  2. Hệ thống sẽ tự động cấu trúc chuẩn 45 học sinh chia đều cho 6 tổ, gán sẵn các chức danh (Lớp trưởng, Bí thư, Tổ trưởng...) và đánh dấu sẵn 10 học sinh diện theo dõi đặc biệt.
-  3. Thầy/Cô chuyển sang tab **"Quản Lý Học Sinh"**, bấm biểu tượng cây bút <i class="fa-solid fa-pen"></i> để sửa lại Họ và Tên thật của từng em.
-
-* **Lựa chọn B (Nhập thủ công từng em):**
-  1. Vào tab **"Quản Lý Học Sinh"**.
-  2. Bấm nút xanh **"+ Thêm Học Sinh"**.
-  3. Điền Họ Tên, chọn Tổ (1 - 6), chức vụ và tick chọn vào ô *"Học sinh diện theo dõi đặc biệt (10 em đầu vào thấp)"* nếu thuộc nhóm cần kèm cặp.
+- **Khôi phục lại danh sách 45 học sinh chuẩn:** Trong tab **"Dữ Liệu & Cài Đặt"**, bấm nút **"Chuẩn Hóa 45 HS"** bất cứ lúc nào.
+- **Thêm/Sửa học sinh:** Trong tab **"Quản Lý Học Sinh"**, có thể tìm kiếm theo tên, sửa Mã HS, Ngày sinh, đổi tổ hoặc gán vai trò.
+- **Sao lưu định kỳ:** Bấm nút **"Tải File Backup (.json)"** hàng tuần để lưu hồ sơ về máy.
 
 ---
 

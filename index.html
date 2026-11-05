@@ -429,8 +429,24 @@
             <!-- Filter Special Support -->
             <select id="filter-student-special" onchange="renderStudentsTable()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="all">Tất cả học sinh</option>
-              <option value="special">Chỉ HS theo dõi đặc biệt (10 em)</option>
+              <option value="special">Chỉ HS theo dõi đặc biệt</option>
               <option value="normal">Học sinh bình thường</option>
+            </select>
+
+            <!-- Filter Role -->
+            <select id="filter-student-role" onchange="renderStudentsTable()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all">Tất cả chức danh</option>
+              <option value="Lớp trưởng">Lớp trưởng</option>
+              <option value="Lớp phó">Lớp phó</option>
+              <option value="Tổ trưởng">Tổ trưởng</option>
+              <option value="Cán sự Toán">Cán sự Toán</option>
+              <option value="Cán sự Lý">Cán sự Lý</option>
+              <option value="Cán sự Hóa">Cán sự Hóa</option>
+              <option value="Cán sự Anh">Cán sự Anh</option>
+              <option value="Cán sự Sinh">Cán sự Sinh</option>
+              <option value="Cán sự Văn">Cán sự Văn</option>
+              <option value="Sao đỏ">Sao đỏ</option>
+              <option value="Thành viên">Thành viên</option>
             </select>
           </div>
 
@@ -650,14 +666,18 @@
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Họ và Tên Học Sinh <span class="text-rose-500">*</span></label>
           <input type="text" id="student-form-name" required placeholder="Ví dụ: Phan Thị Ngọc Ẩn" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-3 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mã Học Sinh</label>
             <input type="text" id="student-form-code" placeholder="Ví dụ: 1702997113" class="w-full border border-slate-300 rounded-lg px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ngày Sinh (DD/MM/YYYY)</label>
-            <input type="text" id="student-form-dob" placeholder="Ví dụ: 09/04/2011" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ngày Sinh</label>
+            <input type="text" id="student-form-dob" placeholder="10/08/2011" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Điểm Đầu Vào</label>
+            <input type="number" step="0.5" id="student-form-academic" placeholder="35.0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -677,11 +697,16 @@
             <select id="student-form-role" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
               <option value="Thành viên">Thành viên</option>
               <option value="Lớp trưởng">Lớp trưởng</option>
-              <option value="Bí thư">Bí thư</option>
-              <option value="Lớp phó Học tập">Lớp phó Học tập</option>
-              <option value="Lớp phó Lao động">Lớp phó Lao động</option>
+              <option value="Lớp phó">Lớp phó</option>
               <option value="Tổ trưởng">Tổ trưởng</option>
+              <option value="Cán sự Toán">Cán sự Toán</option>
+              <option value="Cán sự Lý">Cán sự Lý</option>
+              <option value="Cán sự Hóa">Cán sự Hóa</option>
+              <option value="Cán sự Anh">Cán sự Anh</option>
+              <option value="Cán sự Sinh">Cán sự Sinh</option>
+              <option value="Cán sự Văn">Cán sự Văn</option>
               <option value="Sao đỏ">Sao đỏ</option>
+              <option value="Bí thư">Bí thư</option>
             </select>
           </div>
         </div>

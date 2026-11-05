@@ -1,36 +1,40 @@
 # Cẩm Nang Bàn Giao & Hướng Dẫn Sử Dụng Dashboard Quản Trị Lớp 10A3
 **Trường THPT Bùi Thị Xuân - Mũi Né | Sở GD&ĐT Lâm Đồng**
 
-Kính gửi Thầy/Cô Chủ nhiệm Lớp 10A3,
-
-Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản Toàn Diện - Token Economy)** đã được tích hợp toàn bộ **danh sách chính thức 45 học sinh** của lớp (kèm Mã học sinh, Ngày sinh, phân 6 tổ, Ban cán sự và 10 học sinh diện theo dõi đặc biệt).
+Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản Toàn Diện - Token Economy)** đã được phân bổ **cân bằng lực học đầu vào cho 6 tổ tự quản**, gán chức danh Ban cán sự theo chỉ định của Giáo viên Chủ nhiệm (loại trừ 2 học sinh đã nghỉ học: Huỳnh Nhã Uyên, Đồng Lê Thanh Thủy).
 
 ---
 
-## 1. Cách Mở Ứng Dụng Trên Trình Duyệt
+## 1. Cơ Cấu Tổ & Ban Cán Sự Lớp 10A3
 
-Hệ thống hoạt động hoàn toàn độc lập (Offline), không yêu cầu cài đặt phần mềm máy chủ hay kết nối internet.
-
-### Cách 1: Mở trực tiếp (Nhanh nhất)
-1. Mở thư mục dự án tại đường dẫn:
-   `C:\Users\admin\.gemini\antigravity\scratch\dashboard-10a3\`
-2. Click đúp chuột vào tệp [index.html](file:///C:/Users/admin/.gemini/antigravity/scratch/dashboard-10a3/index.html) (hoặc chuột phải chọn **Open with** &rarr; **Microsoft Edge** hoặc **Google Chrome**).
-
-### Cách 2: Truy cập Trực tuyến qua Vercel
-Thầy/Cô và học sinh có thể mở ngay từ điện thoại/máy tính bảng qua đường dẫn:
-[https://sonic-harp-a0kc1oh.tmp.now](https://sonic-harp-a0kc1oh.tmp.now)
+- **Lớp trưởng:** Trần Lê Hồng Nhung (Tổ 4)
+- **Lớp phó:** Từ Diệu Yên Diễm (Tổ 2)
+- **Tổ trưởng Tổ 1:** Dương Lục Yến Vy (34đ)
+- **Tổ trưởng Tổ 4:** Nguyễn Ngọc Trinh (29đ)
+- **Tổ trưởng Tổ 6:** Trương Thị Mỹ Ngân (38đ)
+- **Cán sự Bộ môn:**
+  - **Cán sự Toán:** Nguyễn Hữu Đan Mạch (39đ - Tổ 1)
+  - **Cán sự Lý:** Lê Văn Vũ (39đ - Tổ 3)
+  - **Cán sự Hóa:** Trần Minh Luân (38đ - Tổ 4)
+  - **Cán sự Tiếng Anh:** Cao Ngọc An Nhiên (39đ - Tổ 5)
+  - **Cán sự Sinh:** Nguyễn Xuân Phúc (38đ - Tổ 2)
+  - **Cán sự Văn:** Lê Thị Mỹ Linh (36đ - Tổ 1)
 
 ---
 
-## 2. Danh Sách 45 Học Sinh & Cấu Trúc 6 Tổ
+## 2. Bảng Phân Bổ 6 Tổ Tự Quản Cân Bằng Điểm Lực Học
 
-Hệ thống đã nạp sẵn 100% danh sách học sinh theo hồ sơ nhà trường:
-- **Tổ 1 (8 HS):** Phan Thị Ngọc Ẩn (Lớp trưởng), Nguyễn Thị Kim Bơ (Tổ trưởng), Từ Diệu Yên Diễm, Võ Ngọc Mỹ Duyên, Trần Hữu Đồng (Sao đỏ), Trương Nguyễn Trường Giang [Diện hỗ trợ], Tạ Thanh Ngọc Giàu [Diện hỗ trợ], Ngô Thị Diễm Hằng.
-- **Tổ 2 (8 HS):** Nguyễn Vinh Hoa (Bí thư), Trần Bảo Phi Hoàng (Tổ trưởng), Nguyễn Quốc Huy [Diện hỗ trợ], Đỗ Tuấn Hưng, Lê Minh Khải (Sao đỏ), Nguyễn Vinh Khang, Võ Quốc Duy Khôi [Diện hỗ trợ], Nguyễn Tấn Kỳ.
-- **Tổ 3 (8 HS):** Lê Thị Mỹ Linh (Lớp phó Học tập), Nguyễn Đỗ Kim Yến Linh (Tổ trưởng), Bùi Nguyễn Hoàng Long, Nguyễn Bảo Long, Trần Minh Luân (Sao đỏ), Nguyễn Hữu Đan Mạch [Diện hỗ trợ], Trương Thị Mỹ Ngân, Nguyễn Hoàng Gia Nguyên.
-- **Tổ 4 (7 HS):** Võ Thị Yến Nhi (Lớp phó Lao động), Cao Ngọc An Nhiên (Tổ trưởng), Trần Lê Hồng Nhung, Võ Thành Phát [Diện hỗ trợ], Nguyễn Xuân Phúc, Trần Thị Ngọc Phúc [Diện hỗ trợ], Hoàng Thế Tài.
-- **Tổ 5 (7 HS):** Lê Tuấn Phát Tài (Tổ trưởng), Đỗ Quốc Thành (Sao đỏ), Nguyễn Ngọc Anh Thư, Nguyễn Ngọc Trinh [Diện hỗ trợ], Lê Thị Kim Trúc, Võ Bách Tùng, Nguyễn Thị Thanh Tuyền (12/01/2011).
-- **Tổ 6 (7 HS):** Nguyễn Thị Thanh Tuyền (14/06/2011), Trần Phúc Vinh (Tổ trưởng), Lê Gia Vũ [Diện hỗ trợ], Lê Văn Vũ, Dương Lục Yến Vy, Phạm Ngọc Tường Vy [Diện hỗ trợ], Đỗ Khôi Vỹ.
+| Tổ | Sĩ số | Điểm TB Lực Học | Cán sự & Thành viên | Học sinh diện theo dõi (Cần kèm cặp) |
+| :---: | :---: | :---: | :--- | :--- |
+| **Tổ 1** | 8 | **34.62** | • Dương Lục Yến Vy (**Tổ trưởng**)<br>• Nguyễn Hữu Đan Mạch (**Cán sự Toán**)<br>• Lê Minh Khải (**Sao đỏ**)<br>• Nguyễn Vinh Hoa (**Bí thư**)<br>• Lê Thị Mỹ Linh (**Cán sự Văn**)<br>• Ngô Quang Nhân, Võ Quốc Duy Khôi | **1.** Nguyễn Quốc Huy (23đ) |
+| **Tổ 2** | 8 | **34.75** | • Từ Diệu Yên Diễm (**Lớp phó**)<br>• Nguyễn Hoàng Gia Nguyên (**Tổ trưởng**)<br>• Nguyễn Xuân Phúc (**Cán sự Sinh**)<br>• Nguyễn Tấn Kỳ (**Sao đỏ**)<br>• Nguyễn Minh Hoàng, Võ Ngọc Mỹ Duyên | **2.** Trần Hữu Đồng (33đ)<br>**3.** Nguyễn Bảo Long (25đ) |
+| **Tổ 3** | 7 | **34.86** | • Trần Bảo Phi Hoàng (**Tổ trưởng**)<br>• Lê Văn Vũ (**Cán sự Lý**)<br>• Nguyễn Thị Thanh Tuyền (14/06)<br>• Nguyễn Đỗ Kim Yến Linh (**Sao đỏ**)<br>• Huỳnh Khánh Như | **4.** Trần Phúc Vinh (29đ)<br>**5.** Tạ Thanh Ngọc Giàu (26đ) |
+| **Tổ 4** | 7 | **34.50** | • Nguyễn Ngọc Trinh (**Tổ trưởng**)<br>• Trần Lê Hồng Nhung (**Lớp trưởng**)<br>• Trần Minh Luân (**Cán sự Hóa**)<br>• Ngô Thị Diễm Hằng, Võ Thị Yến Nhi (**Sao đỏ**) | **6.** Phạm Ngọc Tường Vy<br>**7.** Nguyễn Thị Kim Bơ (33đ) |
+| **Tổ 5** | 7 | **34.57** | • Cao Ngọc An Nhiên (**Cán sự Anh**)<br>• Bùi Nguyễn Hoàng Long (**Sao đỏ**)<br>• Trần Thị Ngọc Phúc, Trương Nguyễn Trường Giang, Lê Thị Kim Trúc | **8.** Nguyễn Thị Thanh Tuyền (12/01 - 31đ)<br>**9.** Nguyễn Ngọc Anh Thư (29đ) |
+| **Tổ 6** | 7 | **34.57** | • Trương Thị Mỹ Ngân (**Tổ trưởng**)<br>• Phan Thị Ngọc Ẩn, Võ Thành Phát, Đỗ Khôi Vỹ (**Sao đỏ**)<br>• Lê Tuấn Phát Tài, Võ Bách Tùng | **10.** Đỗ Tuấn Hưng (29đ) |
+
+> [!NOTE]
+> Điểm trung bình lực học của cả 6 tổ đều nằm sát nút quanh mức **34.50 – 34.86** (Chênh lệch cực đại chỉ 0.36 điểm), đảm bảo sự công bằng và tính cạnh tranh cao nhất trong thi đua!
 
 ---
 

@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v14',
+  STUDENTS: 'dashboard10a3_official_45_students_v15',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v13'
+  SEATING: 'dashboard10a3_official_45_seating_v14'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1546,8 +1546,8 @@ function getDefaultSeating() {
       pairWithTable: 6,
       title: 'Bàn 5',
       subtitle: 'Ghép Bàn 6',
-      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng - 36đ)
-      rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_12' } // Đỗ Tuấn Hưng (Hỗ trợ - 29đ) [Đôi bạn cùng tiến]
+      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_18' }, // Nguyễn Đỗ Kim Yến Linh (37đ)
+      rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến: Yến Linh kèm Phúc Vinh]
     },
     {
       tableId: 'tbl_d2_t6',
@@ -1558,10 +1558,10 @@ function getDefaultSeating() {
       pairWithTable: 5,
       title: 'Bàn 6',
       subtitle: 'Ghép Bàn 5',
-      leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_42' }, // Lê Văn Vũ (CS Lý - 39đ)
-      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: 'hs_10a3_09' } // Nguyễn Vinh Hoa (TỔ TRƯỞNG TỔ 5 - 37đ)
+      leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_31' }, // Hoàng Thế Tài (35đ)
+      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: null } // Ghế trống dự phòng
     },
-    // [HÀNG 4: BÀN 7 GHÉP BÀN 8]
+    // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TỔ TRƯỞNG & LỚP TRƯỞNG NGỒI HÀNG SAU BAO QUÁT TỔ]
     {
       tableId: 'tbl_d2_t7',
       row: 2,
@@ -1571,8 +1571,8 @@ function getDefaultSeating() {
       pairWithTable: 8,
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
-      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_18' }, // Nguyễn Đỗ Kim Yến Linh (37đ)
-      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến: Yến Linh kèm Phúc Vinh]
+      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng - 36đ)
+      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_12' } // Đỗ Tuấn Hưng (Hỗ trợ - 29đ) [Đôi bạn cùng tiến: Hồng Nhung kèm Tuấn Hưng]
     },
     {
       tableId: 'tbl_d2_t8',
@@ -1583,8 +1583,8 @@ function getDefaultSeating() {
       pairWithTable: 7,
       title: 'Bàn 8',
       subtitle: 'Ghép Bàn 7',
-      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_31' }, // Hoàng Thế Tài (35đ)
-      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
+      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_42' }, // Lê Văn Vũ (CS Lý - 39đ)
+      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: 'hs_10a3_09' } // Nguyễn Vinh Hoa (TỔ TRƯỞNG TỔ 5 - 37đ) [Tổ trưởng ngồi Bàn 8 bao quát tổ]
     },
 
     // --- TỔ 6 (Bàn 9 -> 12) ---

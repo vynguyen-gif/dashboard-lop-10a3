@@ -785,3 +785,29 @@ html.dark .modal-backdrop > div {
     color: #000000 !important;
   }
 }
+
+
+/* ==================== BẢNG XẾP HẠNG THI ĐUA THEO TUẦN (LEADERBOARD) ==================== */
+@media print {
+  #print-leaderboard-export-container {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #ffffff !important;
+    color: #000000 !important;
+    z-index: 999999;
+  }
+}
+
+html.dark #section-leaderboard select,
+html.dark #section-leaderboard input {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark #leaderboard-table-body tr:hover {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+}

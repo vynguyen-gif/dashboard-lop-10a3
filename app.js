@@ -67,7 +67,8 @@ let appState = {
   activeFormId: 'form1',
   selectedFormStudentId: '',
   theme: 'light',
-  starsEnabled: true
+  starsEnabled: true,
+  activeLeaderboardWeek: '10'
 };
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
@@ -231,6 +232,8 @@ function switchTab(tabName) {
   if (tabName === 'dashboard') {
     renderDashboardStats();
     renderCharts();
+  } else if (tabName === 'leaderboard') {
+    renderLeaderboard();
   } else if (tabName === 'scoring') {
     renderScoringStudentPills();
   } else if (tabName === 'students') {
@@ -1275,6 +1278,7 @@ function importDataJSON(event) {
 function refreshAllUI() {
   renderDashboardStats();
   renderCharts();
+  renderLeaderboard();
   renderScoringStudentPills();
   renderStudentsTable();
   renderLogsTable();
@@ -3260,3 +3264,392 @@ function setupStarBurstOnClick() {
 
 
 
+
+
+// ==================== BẢNG XẾP HẠNG THI ĐUA THEO TUẦN (LEADERBOARD) ====================
+
+function changeLeaderboardWeek(weekVal) {
+  appState.activeLeaderboardWeek = weekVal;
+  renderLeaderboard();
+}
+
+function calculateStudentWeeklyStats(studentId, weekFilter) {
+  let bonusPts = 0;
+  let violPts = 0;
+  let hasPairedProgress = false;
+  let hasBabySteps = false;
+
+  const logs = appState.dailyLogs.filter(log => {
+    if (log.studentId !== studentId) return false;
+    if (weekFilter === 'all') return true;
+    // Nếu log chưa có thuộc tính week, mặc định gán cho tuần 10 (tuần bắt đầu áp dụng số hóa)
+    const logWeek = log.week || '10';
+    return String(logWeek) === String(weekFilter);
+  });
+
+  logs.forEach(log => {
+    const pts = Number(log.pointsChanged) || 0;
+    if (pts > 0) bonusPts += pts;
+    else if (pts < 0) violPts += pts;
+
+    if (log.ruleKey === 'bonus_paired_progress' || log.ruleKey === 'bonus_peer_tutoring') {
+      hasPairedProgress = true;
+    }
+    if (log.ruleKey === 'bonus_baby_steps') {
+      hasBabySteps = true;
+    }
+  });
+
+  const baseScore = BASE_WEEKLY_SCORE; // 100 điểm sàn tuần
+  const totalScore = baseScore + bonusPts + violPts;
+
+  return {
+    baseScore,
+    bonusPts,
+    violPts,
+    totalScore,
+    hasPairedProgress,
+    hasBabySteps,
+    logCount: logs.length
+  };
+}
+
+function getRankedStudents(weekFilter) {
+  const list = appState.students.map(s => {
+    const stats = calculateStudentWeeklyStats(s.id, weekFilter);
+    return {
+      ...s,
+      ...stats
+    };
+  });
+
+  // Sắp xếp giảm dần theo tổng điểm tuần. Nếu bằng điểm, ưu tiên ít điểm trừ hơn, sau đó điểm lực học
+  list.sort((a, b) => {
+    if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+    if (a.violPts !== b.violPts) return b.violPts - a.violPts; // violPts là số âm, lớn hơn tức là ít bị trừ hơn
+    return (b.academicScore || 0) - (a.academicScore || 0);
+  });
+
+  // Gán thứ hạng (Rank 1 -> 45)
+  list.forEach((item, index) => {
+    item.rank = index + 1;
+    item.tier = getRankingTier(item.totalScore);
+  });
+
+  return list;
+}
+
+function renderLeaderboard() {
+  const weekFilter = appState.activeLeaderboardWeek || '10';
+  const weekSelect = document.getElementById('leaderboard-week-select');
+  if (weekSelect && weekSelect.value !== weekFilter) {
+    weekSelect.value = weekFilter;
+  }
+
+  const weekLabel = document.getElementById('podium-week-label');
+  if (weekLabel) {
+    weekLabel.textContent = weekFilter === 'all' 
+      ? 'Thành tích lũy kế toàn bộ học kỳ của 45 học sinh Lớp 10A3' 
+      : `Ghi nhận thành tích thi đua xuất sắc nhất trong Tuần ${weekFilter}`;
+  }
+
+  const rankedList = getRankedStudents(weekFilter);
+
+  renderLeaderboardPodium(rankedList);
+  renderLeaderboardGroups(rankedList);
+  renderLeaderboardTable(rankedList);
+}
+
+function renderLeaderboardPodium(rankedList) {
+  const container = document.getElementById('leaderboard-podium-container');
+  if (!container) return;
+
+  if (rankedList.length < 3) {
+    container.innerHTML = '<p class="text-xs text-slate-400 col-span-3 text-center py-6">Đang tải dữ liệu học sinh...</p>';
+    return;
+  }
+
+  const rank1 = rankedList[0];
+  const rank2 = rankedList[1];
+  const rank3 = rankedList[2];
+
+  container.innerHTML = `
+    <!-- Rank 2: Á Quân 1 (Bên Trái) -->
+    <div class="order-2 md:order-1 bg-gradient-to-t from-slate-100 to-white dark:from-slate-900 dark:to-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-2xl p-4 text-center shadow-md flex flex-col items-center justify-end relative h-64 md:h-72 cursor-pointer hover:border-slate-400 transition" onclick="openStudentDetailModal('${rank2.id}')">
+      <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-2 border-slate-400 flex items-center justify-center font-black text-lg mb-2 shadow-inner">
+        🥈 2
+      </div>
+      <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Á Quân 1 Tuần</span>
+      <h4 class="font-black text-slate-900 dark:text-white text-base leading-tight mb-1">${escapeHtml(rank2.fullName)}</h4>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Tổ ${rank2.groupNumber} &bull; ${escapeHtml(rank2.role || 'Thành viên')}</p>
+      <div class="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 px-3 py-1 rounded-xl w-full">
+        <span class="text-xl font-black text-blue-600 dark:text-blue-400">${rank2.totalScore}</span> <span class="text-xs font-bold text-slate-500">điểm</span>
+      </div>
+    </div>
+
+    <!-- Rank 1: Quán Quân (Ở Giữa - Cao Nhất) -->
+    <div class="order-1 md:order-2 bg-gradient-to-t from-amber-100 via-amber-50 to-white dark:from-amber-950/60 dark:via-slate-900 dark:to-slate-800 border-3 border-amber-400 dark:border-amber-500 rounded-2xl p-5 text-center shadow-xl flex flex-col items-center justify-end relative h-76 md:h-84 transform md:-translate-y-2 cursor-pointer hover:scale-[1.02] transition" onclick="openStudentDetailModal('${rank1.id}')">
+      <div class="absolute -top-4 w-9 h-9 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-lg shadow-md border-2 border-white dark:border-slate-800">
+        👑
+      </div>
+      <div class="w-14 h-14 rounded-full bg-amber-300 dark:bg-amber-600 text-amber-950 dark:text-white border-2 border-amber-500 flex items-center justify-center font-black text-2xl mb-2 shadow-lg">
+        🥇 1
+      </div>
+      <span class="text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+        <i class="fa-solid fa-star text-[10px]"></i> QUÁN QUÂN TUẦN <i class="fa-solid fa-star text-[10px]"></i>
+      </span>
+      <h4 class="font-black text-slate-900 dark:text-white text-lg leading-tight mb-1">${escapeHtml(rank1.fullName)}</h4>
+      <p class="text-xs text-amber-800 dark:text-amber-300 font-semibold mb-3">Tổ ${rank1.groupNumber} &bull; ${escapeHtml(rank1.role || 'Thành viên')}</p>
+      <div class="bg-amber-200/60 dark:bg-amber-900/40 border border-amber-400 dark:border-amber-600 px-4 py-1.5 rounded-xl w-full">
+        <span class="text-2xl font-black text-amber-700 dark:text-amber-300">${rank1.totalScore}</span> <span class="text-xs font-black text-amber-800 dark:text-amber-400">điểm</span>
+      </div>
+    </div>
+
+    <!-- Rank 3: Á Quân 2 (Bên Phải) -->
+    <div class="order-3 bg-gradient-to-t from-orange-100 to-white dark:from-slate-900 dark:to-slate-800 border-2 border-amber-600/40 dark:border-amber-700/60 rounded-2xl p-4 text-center shadow-md flex flex-col items-center justify-end relative h-60 md:h-68 cursor-pointer hover:border-amber-600 transition" onclick="openStudentDetailModal('${rank3.id}')">
+      <div class="w-12 h-12 rounded-full bg-amber-700/20 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border-2 border-amber-600 flex items-center justify-center font-black text-lg mb-2 shadow-inner">
+        🥉 3
+      </div>
+      <span class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-1">Á Quân 2 Tuần</span>
+      <h4 class="font-black text-slate-900 dark:text-white text-base leading-tight mb-1">${escapeHtml(rank3.fullName)}</h4>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Tổ ${rank3.groupNumber} &bull; ${escapeHtml(rank3.role || 'Thành viên')}</p>
+      <div class="bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 px-3 py-1 rounded-xl w-full">
+        <span class="text-xl font-black text-orange-600 dark:text-orange-400">${rank3.totalScore}</span> <span class="text-xs font-bold text-slate-500">điểm</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderLeaderboardGroups(rankedList) {
+  const container = document.getElementById('leaderboard-groups-grid');
+  if (!container) return;
+
+  const groupStats = [];
+  for (let g = 1; g <= 6; g++) {
+    const mems = rankedList.filter(s => s.groupNumber === g);
+    const count = mems.length;
+    const sum = mems.reduce((acc, cur) => acc + cur.totalScore, 0);
+    const avg = count > 0 ? (sum / count).toFixed(2) : '0';
+    const totalBonus = mems.reduce((acc, cur) => acc + cur.bonusPts, 0);
+    const totalViol = mems.reduce((acc, cur) => acc + cur.violPts, 0);
+    groupStats.push({ groupNumber: g, count, sum, avg: Number(avg), totalBonus, totalViol });
+  }
+
+  // Sắp xếp tổ theo điểm trung bình tuần giảm dần
+  groupStats.sort((a, b) => b.avg - a.avg);
+
+  const winningGroup = groupStats[0];
+  const winDisplay = document.getElementById('winning-group-name');
+  if (winDisplay && winningGroup) {
+    winDisplay.textContent = `Tổ ${winningGroup.groupNumber} (TB: ${winningGroup.avg}đ)`;
+  }
+
+  container.innerHTML = groupStats.map((g, idx) => {
+    const isTop = idx === 0;
+    const badgeColor = isTop ? 'bg-amber-500 text-slate-900 font-black' : idx === 1 ? 'bg-slate-300 text-slate-800 font-bold' : idx === 2 ? 'bg-amber-700 text-white font-bold' : 'bg-slate-100 text-slate-600';
+    const cardBorder = isTop ? 'border-2 border-amber-400 bg-amber-50/50 dark:bg-amber-950/20 shadow-md' : 'border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800';
+
+    return `
+      <div class="${cardBorder} rounded-xl p-3 flex flex-col justify-between text-center relative overflow-hidden">
+        ${isTop ? '<div class="absolute -right-6 -top-6 w-14 h-14 bg-amber-400 rotate-45 flex items-end justify-center pb-0.5 text-xs">🚩</div>' : ''}
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${badgeColor}">${idx + 1}</span>
+            <span class="text-[10px] font-bold text-slate-400">${g.count} HS</span>
+          </div>
+          <h5 class="font-extrabold text-sm text-slate-800 dark:text-slate-100 mb-1">Tổ ${g.groupNumber}</h5>
+          <div class="text-lg font-black text-blue-600 dark:text-blue-400">${g.avg} <span class="text-[10px] font-bold text-slate-400">TB</span></div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-500 flex justify-between">
+          <span class="text-emerald-600 dark:text-emerald-400 font-bold">+${g.totalBonus}</span>
+          <span class="text-rose-600 dark:text-rose-400 font-bold">${g.totalViol}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderLeaderboardTable(preloadedList) {
+  const tbody = document.getElementById('leaderboard-table-body');
+  if (!tbody) return;
+
+  const weekFilter = appState.activeLeaderboardWeek || '10';
+  const list = preloadedList || getRankedStudents(weekFilter);
+
+  const groupFilter = document.getElementById('leaderboard-group-filter')?.value || 'all';
+  const tierFilter = document.getElementById('leaderboard-tier-filter')?.value || 'all';
+  const searchVal = (document.getElementById('leaderboard-search')?.value || '').trim().toLowerCase();
+
+  const filtered = list.filter(stu => {
+    if (groupFilter !== 'all' && String(stu.groupNumber) !== String(groupFilter)) return false;
+    if (tierFilter !== 'all' && stu.tier.label !== tierFilter) return false;
+    if (searchVal && !stu.fullName.toLowerCase().includes(searchVal)) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp với bộ lọc</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(stu => {
+    const rank = stu.rank;
+    const rankBadge = rank === 1 ? '<span class="w-6 h-6 rounded-full bg-amber-400 text-amber-950 font-black text-xs inline-flex items-center justify-center shadow-xs">🥇</span>'
+                    : rank === 2 ? '<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-800 font-bold text-xs inline-flex items-center justify-center">🥈</span>'
+                    : rank === 3 ? '<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-bold text-xs inline-flex items-center justify-center">🥉</span>'
+                    : `<span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs inline-flex items-center justify-center">${rank}</span>`;
+
+    const tierBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${stu.tier.color}">${stu.tier.label}</span>`;
+
+    const progressBadges = [];
+    if (stu.hasPairedProgress) {
+      progressBadges.push('<span class="text-[9px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.2 rounded font-bold border border-emerald-300/60 inline-flex items-center gap-1">🤝 Cùng tiến</span>');
+    }
+    if (stu.hasBabySteps) {
+      progressBadges.push('<span class="text-[9px] bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 px-1.5 py-0.2 rounded font-bold border border-purple-300/60 inline-flex items-center gap-1">🪜 Baby Steps</span>');
+    }
+    if (stu.isSpecialSupport) {
+      progressBadges.push('<span class="text-[9px] bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">Kèm cặp</span>');
+    }
+
+    return `
+      <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700/60 cursor-pointer" onclick="openStudentDetailModal('${stu.id}')">
+        <td class="py-2.5 px-3 text-center">${rankBadge}</td>
+        <td class="py-2.5 px-3">
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
+            <span>${escapeHtml(stu.fullName)}</span>
+            ${getRoleBadgeHtml(stu.role)}
+          </div>
+          <div class="text-[10px] text-slate-400">Mã: ${stu.code} &bull; NS: ${stu.dob}</div>
+        </td>
+        <td class="py-2.5 px-3 text-center font-bold text-slate-600 dark:text-slate-300">Tổ ${stu.groupNumber}</td>
+        <td class="py-2.5 px-3 text-center text-slate-500 font-semibold">${stu.baseScore}</td>
+        <td class="py-2.5 px-3 text-center font-bold text-emerald-600 dark:text-emerald-400">+${stu.bonusPts}</td>
+        <td class="py-2.5 px-3 text-center font-bold text-rose-600 dark:text-rose-400">${stu.violPts}</td>
+        <td class="py-2.5 px-3 text-center">
+          <span class="text-sm font-black text-slate-900 dark:text-white">${stu.totalScore}</span>
+        </td>
+        <td class="py-2.5 px-3 text-center">${tierBadge}</td>
+        <td class="py-2.5 px-3">
+          <div class="flex flex-wrap gap-1">
+            ${progressBadges.length > 0 ? progressBadges.join(' ') : '<span class="text-slate-400 text-[10px]">Nề nếp ổn định</span>'}
+          </div>
+        </td>
+        <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
+          <button onclick="openStudentDetailModal('${stu.id}')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-blue-600 rounded transition" title="Xem hồ sơ">
+            <i class="fa-solid fa-eye text-xs"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4)
+function openPrintLeaderboardModal() {
+  const modal = document.getElementById('modal-print-leaderboard');
+  const content = document.getElementById('print-leaderboard-content');
+  if (!modal || !content) return;
+
+  content.innerHTML = generatePrintLeaderboardHTML();
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closePrintLeaderboardModal() {
+  const modal = document.getElementById('modal-print-leaderboard');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function printLeaderboardDirectly() {
+  let printContainer = document.getElementById('print-leaderboard-export-container');
+  if (!printContainer) {
+    printContainer = document.createElement('div');
+    printContainer.id = 'print-leaderboard-export-container';
+    printContainer.className = 'hidden print:block';
+    document.body.appendChild(printContainer);
+  }
+  printContainer.innerHTML = generatePrintLeaderboardHTML();
+  closePrintLeaderboardModal();
+  setTimeout(() => window.print(), 150);
+}
+
+function generatePrintLeaderboardHTML() {
+  const weekFilter = appState.activeLeaderboardWeek || '10';
+  const rankedList = getRankedStudents(weekFilter);
+  const weekText = weekFilter === 'all' ? 'TỔNG KẾT TOÀN HỌC KỲ 1' : `TUẦN ${weekFilter}`;
+
+  return `
+    <div class="bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[210mm] mx-auto p-4 space-y-3">
+      <!-- QUỐC HIỆU & TIÊU NGỮ -->
+      <div class="grid grid-cols-12 items-start pb-2 border-b-2 border-black">
+        <div class="col-span-5 text-center">
+          <p class="text-[9px] uppercase font-bold text-slate-700">SỞ GD&ĐT LÂM ĐỒNG</p>
+          <p class="text-[10px] uppercase font-bold text-black tracking-wide">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</p>
+        </div>
+        <div class="col-span-7 text-center">
+          <p class="text-[10px] uppercase font-bold text-black tracking-wide">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+          <p class="text-[9px] italic font-semibold text-slate-800">Độc lập &mdash; Tự do &mdash; Hạnh phúc</p>
+        </div>
+      </div>
+
+      <!-- TIÊU ĐỀ BẢNG THI ĐUA -->
+      <div class="text-center my-2">
+        <h1 class="text-base font-black tracking-wider uppercase text-black">
+          BẢNG XẾP HẠNG THI ĐUA HỌC SINH &mdash; LỚP 10A3
+        </h1>
+        <p class="text-xs font-bold text-blue-900 mt-0.5">
+          ${weekText} &bull; NĂM HỌC 2026 - 2027 &bull; SĨ SỐ: 45 HỌC SINH
+        </p>
+      </div>
+
+      <!-- BẢNG TỔNG KẾT 45 HỌC SINH (2 CỘT GỌN GÀNG TRÊN 1 TRANG A4) -->
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-black text-[10px]">
+          <thead>
+            <tr class="bg-slate-200 uppercase font-bold">
+              <th class="border border-black p-1 text-center w-8">Hạng</th>
+              <th class="border border-black p-1">Họ và Tên</th>
+              <th class="border border-black p-1 text-center w-8">Tổ</th>
+              <th class="border border-black p-1 text-center w-12">Điểm Sàn</th>
+              <th class="border border-black p-1 text-center w-12">Điểm Cộng</th>
+              <th class="border border-black p-1 text-center w-12">Điểm Trừ</th>
+              <th class="border border-black p-1 text-center w-14 font-black">Tổng Điểm</th>
+              <th class="border border-black p-1 text-center w-14">Xếp Loại</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rankedList.map(s => `
+              <tr class="${s.rank <= 3 ? 'bg-amber-50 font-semibold' : ''}">
+                <td class="border border-black p-1 text-center font-bold">${s.rank}</td>
+                <td class="border border-black p-1">${s.fullName} ${s.role && s.role !== 'Thành viên' ? `(${s.role})` : ''}</td>
+                <td class="border border-black p-1 text-center">T${s.groupNumber}</td>
+                <td class="border border-black p-1 text-center">${s.baseScore}</td>
+                <td class="border border-black p-1 text-center text-emerald-800">+${s.bonusPts}</td>
+                <td class="border border-black p-1 text-center text-rose-800">${s.violPts}</td>
+                <td class="border border-black p-1 text-center font-black">${s.totalScore}</td>
+                <td class="border border-black p-1 text-center font-bold">${s.tier.label}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CHỮ KÝ GVCN VÀ LỚP TRƯỞNG -->
+      <div class="grid grid-cols-2 pt-2 border-t border-slate-300 text-[10px] mt-3">
+        <div class="text-center">
+          <p class="font-bold uppercase">LỚP TRƯỞNG / BAN CÁN SỰ</p>
+          <p class="text-[9px] italic text-slate-500 mt-8">(Ký và ghi rõ họ tên)</p>
+        </div>
+        <div class="text-center">
+          <p class="italic">Mũi Né, ngày ... tháng ... năm 2026</p>
+          <p class="font-bold uppercase mt-0.5">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="text-[9px] italic text-slate-500 mt-8">(Ký và ghi rõ họ tên)</p>
+        </div>
+      </div>
+    </div>
+  `;
+}

@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v22',
+  STUDENTS: 'dashboard10a3_official_45_students_v23',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v19'
+  SEATING: 'dashboard10a3_official_45_seating_v20'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1110,6 +1110,7 @@ const OFFICIAL_10A3_STUDENTS = [
 
   // ===== TỔ 2 (8 học sinh • Điểm TB Lực Học: 33.56) =====
   { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyễn Hoàng Gia Nguyên', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_33', code: '1703412028', fullName: 'Đỗ Quốc Thành', dob: '19/08/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_34', code: '1704831627', fullName: 'Nguyễn Ngọc Anh Thư', dob: '24/10/2011', academicScore: 29, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyễn Thị Thanh Tuyền (12/01)', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
@@ -1120,7 +1121,6 @@ const OFFICIAL_10A3_STUDENTS = [
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
   { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_33', code: '1703412028', fullName: 'Đỗ Quốc Thành', dob: '19/08/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
@@ -1429,7 +1429,7 @@ function getDefaultSeating() {
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
       leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (TỔ TRƯỞNG TỔ 2 - 38đ) [Ghế ngoài cùng bên trái]
-      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: null } // Ghế trống dự phòng
+      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_33' } // Đỗ Quốc Thành (35đ) [Ngồi sát Tổ trưởng Gia Nguyên]
     },
     {
       tableId: 'tbl_d1_t8',
@@ -1492,7 +1492,7 @@ function getDefaultSeating() {
       pairWithTable: 11,
       title: 'Bàn 12',
       subtitle: 'Ghép Bàn 11',
-      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_33' }, // Đỗ Quốc Thành (35đ)
+      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: null }, // Ghế trống dự phòng
       rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (34đ)
     },
 

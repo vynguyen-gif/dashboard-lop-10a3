@@ -506,9 +506,158 @@ html.dark textarea {
   border-color: #334155 !important;
 }
 
+html.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
 html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #64748b !important;
+}
+
+/* ==================== SỬA LỖI MÀU NỀN & CHỮ KHI CHỌN HỌC SINH (DARK MODE) ==================== */
+
+/* 1. Thẻ chọn học sinh trong tab Chấm Điểm (Student Pills) */
+html.dark .student-pill {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .student-pill p,
+html.dark .student-pill span {
+  color: #f8fafc !important;
+}
+
+html.dark .student-pill .text-slate-400,
+html.dark .student-pill .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.dark .student-pill:hover {
+  background-color: #273549 !important;
+  border-color: #3b82f6 !important;
+}
+
+/* KHI CHỌN HỌC SINH (ACTIVE): Nền xanh dương đậm hoàng gia, viền sáng, chữ trắng tinh */
+html.dark .student-pill.active {
+  background-color: #1e3a8a !important; /* Deep Blue 900 */
+  border-color: #60a5fa !important; /* Blue 400 */
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.45) !important;
+}
+
+html.dark .student-pill.active p,
+html.dark .student-pill.active span,
+html.dark .student-pill.active i {
+  color: #ffffff !important;
+}
+
+/* 2. Thẻ chỗ ngồi học sinh trong tab Sơ Đồ Lớp (Seat Cards) */
+html.dark .seat-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .seat-card div {
+  color: #f8fafc !important;
+}
+
+html.dark .seat-card:hover {
+  background-color: #273549 !important;
+  border-color: #14b8a6 !important;
+}
+
+html.dark .seat-empty {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark .seat-empty:hover {
+  background-color: #134e4a !important;
+  border-color: #14b8a6 !important;
+}
+
+/* KHI CHỌN HỌC SINH ĐỔI CHỖ (SWAP SOURCE STATE) */
+html.dark .seat-swap-source {
+  background-color: #78350f !important; /* Deep Amber 900 */
+  border-color: #fbbf24 !important; /* Amber 400 */
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.5) !important;
+  color: #ffffff !important;
+}
+
+html.dark .seat-swap-source div,
+html.dark .seat-swap-source span {
+  color: #ffffff !important;
+}
+
+/* 3. Nút chọn tiêu chí điểm cộng / trừ (Scoring Buttons) */
+html.dark .scoring-btn {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .scoring-btn span {
+  color: #f8fafc !important;
+}
+
+html.dark .scoring-btn:hover {
+  background-color: #273549 !important;
+}
+
+html.dark .scoring-btn.selected-bonus {
+  background-color: #064e3b !important; /* Deep Emerald 900 */
+  border-color: #34d399 !important;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.4) !important;
+  color: #ecfdf5 !important;
+}
+
+html.dark .scoring-btn.selected-bonus span {
+  color: #ecfdf5 !important;
+}
+
+html.dark .scoring-btn.selected-violation {
+  background-color: #7f1d1d !important; /* Deep Rose 900 */
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.4) !important;
+  color: #fff1f2 !important;
+}
+
+html.dark .scoring-btn.selected-violation span {
+  color: #fff1f2 !important;
+}
+
+/* 4. Nút lọc tổ trong tab Chấm điểm */
+html.dark .group-tab-btn:not(.bg-blue-600) {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .group-tab-btn:not(.bg-blue-600):hover {
+  background-color: #273549 !important;
+  color: #f8fafc !important;
+  border-color: #60a5fa !important;
+}
+
+/* 5. Khung trong Modals */
+html.dark .modal-backdrop .bg-slate-50,
+html.dark .modal-backdrop .bg-slate-100 {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark tr.hover\:bg-slate-50:hover,
+html.dark tr:hover {
+  background-color: #1e293b !important;
+}
+
+html.dark tr.hover\:bg-slate-50:hover span,
+html.dark tr:hover span {
+  color: #f8fafc !important;
 }
 
 html.dark .desk-chair-cell {

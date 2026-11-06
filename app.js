@@ -7,7 +7,7 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v18',
+  STUDENTS: 'dashboard10a3_official_45_students_v19',
   LOGS: 'dashboard10a3_official_45_logs_v6',
   SEATING: 'dashboard10a3_official_45_seating_v17'
 };
@@ -1115,7 +1115,7 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phạm Ngọc Tường Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
-  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Lớp phó & CS Hóa', isSpecialSupport: false },
+  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Lớp phó', isSpecialSupport: false },
   { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
@@ -1148,7 +1148,7 @@ const OFFICIAL_10A3_STUDENTS = [
 
   // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 34.85) =====
   { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng & CS Sinh', isSpecialSupport: false },
-  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 6, role: 'Cán sự Hóa', isSpecialSupport: false },
   { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
@@ -1403,7 +1403,7 @@ function getDefaultSeating() {
       pairWithTable: 6,
       title: 'Bàn 5',
       subtitle: 'Ghép Bàn 6',
-      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (Lớp phó & CS Hóa - 33đ)
+      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (Lớp phó - 33đ)
       rightSeat: { seatId: 'seat_r1_g2_t1_r', position: 'right', studentId: 'hs_10a3_38' } // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đôi bạn cùng tiến: Yên Diễm kèm]
     },
     {
@@ -1612,7 +1612,7 @@ function getDefaultSeating() {
       pairWithTable: 10,
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
-      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_20' }, // Nguyễn Bảo Long (38đ)
+      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_20' }, // Nguyễn Bảo Long (Cán sự Hóa - 38đ)
       rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Lớp phó Lao động - 23đ) [Đôi bạn cùng tiến: Bảo Long kèm Quốc Huy]
     },
     {

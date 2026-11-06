@@ -65,11 +65,14 @@ let appState = {
   isSwapMode: false,
   activeModalSeat: null,
   activeFormId: 'form1',
-  selectedFormStudentId: ''
+  selectedFormStudentId: '',
+  theme: 'light',
+  starsEnabled: true
 };
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
 document.addEventListener('DOMContentLoaded', () => {
+  initThemeAndStarfield();
   initDateInputs();
   renderRuleButtons();
   loadDataFromStorage();
@@ -2976,5 +2979,285 @@ function printCurrentPedagogicalForm() {
     }, 1500);
   }, 300);
 }
+
+// ==================== CHẾ ĐỘ SÁNG / TỐI & HIỆU ỨNG NGÔI SAO LẤP LÁNH ====================
+
+let starfieldAnimationId = null;
+let starfieldStars = [];
+let activeShootingStar = null;
+let starfieldClickBursts = [];
+
+/**
+ * Khởi tạo Theme (Dark/Light) và Bầu trời sao lấp lánh
+ */
+function initThemeAndStarfield() {
+  const savedTheme = localStorage.getItem('dashboard10a3_theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    applyTheme('dark', false);
+  } else {
+    applyTheme('light', false);
+  }
+
+  const savedStars = localStorage.getItem('dashboard10a3_stars');
+  appState.starsEnabled = savedStars !== 'off';
+  
+  initStarfieldEngine();
+  setupStarBurstOnClick();
+}
+
+/**
+ * Áp dụng chế độ màu Sáng / Tối
+ */
+function applyTheme(theme, notify = true) {
+  appState.theme = theme;
+  try {
+    localStorage.setItem('dashboard10a3_theme', theme);
+  } catch (e) {}
+
+  const htmlEl = document.documentElement;
+  const toggleIcon = document.getElementById('theme-toggle-icon');
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const canvas = document.getElementById('starfield-canvas');
+
+  if (theme === 'dark') {
+    htmlEl.classList.add('dark');
+    if (toggleIcon) {
+      toggleIcon.className = 'fa-solid fa-sun text-amber-400 text-sm';
+    }
+    if (toggleBtn) {
+      toggleBtn.title = 'Chế độ Sáng (Click để bật)';
+    }
+    if (canvas && appState.starsEnabled) {
+      canvas.style.opacity = '0.75';
+    }
+    if (notify) showToast('Đã chuyển sang chế độ Tối (Dark Mode) 🌙', 'info');
+  } else {
+    htmlEl.classList.remove('dark');
+    if (toggleIcon) {
+      toggleIcon.className = 'fa-solid fa-moon text-slate-500 text-sm';
+    }
+    if (toggleBtn) {
+      toggleBtn.title = 'Chế độ Tối (Click để bật)';
+    }
+    if (canvas && appState.starsEnabled) {
+      canvas.style.opacity = '0.4';
+    }
+    if (notify) showToast('Đã chuyển sang chế độ Sáng (Light Mode) ☀️', 'info');
+  }
+
+  // Cập nhật lại biểu đồ nếu đang hiển thị
+  if (appState.charts.groupsChart || appState.charts.ratingsChart) {
+    try {
+      renderCharts();
+    } catch (e) {}
+  }
+}
+
+/**
+ * Bật / tắt chế độ Dark Mode
+ */
+function toggleDarkMode() {
+  const newTheme = appState.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(newTheme, true);
+}
+
+/**
+ * Bật / tắt hiệu ứng Bầu trời sao lấp lánh
+ */
+function toggleStarfield() {
+  appState.starsEnabled = !appState.starsEnabled;
+  try {
+    localStorage.setItem('dashboard10a3_stars', appState.starsEnabled ? 'on' : 'off');
+  } catch (e) {}
+
+  const canvas = document.getElementById('starfield-canvas');
+  const starsIcon = document.getElementById('stars-toggle-icon');
+
+  if (canvas) {
+    canvas.style.opacity = appState.starsEnabled ? (appState.theme === 'dark' ? '0.75' : '0.4') : '0';
+  }
+  if (starsIcon) {
+    starsIcon.className = appState.starsEnabled 
+      ? 'fa-solid fa-wand-magic-sparkles text-amber-500 text-sm' 
+      : 'fa-solid fa-wand-magic-sparkles text-slate-400 text-sm';
+  }
+
+  showToast(
+    appState.starsEnabled ? 'Đã bật hiệu ứng Bầu trời sao lấp lánh ✨' : 'Đã tắt hiệu ứng Bầu trời sao', 
+    'info'
+  );
+}
+
+/**
+ * Động cơ vẽ Bầu trời sao và Sao băng (Starfield Canvas Engine)
+ */
+function initStarfieldEngine() {
+  const canvas = document.getElementById('starfield-canvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  // Tạo 85 ngôi sao ngẫu nhiên
+  const starColors = ['#ffffff', '#fef08a', '#93c5fd', '#c084fc', '#6ee7b7'];
+  starfieldStars = [];
+  const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 14000), 100);
+
+  for (let i = 0; i < count; i++) {
+    starfieldStars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.8 + 0.5,
+      baseAlpha: Math.random() * 0.5 + 0.3,
+      twinkleSpeed: Math.random() * 0.03 + 0.015,
+      phase: Math.random() * Math.PI * 2,
+      color: starColors[Math.floor(Math.random() * starColors.length)]
+    });
+  }
+
+  // Khởi tạo sao băng ngẫu nhiên
+  let lastShootingStarTime = Date.now();
+  const shootingStarInterval = 9000; // ~9 giây có 1 sao băng lướt qua
+
+  function spawnShootingStar() {
+    activeShootingStar = {
+      x: Math.random() * (canvas.width * 0.8),
+      y: Math.random() * (canvas.height * 0.4),
+      length: Math.random() * 90 + 70,
+      speed: Math.random() * 12 + 10,
+      angle: Math.PI / 4 + (Math.random() - 0.5) * 0.25,
+      alpha: 1,
+      decay: 0.018
+    };
+  }
+
+  // Animation Loop
+  function renderStarfield() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (appState.starsEnabled) {
+      const now = Date.now();
+
+      // Vẽ các ngôi sao lấp lánh
+      starfieldStars.forEach(star => {
+        star.phase += star.twinkleSpeed;
+        const currentAlpha = star.baseAlpha + Math.sin(star.phase) * 0.35;
+        const alphaClamped = Math.max(0.1, Math.min(currentAlpha, 1));
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = star.color;
+        ctx.globalAlpha = alphaClamped;
+        ctx.shadowColor = star.color;
+        ctx.shadowBlur = star.radius > 1.2 ? 6 : 2;
+        ctx.fill();
+      });
+
+      // Tạo sao băng định kỳ
+      if (!activeShootingStar && now - lastShootingStarTime > shootingStarInterval) {
+        if (Math.random() < 0.6) {
+          spawnShootingStar();
+        }
+        lastShootingStarTime = now;
+      }
+
+      // Vẽ và cập nhật sao băng
+      if (activeShootingStar) {
+        const ss = activeShootingStar;
+        const tailX = ss.x - Math.cos(ss.angle) * ss.length;
+        const tailY = ss.y - Math.sin(ss.angle) * ss.length;
+
+        const grad = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${ss.alpha})`);
+        grad.addColorStop(0.3, `rgba(254, 240, 138, ${ss.alpha * 0.7})`);
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.beginPath();
+        ctx.moveTo(ss.x, ss.y);
+        ctx.lineTo(tailX, tailY);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = '#fef08a';
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+
+        // Di chuyển sao băng
+        ss.x += Math.cos(ss.angle) * ss.speed;
+        ss.y += Math.sin(ss.angle) * ss.speed;
+        ss.alpha -= ss.decay;
+
+        if (ss.alpha <= 0 || ss.x > canvas.width || ss.y > canvas.height) {
+          activeShootingStar = null;
+        }
+      }
+
+      // Vẽ các hạt lấp lánh khi click chuột
+      for (let i = starfieldClickBursts.length - 1; i >= 0; i--) {
+        const p = starfieldClickBursts[i];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.025;
+
+        if (p.alpha <= 0) {
+          starfieldClickBursts.splice(i, 1);
+        }
+      }
+
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+    }
+
+    starfieldAnimationId = requestAnimationFrame(renderStarfield);
+  }
+
+  if (starfieldAnimationId) {
+    cancelAnimationFrame(starfieldAnimationId);
+  }
+  renderStarfield();
+}
+
+/**
+ * Hiệu ứng bung hạt sao lấp lánh (Stardust) khi click chuột
+ */
+function setupStarBurstOnClick() {
+  document.addEventListener('click', (e) => {
+    // Không bắn hiệu ứng nếu click trúng input hoặc nút chỉnh sửa để tránh rối mắt
+    if (e.target.closest('input, textarea, select')) return;
+
+    const colors = ['#f59e0b', '#fbbf24', '#c084fc', '#60a5fa', '#34d399'];
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 2.5 + 1;
+      starfieldClickBursts.push({
+        x: e.clientX,
+        y: e.clientY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: Math.random() * 2 + 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1
+      });
+    }
+  });
+}
+
 
 

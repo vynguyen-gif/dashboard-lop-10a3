@@ -40,18 +40,24 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden relative">
+
+  <!-- ==================== HIỆU ỨNG BẦU TRỜI SAO LẤP LÁNH ==================== -->
+  <canvas id="starfield-canvas"></canvas>
 
   <!-- ==================== SIDEBAR ==================== -->
   <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl z-20 transition-all duration-300">
     <!-- Top: Logo & Title -->
     <div>
       <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
           <i class="fa-solid fa-graduation-cap text-lg"></i>
         </div>
         <div>
-          <h1 class="text-base font-extrabold text-white tracking-wide">LỚP HỌC 10A3</h1>
+          <h1 class="text-base font-black tracking-wide flex items-center space-x-1.5">
+            <span class="text-rainbow-animated">LỚP HỌC 10A3</span>
+            <i class="fa-solid fa-star star-twinkle text-amber-400 text-xs"></i>
+          </h1>
           <p class="text-[11px] text-blue-400 font-semibold truncate max-w-[160px]" title="THPT Bùi Thị Xuân - Mũi Né">THPT Bùi Thị Xuân - Mũi Né</p>
           <p class="text-[10px] text-slate-500">Sở GD&ĐT Lâm Đồng</p>
         </div>
@@ -146,6 +152,16 @@
         <!-- Print / Report Button -->
         <button onclick="window.print()" class="no-print p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="In / Xuất Báo Cáo">
           <i class="fa-solid fa-print"></i>
+        </button>
+
+        <!-- Starry Particles Toggle Button -->
+        <button id="stars-toggle-btn" onclick="toggleStarfield()" class="no-print p-2 text-amber-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Bật / Tắt hiệu ứng Bầu trời sao lấp lánh">
+          <i id="stars-toggle-icon" class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+        </button>
+
+        <!-- Dark Mode Toggle Button -->
+        <button id="theme-toggle-btn" onclick="toggleDarkMode()" class="no-print p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-100 rounded-lg transition" title="Chuyển chế độ Sáng / Tối (Dark Mode)">
+          <i id="theme-toggle-icon" class="fa-solid fa-moon text-sm"></i>
         </button>
       </div>
     </header>

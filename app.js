@@ -2205,7 +2205,7 @@ function generatePrintSeatingHTML() {
 
   const getStudentRoleTag = (student) => {
     if (!student || !student.role || student.role === 'Thành viên') {
-      return student && student.isSpecialSupport ? ' 🤝' : '';
+      return '';
     }
     const tags = [];
     if (student.role.includes('Lớp trưởng')) tags.push('LT');
@@ -2221,8 +2221,7 @@ function generatePrintSeatingHTML() {
     if (student.role.includes('Sinh')) tags.push('CS Sinh');
     if (student.role.includes('Văn')) tags.push('CS Văn');
     const roleStr = tags.length > 0 ? ` (${tags.join(', ')})` : '';
-    const htStr = student.isSpecialSupport ? ' 🤝' : '';
-    return `${roleStr}${htStr}`;
+    return roleStr;
   };
 
   // Ô ghế ngồi: Nếu ghế trống, để trắng hoàn toàn (không in chữ "(Trống)")
@@ -2333,7 +2332,7 @@ function generatePrintSeatingHTML() {
       <!-- GHI CHÚ VÀ CHỮ KÝ GVCN -->
       <div class="grid grid-cols-12 pt-1 border-t border-slate-300 mt-1 items-end text-[10px]">
         <div class="col-span-7 italic text-slate-700">
-          <p><strong>* Ghi chú chức danh:</strong> (LT): Lớp trưởng; (LP): Lớp phó; (BT): Bí thư; (TT): Tổ trưởng; (SĐ): Sao đỏ; (CS): Cán sự bộ môn; (🤝): Diện kèm cặp.</p>
+          <p><strong>* Ghi chú chức danh:</strong> (LT): Lớp trưởng; (LP): Lớp phó; (BT): Bí thư; (TT): Tổ trưởng; (SĐ): Sao đỏ; (CS): Cán sự bộ môn.</p>
         </div>
         <div class="col-span-5 text-center">
           <p class="italic text-[10px]">Mũi Né, ngày ... tháng ... năm 2026</p>

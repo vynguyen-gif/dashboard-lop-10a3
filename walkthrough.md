@@ -36,7 +36,7 @@ Hệ thống **Dashboard Quản Trị Lớp Học Tự Quản 10A3 (Phiên Bản
 | **Tổ 3** | 8 | **34.63** | • Trần Bảo Phi Hoàng (**Tổ trưởng** - 39đ)<br>• Bùi Nguyễn Hoàng Long (**Sao đỏ** - 38đ)<br>• Phan Thị Ngọc Ẩn (35đ)<br>• Đỗ Quốc Thành (35đ)<br>• Võ Ngọc Mỹ Duyên (37đ)<br>• Lê Thị Kim Trúc (34đ) | **5.** Tạ Thanh Ngọc Giàu (26đ)<br>**6.** Trần Hữu Đồng (33đ) |
 | **Tổ 4** | 7 | **34.71** | • Nguyễn Ngọc Trinh (**Tổ trưởng** - 29đ)<br>• Nguyễn Hữu Đan Mạch (**Cán sự Toán** - 39đ)<br>• Nguyễn Xuân Phúc (**Cán sự Sinh** - 38đ)<br>• Nguyễn Vinh Khang (35đ)<br>• Nguyễn Thị Thanh Tuyền (14/06 - 38đ)<br>• Võ Quốc Duy Khôi (35đ) | **7.** Nguyễn Ngọc Anh Thư (29đ) |
 | **Tổ 5** | 7 | **34.57** | • Trần Lê Hồng Nhung (**Lớp trưởng** - 36đ)<br>• Lê Văn Vũ (**Cán sự Lý** - 39đ)<br>• Nguyễn Vinh Hoa (**Bí thư** - 37đ)<br>• Nguyễn Đỗ Kim Yến Linh (**Sao đỏ** - 37đ)<br>• Hoàng Thế Tài (35đ) | **8.** Đỗ Tuấn Hưng (29đ)<br>**9.** Trần Phúc Vinh (29đ) |
-| **Tổ 6** | 7 | **34.57** | • Trương Thị Mỹ Ngân (**Tổ trưởng** - 38đ)<br>• Nguyễn Bảo Long (38đ - thay vị trí Minh Luân kèm Quốc Huy)<br>• Lê Thị Mỹ Linh (**Cán sự Văn** - 36đ)<br>• Lê Minh Khải (**Sao đỏ** - 37đ)<br>• Đỗ Khôi Vỹ (**Sao đỏ** - 36đ)<br>• Võ Bách Tùng (34đ) | **10.** Nguyễn Quốc Huy (23đ) |
+| **Tổ 6** | 7 | **34.57** | • Trương Thị Mỹ Ngân (**Tổ trưởng** - 38đ)<br>• Trần Minh Luân (25đ - diện hỗ trợ, chuyển về Tổ 6)<br>• Lê Thị Mỹ Linh (**Cán sự Văn** - 36đ)<br>• Lê Minh Khải (**Sao đỏ** - 37đ)<br>• Đỗ Khôi Vỹ (**Sao đỏ** - 36đ)<br>• Võ Bách Tùng (34đ) | **10.** Nguyễn Quốc Huy (23đ) |
 
 ---
 

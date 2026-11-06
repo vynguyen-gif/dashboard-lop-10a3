@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v20',
+  STUDENTS: 'dashboard10a3_official_45_students_v21',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v17'
+  SEATING: 'dashboard10a3_official_45_seating_v18'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1122,7 +1122,7 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_33', code: '1703412028', fullName: 'Đỗ Quốc Thành', dob: '19/08/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 25, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
@@ -1148,7 +1148,7 @@ const OFFICIAL_10A3_STUDENTS = [
 
   // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 34.85) =====
   { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng & CS Sinh', isSpecialSupport: false },
-  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 25, groupNumber: 6, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
@@ -1456,7 +1456,7 @@ function getDefaultSeating() {
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
       leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_19' }, // Bùi Nguyễn Hoàng Long (38đ)
-      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_21' } // Trần Minh Luân (Hỗ trợ - 25đ) [Đôi bạn cùng tiến: Hoàng Long kèm Minh Luân]
+      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (38đ) [Bàn 9 Tổ 3: Hoàng Long & Bảo Long]
     },
     {
       tableId: 'tbl_d1_t10',
@@ -1612,7 +1612,7 @@ function getDefaultSeating() {
       pairWithTable: 10,
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
-      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_20' }, // Nguyễn Bảo Long (38đ) [Thay vị trí Minh Luân]
+      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_21' }, // Trần Minh Luân (Hỗ trợ - 25đ) [Bàn đầu Tổ 6]
       rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Lớp phó Lao động - 23đ) [Đôi bạn cùng tiến: Bảo Long kèm Quốc Huy]
     },
     {

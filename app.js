@@ -492,14 +492,14 @@ function renderRuleButtons() {
   const bonusList = document.getElementById('bonus-buttons-list');
   if (bonusList) {
     bonusList.innerHTML = BONUS_RULES.map(rule => `
-      <div onclick="selectRule('bonus', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white p-3 rounded-xl border border-emerald-200 hover:border-emerald-400 flex items-center justify-between text-xs">
+      <div onclick="selectRule('bonus', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white p-3 rounded-xl border border-emerald-200 hover:border-emerald-400 flex items-center justify-between text-xs cursor-pointer">
         <div class="flex items-center space-x-2.5">
-          <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+          <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 rule-icon-box">
             <i class="fa-solid ${rule.icon}"></i>
           </span>
-          <span class="font-semibold text-slate-800">${rule.label}</span>
+          <span class="font-semibold text-slate-800 rule-label">${rule.label}</span>
         </div>
-        <span class="font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0 border border-emerald-200">+${rule.points}</span>
+        <span class="font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0 border border-emerald-200 points-badge points-bonus">+${rule.points}</span>
       </div>
     `).join('');
   }
@@ -508,14 +508,14 @@ function renderRuleButtons() {
   const violList = document.getElementById('violation-buttons-list');
   if (violList) {
     violList.innerHTML = VIOLATION_RULES.map(rule => `
-      <div onclick="selectRule('violation', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white p-3 rounded-xl border border-rose-200 hover:border-rose-400 flex items-center justify-between text-xs">
+      <div onclick="selectRule('violation', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white p-3 rounded-xl border border-rose-200 hover:border-rose-400 flex items-center justify-between text-xs cursor-pointer">
         <div class="flex items-center space-x-2.5">
-          <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+          <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 rule-icon-box">
             <i class="fa-solid ${rule.icon}"></i>
           </span>
-          <span class="font-semibold text-slate-800">${rule.label}</span>
+          <span class="font-semibold text-slate-800 rule-label">${rule.label}</span>
         </div>
-        <span class="font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md shrink-0 border border-rose-200">${rule.points}</span>
+        <span class="font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md shrink-0 border border-rose-200 points-badge points-violation">${rule.points}</span>
       </div>
     `).join('');
   }

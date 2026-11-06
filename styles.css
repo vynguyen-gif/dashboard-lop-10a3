@@ -593,40 +593,125 @@ html.dark .seat-swap-source span {
 }
 
 /* 3. Nút chọn tiêu chí điểm cộng / trừ (Scoring Buttons) */
+html.dark .bg-emerald-50\/50,
+html.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.25) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+html.dark .bg-rose-50\/50,
+html.dark .bg-rose-50 {
+  background-color: rgba(127, 29, 29, 0.25) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+html.dark .text-emerald-800 {
+  color: #6ee7b7 !important;
+}
+
+html.dark .text-rose-800 {
+  color: #fca5a5 !important;
+}
+
 html.dark .scoring-btn {
   background-color: #1e293b !important;
   border-color: #334155 !important;
-  color: #f8fafc !important;
 }
 
-html.dark .scoring-btn span {
+html.dark .scoring-btn .rule-label {
   color: #f8fafc !important;
 }
 
 html.dark .scoring-btn:hover {
   background-color: #273549 !important;
+  border-color: #475569 !important;
 }
 
+/* Icon box bên trái */
+html.dark .scoring-btn .rule-icon-box.bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.25) !important;
+  color: #34d399 !important;
+}
+
+html.dark .scoring-btn .rule-icon-box.bg-emerald-100 i {
+  color: #34d399 !important;
+}
+
+html.dark .scoring-btn .rule-icon-box.bg-rose-100 {
+  background-color: rgba(239, 68, 68, 0.25) !important;
+  color: #f87171 !important;
+}
+
+html.dark .scoring-btn .rule-icon-box.bg-rose-100 i {
+  color: #f87171 !important;
+}
+
+/* Badge điểm số bên phải (+15đ, -20đ) */
+html.dark .scoring-btn .points-bonus,
+html.dark .scoring-btn .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  color: #34d399 !important;
+}
+
+html.dark .scoring-btn .points-violation,
+html.dark .scoring-btn .bg-rose-50 {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #f87171 !important;
+}
+
+/* KHI CHỌN TIÊU CHÍ (SELECTED STATE) */
 html.dark .scoring-btn.selected-bonus {
   background-color: #064e3b !important; /* Deep Emerald 900 */
-  border-color: #34d399 !important;
-  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.4) !important;
-  color: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5) !important;
 }
 
-html.dark .scoring-btn.selected-bonus span {
-  color: #ecfdf5 !important;
+html.dark .scoring-btn.selected-bonus .rule-label {
+  color: #ffffff !important;
+}
+
+html.dark .scoring-btn.selected-bonus .points-bonus,
+html.dark .scoring-btn.selected-bonus .bg-emerald-50 {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #34d399 !important;
+}
+
+html.dark .scoring-btn.selected-bonus .rule-icon-box {
+  background-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+html.dark .scoring-btn.selected-bonus .rule-icon-box i {
+  color: #ffffff !important;
 }
 
 html.dark .scoring-btn.selected-violation {
   background-color: #7f1d1d !important; /* Deep Rose 900 */
-  border-color: #f87171 !important;
-  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.4) !important;
-  color: #fff1f2 !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5) !important;
 }
 
-html.dark .scoring-btn.selected-violation span {
-  color: #fff1f2 !important;
+html.dark .scoring-btn.selected-violation .rule-label {
+  color: #ffffff !important;
+}
+
+html.dark .scoring-btn.selected-violation .points-violation,
+html.dark .scoring-btn.selected-violation .bg-rose-50 {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #f87171 !important;
+}
+
+html.dark .scoring-btn.selected-violation .rule-icon-box {
+  background-color: #991b1b !important;
+  color: #ffffff !important;
+}
+
+html.dark .scoring-btn.selected-violation .rule-icon-box i {
+  color: #ffffff !important;
 }
 
 /* 4. Nút lọc tổ trong tab Chấm điểm */

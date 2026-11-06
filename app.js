@@ -9,7 +9,7 @@
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v23',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v20'
+  SEATING: 'dashboard10a3_official_45_seating_v21'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -1480,8 +1480,8 @@ function getDefaultSeating() {
       pairWithTable: 12,
       title: 'Bàn 11',
       subtitle: 'Ghép Bàn 12',
-      leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: 'hs_10a3_10' }, // Trần Bảo Phi Hoàng (TỔ TRƯỞNG TỔ 3 - 39đ)
-      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_04' } // Võ Ngọc Mỹ Duyên (37đ)
+      leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: null }, // Ghế trống dự phòng
+      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_10' } // Trần Bảo Phi Hoàng (Tổ trưởng - 39đ) [Ngồi bàn ghép sát phía trên Kim Trúc]
     },
     {
       tableId: 'tbl_d1_t12',
@@ -1492,7 +1492,7 @@ function getDefaultSeating() {
       pairWithTable: 11,
       title: 'Bàn 12',
       subtitle: 'Ghép Bàn 11',
-      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: null }, // Ghế trống dự phòng
+      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_04' }, // Võ Ngọc Mỹ Duyên (37đ) [Ngồi sát cạnh Kim Trúc]
       rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (34đ)
     },
 

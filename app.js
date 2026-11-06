@@ -7,7 +7,7 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v23',
+  STUDENTS: 'dashboard10a3_official_45_students_v24',
   LOGS: 'dashboard10a3_official_45_logs_v6',
   SEATING: 'dashboard10a3_official_45_seating_v21'
 };
@@ -81,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Đảm bảo luôn sử dụng đúng danh sách 45 học sinh chính thức theo ảnh sổ lớp
   const hasBalancedRoster = appState.students.length === 45 && 
                             appState.students.some(s => s.fullName === 'Nguyễn Hoàng Gia Nguyên' && s.role === 'Tổ trưởng') &&
+                            appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Tổ trưởng' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.id === 'hs_10a3_36' && s.role === 'Thành viên' && s.groupNumber === 3) &&
                             appState.students.some(s => s.fullName === 'Ngô Thị Diễm Hằng' && s.groupNumber === 4);
   if (!hasBalancedRoster) {
     injectOfficial45Students(false);

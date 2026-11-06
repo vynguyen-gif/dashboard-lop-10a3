@@ -7,9 +7,9 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v17',
+  STUDENTS: 'dashboard10a3_official_45_students_v18',
   LOGS: 'dashboard10a3_official_45_logs_v6',
-  SEATING: 'dashboard10a3_official_45_seating_v16'
+  SEATING: 'dashboard10a3_official_45_seating_v17'
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -492,14 +492,14 @@ function renderRuleButtons() {
   const bonusList = document.getElementById('bonus-buttons-list');
   if (bonusList) {
     bonusList.innerHTML = BONUS_RULES.map(rule => `
-      <div onclick="selectRule('bonus', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white p-3 rounded-xl border border-emerald-200 hover:border-emerald-400 flex items-center justify-between text-xs cursor-pointer">
+      <div onclick="selectRule('bonus', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white dark:bg-slate-800 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800/60 hover:border-emerald-400 dark:hover:border-emerald-500 flex items-center justify-between text-xs cursor-pointer shadow-sm">
         <div class="flex items-center space-x-2.5">
-          <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 rule-icon-box">
+          <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 rule-icon-box border border-emerald-200/50 dark:border-emerald-700/60">
             <i class="fa-solid ${rule.icon}"></i>
           </span>
-          <span class="font-semibold text-slate-800 rule-label">${rule.label}</span>
+          <span class="font-semibold text-slate-800 dark:text-slate-100 rule-label">${rule.label}</span>
         </div>
-        <span class="font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0 border border-emerald-200 points-badge points-bonus">+${rule.points}</span>
+        <span class="font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/90 px-2 py-0.5 rounded-md shrink-0 border border-emerald-200 dark:border-emerald-700/60 points-badge points-bonus">+${rule.points}</span>
       </div>
     `).join('');
   }
@@ -508,14 +508,14 @@ function renderRuleButtons() {
   const violList = document.getElementById('violation-buttons-list');
   if (violList) {
     violList.innerHTML = VIOLATION_RULES.map(rule => `
-      <div onclick="selectRule('violation', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white p-3 rounded-xl border border-rose-200 hover:border-rose-400 flex items-center justify-between text-xs cursor-pointer">
+      <div onclick="selectRule('violation', '${rule.key}')" id="rule-btn-${rule.key}" class="scoring-btn bg-white dark:bg-slate-800 p-3 rounded-xl border border-rose-200 dark:border-rose-800/60 hover:border-rose-400 dark:hover:border-rose-500 flex items-center justify-between text-xs cursor-pointer shadow-sm">
         <div class="flex items-center space-x-2.5">
-          <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 rule-icon-box">
+          <span class="w-6 h-6 rounded-lg bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-400 flex items-center justify-center shrink-0 rule-icon-box border border-rose-200/50 dark:border-rose-700/60">
             <i class="fa-solid ${rule.icon}"></i>
           </span>
-          <span class="font-semibold text-slate-800 rule-label">${rule.label}</span>
+          <span class="font-semibold text-slate-800 dark:text-slate-100 rule-label">${rule.label}</span>
         </div>
-        <span class="font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md shrink-0 border border-rose-200 points-badge points-violation">${rule.points}</span>
+        <span class="font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/90 px-2 py-0.5 rounded-md shrink-0 border border-rose-200 dark:border-rose-700/60 points-badge points-violation">${rule.points}</span>
       </div>
     `).join('');
   }
@@ -1100,7 +1100,7 @@ function inject10SampleStudents(notify = true) {
 const OFFICIAL_10A3_STUDENTS = [
   // ===== TỔ 1 (8 học sinh • Điểm TB Lực Học: 34.50) =====
   { id: 'hs_10a3_43', code: '1704246671', fullName: 'Dương Lục Yến Vy', dob: '24/09/2011', academicScore: 34, groupNumber: 1, role: 'Tổ trưởng', isSpecialSupport: false },
-  { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_41', code: '1701472685', fullName: 'Lê Gia Vũ', dob: '08/03/2011', academicScore: 35, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_26', code: '1703554579', fullName: 'Cao Ngọc An Nhiên', dob: '14/12/2011', academicScore: 39, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_30', code: '1701941035', fullName: 'Trần Thị Ngọc Phúc', dob: '09/09/2011', academicScore: 36, groupNumber: 1, role: 'Sao đỏ', isSpecialSupport: false },
   { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tạ Thanh Ngọc Giàu', dob: '13/02/2011', academicScore: 26, groupNumber: 1, role: 'Bí thư', isSpecialSupport: true },
@@ -1116,13 +1116,13 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phạm Ngọc Tường Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Lớp phó & CS Hóa', isSpecialSupport: false },
-  { id: 'hs_10a3_41', code: '1701472685', fullName: 'Lê Gia Vũ', dob: '08/03/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
   { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_33', code: '1703412028', fullName: 'Đỗ Quốc Thành', dob: '19/08/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 25, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 25, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
@@ -1130,7 +1130,7 @@ const OFFICIAL_10A3_STUDENTS = [
 
   // ===== TỔ 4 (7 học sinh • Điểm TB Lực Học: 35.57) =====
   { id: 'hs_10a3_35', code: '1703919858', fullName: 'Nguyễn Ngọc Trinh', dob: '18/04/2011', academicScore: 29, groupNumber: 4, role: 'Tổ trưởng & CS Văn', isSpecialSupport: false },
-  { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 35, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 28, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_45', code: '1703509575', fullName: 'Đỗ Khôi Vỹ', dob: '08/12/2011', academicScore: 36, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyễn Thị Thanh Tuyền (14/06)', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Cán sự Anh', isSpecialSupport: false },
@@ -1148,7 +1148,7 @@ const OFFICIAL_10A3_STUDENTS = [
 
   // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 34.85) =====
   { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng & CS Sinh', isSpecialSupport: false },
-  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
@@ -1351,7 +1351,7 @@ function getDefaultSeating() {
       pairWithTable: 2,
       title: 'Bàn 1',
       subtitle: 'Ghép Bàn 2',
-      leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_16' }, // Nguyễn Tấn Kỳ (37đ)
+      leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_41' }, // Lê Gia Vũ (35đ)
       rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Bí thư - 26đ, nhỏ con) [Ngồi bàn đầu thấy bảng rõ 100%, Kỳ kèm cặp]
     },
     {
@@ -1441,7 +1441,7 @@ function getDefaultSeating() {
       title: 'Bàn 8',
       subtitle: 'Ghép Bàn 7',
       leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_02' }, // Nguyễn Thị Kim Bơ (Hỗ trợ - 33đ) [Bức tường ngăn cách 2]
-      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_41' } // Lê Gia Vũ (35đ) [Ghế ngoài cùng bên phải, cách xa Gia Nguyên & Trường Giang]
+      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_16' } // Nguyễn Tấn Kỳ (37đ) [Đôi bạn cùng tiến: Tấn Kỳ kèm Kim Bơ]
     },
 
     // --- TỔ 3 (Bàn 9 -> 12) ---
@@ -1456,7 +1456,7 @@ function getDefaultSeating() {
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
       leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_19' }, // Bùi Nguyễn Hoàng Long (38đ)
-      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (Hỗ trợ - 25đ) [Đôi bạn cùng tiến: Hoàng Long kèm Bảo Long]
+      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_21' } // Trần Minh Luân (Hỗ trợ - 25đ) [Đôi bạn cùng tiến: Hoàng Long kèm Minh Luân]
     },
     {
       tableId: 'tbl_d1_t10',
@@ -1509,7 +1509,7 @@ function getDefaultSeating() {
       title: 'Bàn 1',
       subtitle: 'Ghép Bàn 2',
       leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_22' }, // Nguyễn Hữu Đan Mạch (39đ, học giỏi, nghiêm túc)
-      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (35đ) [Bàn 1 sát bục giảng: Đan Mạch kèm & kiểm tra bài vở đầu giờ]
+      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (Hỗ trợ - 28đ) [Bàn 1 sát bục giảng: Đan Mạch kèm & kiểm tra bài vở đầu giờ]
     },
     {
       tableId: 'tbl_d2_t2',
@@ -1612,8 +1612,8 @@ function getDefaultSeating() {
       pairWithTable: 10,
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
-      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_21' }, // Trần Minh Luân (38đ)
-      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Lớp phó Lao động - 23đ) [Bàn đầu Tổ 6]
+      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_20' }, // Nguyễn Bảo Long (38đ)
+      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Lớp phó Lao động - 23đ) [Đôi bạn cùng tiến: Bảo Long kèm Quốc Huy]
     },
     {
       tableId: 'tbl_d2_t10',

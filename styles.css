@@ -289,7 +289,7 @@ body {
 
   /* ẨN TOÀN BỘ GIAO DIỆN WEB KHI IN */
   aside, #top-bar, nav, header, .no-print, #toast-container, .modal-backdrop,
-  #section-dashboard, #section-scoring, #section-students, #section-logs, #section-backup,
+  #section-dashboard, #section-scoring, #section-students, #section-logs, #section-backup, #section-forms,
   #swap-mode-banner, #classroom-seating-container, .modal-open {
     display: none !important;
   }

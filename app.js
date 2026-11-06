@@ -26,9 +26,12 @@ const RANKING_TIERS = {
 const BONUS_RULES = [
   { key: 'bonus_school_honors', label: 'Đạt điểm Tốt toàn diện / Thành tích cấp trường', points: 50, icon: 'fa-trophy' },
   { key: 'bonus_duty_excellent', label: 'Cán sự làm tốt nhiệm vụ tháng', points: 20, icon: 'fa-user-check' },
+  { key: 'bonus_paired_progress', label: 'Đôi bạn cùng tiến: Cùng tiến bộ / Kèm bạn đạt kết quả tốt (+15 cho cả hai)', points: 15, icon: 'fa-handshake-angle' },
+  { key: 'bonus_baby_steps', label: 'Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết giao ước tuần', points: 10, icon: 'fa-stairs' },
+  { key: 'bonus_logical_consequence', label: 'Tự giác khắc phục hệ quả (Trực nhật bù, tưới cây, lao động tích cực)', points: 5, icon: 'fa-broom' },
   { key: 'bonus_peer_tutoring', label: 'Kèm bạn yếu Toán/Lý (+10 cho cả hai)', points: 10, icon: 'fa-user-group' },
   { key: 'bonus_board_solution', label: 'Xung phong lên bảng đúng', points: 10, icon: 'fa-chalkboard-user' },
-  { key: 'bonus_effort_support', label: 'Học sinh yếu có nỗ lực làm bài', points: 10, icon: 'fa-heart-circle-bolt' },
+  { key: 'bonus_effort_support', label: 'Học sinh diện hỗ trợ có nỗ lực làm bài', points: 10, icon: 'fa-heart-circle-bolt' },
   { key: 'bonus_group_homework', label: 'Cả tổ 100% làm bài tập (+10/người)', points: 10, icon: 'fa-users' },
   { key: 'bonus_individual_effort', label: 'Hoàn thành bài tập cá nhân / Trực nhật tự giác / Bổ sung ý kiến', points: 5, icon: 'fa-hand-sparkles' }
 ];
@@ -60,7 +63,9 @@ let appState = {
   seatingSearch: '',
   swapSourceSeatId: null,
   isSwapMode: false,
-  activeModalSeat: null
+  activeModalSeat: null,
+  activeFormId: 'form1',
+  selectedFormStudentId: ''
 };
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
@@ -77,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     injectOfficial45Students(false);
   }
 
-  // Kiểm tra URL hash (vd: #scoring, #students) để mở tab tương ứng
+  // Kiểm tra URL hash (vd: #scoring, #students, #forms) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
-  if (initialHash && ['dashboard', 'scoring', 'students', 'seating', 'logs', 'backup'].includes(initialHash)) {
+  if (initialHash && ['dashboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup'].includes(initialHash)) {
     switchTab(initialHash);
   } else if (initialHash === 'print-preview') {
     switchTab('seating');
@@ -176,6 +181,7 @@ function switchTab(tabName) {
     students: document.getElementById('section-students'),
     seating: document.getElementById('section-seating'),
     logs: document.getElementById('section-logs'),
+    forms: document.getElementById('section-forms'),
     backup: document.getElementById('section-backup')
   };
 
@@ -185,6 +191,7 @@ function switchTab(tabName) {
     students: document.getElementById('nav-students'),
     seating: document.getElementById('nav-seating'),
     logs: document.getElementById('nav-logs'),
+    forms: document.getElementById('nav-forms'),
     backup: document.getElementById('nav-backup')
   };
 
@@ -194,6 +201,7 @@ function switchTab(tabName) {
     students: 'Danh Sách & Quản Trị Học Sinh Lớp 10A3',
     seating: 'Sơ Đồ Chỗ Ngồi Lớp Học 10A3 (2 Dãy • 6 Tổ • 24 Bàn)',
     logs: 'Sổ Tra Cứu & Nhật Ký Ghi Nhận Điểm',
+    forms: 'Trung Tâm Biểu Mẫu Sư Phạm & Kế Hoạch Tiến Bộ (GDPT 2018)',
     backup: 'Trung Tâm Dữ Liệu, Cài Đặt & Sao Lưu'
   };
 
@@ -228,6 +236,8 @@ function switchTab(tabName) {
     renderSeatingPlan();
   } else if (tabName === 'logs') {
     renderLogsTable();
+  } else if (tabName === 'forms') {
+    initFormsTab();
   }
 }
 
@@ -2379,4 +2389,592 @@ function printSeatingChart() {
     window.print();
   }, 150);
 }
+
+// ==================== TRUNG TÂM BIỂU MẪU SƯ PHẠM (KỶ LUẬT TÍCH CỰC & GDPT 2018) ====================
+
+function initFormsTab() {
+  populateFormStudentSelect();
+  selectPedagogicalForm(appState.activeFormId || 'form1');
+}
+
+function populateFormStudentSelect() {
+  const select = document.getElementById('form-student-select');
+  if (!select) return;
+
+  const currentVal = appState.selectedFormStudentId || select.value || '';
+  const sortedStudents = [...appState.students].sort((a, b) => a.fullName.localeCompare(b.fullName, 'vi'));
+
+  select.innerHTML = `
+    <option value="">-- In Phôi Trống (Phát cho học sinh viết tay) --</option>
+    ${sortedStudents.map(s => {
+      const badge = s.isSpecialSupport ? ' 🤝' : '';
+      const roleStr = s.role && s.role !== 'Thành viên' ? ` (${s.role})` : '';
+      return `<option value="${s.id}" ${s.id === currentVal ? 'selected' : ''}>Tổ ${s.groupNumber}: ${s.fullName} • ${s.academicScore}đ${badge}${roleStr}</option>`;
+    }).join('')}
+  `;
+}
+
+function selectPedagogicalForm(formId) {
+  appState.activeFormId = formId;
+
+  const tabs = ['form1', 'form2', 'form3'];
+  tabs.forEach(id => {
+    const btn = document.getElementById(`tab-form-btn-${id}`);
+    if (btn) {
+      if (id === formId) {
+        btn.className = 'form-nav-btn px-3 py-2 text-xs font-bold rounded-lg transition bg-white text-purple-700 shadow-xs border border-purple-200';
+      } else {
+        btn.className = 'form-nav-btn px-3 py-2 text-xs font-bold rounded-lg transition text-slate-600 hover:text-slate-900 border border-transparent';
+      }
+    }
+  });
+
+  renderPedagogicalForm();
+}
+
+function onFormStudentChange() {
+  const select = document.getElementById('form-student-select');
+  appState.selectedFormStudentId = select ? select.value : '';
+  renderPedagogicalForm();
+}
+
+/**
+ * Tìm bạn cùng bàn (Đôi bạn cùng tiến) của học sinh dựa trên Sơ đồ chỗ ngồi
+ */
+function getDeskMate(studentId) {
+  if (!appState.seating || !studentId) return null;
+  for (const tbl of appState.seating) {
+    if (tbl.leftSeat && tbl.leftSeat.studentId === studentId) {
+      return tbl.rightSeat && tbl.rightSeat.studentId 
+        ? appState.students.find(s => s.id === tbl.rightSeat.studentId) 
+        : null;
+    }
+    if (tbl.rightSeat && tbl.rightSeat.studentId === studentId) {
+      return tbl.leftSeat && tbl.leftSeat.studentId 
+        ? appState.students.find(s => s.id === tbl.leftSeat.studentId) 
+        : null;
+    }
+  }
+  return null;
+}
+
+function renderPedagogicalForm() {
+  const container = document.getElementById('pedagogical-form-paper');
+  if (!container) return;
+
+  const student = appState.selectedFormStudentId 
+    ? appState.students.find(s => s.id === appState.selectedFormStudentId) 
+    : null;
+  const deskMate = student ? getDeskMate(student.id) : null;
+
+  let formHtml = '';
+  if (appState.activeFormId === 'form1') {
+    formHtml = generateForm1HTML(student);
+  } else if (appState.activeFormId === 'form2') {
+    formHtml = generateForm2HTML(student, deskMate);
+  } else if (appState.activeFormId === 'form3') {
+    formHtml = generateForm3HTML(student, deskMate);
+  }
+
+  container.innerHTML = formHtml;
+}
+
+/**
+ * BIỂU MẪU 01: PHIẾU KHẢO SÁT TÂM TƯ & HỒ SƠ CÁ NHÂN HỌC SINH
+ */
+function generateForm1HTML(student) {
+  const nameVal = student ? student.fullName : '....................................................................';
+  const groupVal = student ? `Tổ ${student.groupNumber}` : '................';
+  const dobVal = student ? student.dob : '....... / ....... / 2011';
+
+  return `
+    <div class="pedagogical-a4-document space-y-4 text-slate-800 leading-relaxed">
+      <!-- Header Bộ GD&ĐT -->
+      <div class="flex justify-between items-start border-b pb-3 border-slate-300">
+        <div class="text-center font-bold text-xs uppercase leading-tight">
+          SỞ GD&ĐT LÂM ĐỒNG<br>
+          <span class="text-sm font-extrabold text-blue-900">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</span><br>
+          <span class="font-normal text-[11px] text-slate-500">Lớp: 10A3 • Năm học 2026 - 2027</span>
+        </div>
+        <div class="text-center font-bold text-xs leading-tight">
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
+          <span class="text-xs font-semibold underline">Độc lập — Tự do — Hạnh phúc</span><br>
+          <span class="font-normal italic text-[11px] text-slate-500">Mũi Né, ngày ..... tháng ..... năm 2026</span>
+        </div>
+      </div>
+
+      <!-- Tiêu đề chính -->
+      <div class="text-center py-2">
+        <h1 class="text-base sm:text-lg font-black uppercase text-purple-900 tracking-wide">
+          PHIẾU KHẢO SÁT TÂM TƯ & NGUYỆN VỌNG HỌC SINH LỚP 10
+        </h1>
+        <p class="text-xs italic text-slate-600 mt-0.5">
+          (Dành cho GVCN phát đầu năm hoặc làm việc riêng – Thông tin bảo mật tuyệt đối theo tinh thần Trường học hạnh phúc)
+        </p>
+      </div>
+
+      <!-- Lời nhắn tâm huyết từ GVCN -->
+      <div class="bg-purple-50/60 p-3 rounded-lg border border-purple-200 text-xs italic text-purple-950">
+        <p><b>Thầy/Cô gửi các em:</b> Bước vào bậc THPT với môi trường học tập mới chắc hẳn các em có nhiều bỡ ngỡ, lo âu và áp lực. Phiếu này là cầu nối chân thành, cởi mở giữa em và Thầy/Cô chủ nhiệm. Mọi chia sẻ của em đều được giữ kín hoàn toàn để Thầy/Cô có thể thấu hiểu, đồng hành và hỗ trợ em tốt nhất trên hành trình 3 năm cấp 3 sắp tới.</p>
+      </div>
+
+      <!-- Thông tin cá nhân -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
+        <div><b>Họ và tên:</b> <span class="text-blue-900 font-bold">${nameVal}</span></div>
+        <div><b>Lớp:</b> <span class="font-bold">10A3</span> • <b>Tổ:</b> ${groupVal}</div>
+        <div><b>Ngày sinh:</b> ${dobVal}</div>
+      </div>
+
+      <!-- Các câu hỏi khảo sát -->
+      <div class="space-y-3.5 text-xs pt-2">
+        <div>
+          <p class="font-bold text-slate-900">1. Sở thích, đam mê hoặc năng khiếu nổi trội của em (thể thao, âm nhạc, đồ họa, công nghệ, đọc sách, hoạt động phong trào...):</p>
+          <p class="border-b border-dotted border-slate-400 py-1 text-slate-600">&nbsp;</p>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-900">2. Môn học em cảm thấy tự tin và hứng thú nhất hiện nay:</p>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <p>• Môn học: ....................................................................</p>
+            <p>• Lý do yêu thích: ............................................................</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-900">3. Môn học em cảm thấy gặp nhiều khó khăn, lo lắng nhất:</p>
+          <p class="mt-1">• Tên môn học: .........................................................................................................................</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1.5 pl-2 text-[11px] text-slate-700">
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mất gốc từ THCS</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Phương pháp học mới khó</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bài tập quá nhiều</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Ngại hỏi thầy cô</span></label>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-900">4. Ước mơ nghề nghiệp hoặc định hướng của em sau khi tốt nghiệp THPT:</p>
+          <p class="border-b border-dotted border-slate-400 py-1 text-slate-600">&nbsp;</p>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-900">5. Ở gia đình, ai là người em cảm thấy tin tưởng và dễ tâm sự nhất?</p>
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-1.5 pl-2 text-[11px] text-slate-700">
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bố</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mẹ</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Anh / Chị / Em</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bạn thân</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Không có ai</span></label>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-900">6. Áp lực hoặc lo lắng lớn nhất của em trong giai đoạn này là gì?</p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1.5 pl-2 text-[11px] text-slate-700">
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Điểm số & thi cử</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Kỳ vọng của cha mẹ</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mối quan hệ bạn bè</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Cám dỗ game / MXH</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Khó khăn kinh tế / gia đình</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Áp lực khác...</span></label>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-900">7. Điều em mong muốn Thầy/Cô chủ nhiệm hỗ trợ hoặc lắng nghe nhất trong năm học này:</p>
+          <p class="border-b border-dotted border-slate-400 py-1.5 text-slate-600">&nbsp;</p>
+          <p class="border-b border-dotted border-slate-400 py-1.5 text-slate-600">&nbsp;</p>
+        </div>
+      </div>
+
+      <!-- Chữ ký -->
+      <div class="pt-6 flex justify-between text-xs text-center">
+        <div class="w-1/2"></div>
+        <div class="w-1/2">
+          <p class="font-bold">HỌC SINH BÀY TỎ TÂM TƯ</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên - có thể để ẩn danh)</p>
+          <div class="h-16"></div>
+          <p class="font-semibold text-slate-700">${student ? student.fullName : '........................................................'}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * BIỂU MẪU 02: BẢN GIAO ƯỚC HÀNH VI VÀ KẾ HOẠCH TIẾN BỘ CÁ NHÂN
+ */
+function generateForm2HTML(student, deskMate) {
+  const nameVal = student ? student.fullName : '....................................................................';
+  const groupVal = student ? `Tổ ${student.groupNumber}` : '................';
+  const deskMateVal = deskMate ? `${deskMate.fullName}${deskMate.role !== 'Thành viên' ? ' (' + deskMate.role + ')' : ''}` : '....................................................................';
+
+  return `
+    <div class="pedagogical-a4-document space-y-4 text-slate-800 leading-relaxed">
+      <!-- Header Bộ GD&ĐT -->
+      <div class="flex justify-between items-start border-b pb-3 border-slate-300">
+        <div class="text-center font-bold text-xs uppercase leading-tight">
+          SỞ GD&ĐT LÂM ĐỒNG<br>
+          <span class="text-sm font-extrabold text-blue-900">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</span><br>
+          <span class="font-normal text-[11px] text-slate-500">Lớp: 10A3 • Năm học 2026 - 2027</span>
+        </div>
+        <div class="text-center font-bold text-xs leading-tight">
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
+          <span class="text-xs font-semibold underline">Độc lập — Tự do — Hạnh phúc</span><br>
+          <span class="font-normal italic text-[11px] text-slate-500">Mũi Né, ngày ..... tháng ..... năm 2026</span>
+        </div>
+      </div>
+
+      <!-- Tiêu đề chính -->
+      <div class="text-center py-2">
+        <h1 class="text-base sm:text-lg font-black uppercase text-purple-900 tracking-wide">
+          BẢN GIAO ƯỚC HÀNH VI & KẾ HOẠCH TIẾN BỘ CÁ NHÂN
+        </h1>
+        <p class="text-xs italic text-slate-600 mt-0.5">
+          (Thực hiện theo định hướng Kỷ luật tích cực – Tự nguyện ký kết giữa Học sinh, Phụ huynh và GVCN)
+        </p>
+      </div>
+
+      <!-- Thông tin & Cam kết mở đầu -->
+      <div class="text-xs space-y-2">
+        <p>Hôm nay, ngày ..... tháng ..... năm 2026, tại Trường THPT Bùi Thị Xuân - Mũi Né.</p>
+        <p>Tôi tên là: <span class="text-blue-900 font-bold">${nameVal}</span> &nbsp;&nbsp;•&nbsp;&nbsp; Học sinh Lớp: <b>10A3</b> &nbsp;&nbsp;•&nbsp;&nbsp; ${groupVal}</p>
+        <p class="italic text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200">
+          "Nhận thức rõ trách nhiệm của bản thân đối với kết quả học tập và rèn luyện đạo đức tại trường, được sự lắng nghe và định hướng từ Thầy/Cô chủ nhiệm, tôi tự nguyện lập bản giao ước này và cam kết nỗ lực thực hiện nghiêm túc trong 4 tuần tới:"
+        </p>
+      </div>
+
+      <!-- Các hạng mục giao ước -->
+      <div class="space-y-3.5 text-xs pt-1">
+        <div>
+          <p class="font-bold text-rose-900 uppercase">I. 03 Hành vi em cam kết tự giác chấm dứt (Từ bỏ thói quen xấu):</p>
+          <div class="space-y-1.5 mt-1 pl-2">
+            <p>1. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Không đi học muộn, không cúp tiết, không vắng không phép.</span></p>
+            <p>2. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Không sử dụng điện thoại tùy tiện / chơi game / làm việc riêng trong giờ học.</span></p>
+            <p>3. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">........................................................................................................................................................</span></p>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-emerald-900 uppercase">II. 03 Hành vi tích cực em cam kết thực hiện hàng ngày:</p>
+          <div class="space-y-1.5 mt-1 pl-2">
+            <p>1. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Chuẩn bị đủ sách vở, làm bài tập về nhà trước khi đến lớp; chú ý lắng nghe bài giảng.</span></p>
+            <p>2. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Đồng phục, tác phong chuẩn mực; lễ phép với thầy cô và hòa nhã với bạn bè.</span></p>
+            <p>3. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">........................................................................................................................................................</span></p>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-blue-900 uppercase">III. Mục tiêu nỗ lực vi mô (Baby Steps) trong 4 tuần tới:</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1 pl-2">
+            <p>• Chuyên cần 100%, không vi phạm nội quy.</p>
+            <p>• Điểm kiểm tra các môn đạt tối thiểu: <span class="font-bold text-blue-900">.......... điểm</span>.</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-indigo-900 uppercase">IV. Người đồng hành hỗ trợ tại lớp (Mô hình Đôi bạn cùng tiến):</p>
+          <p class="mt-1 pl-2">• Bạn đồng hành: <span class="font-bold text-blue-900">${deskMateVal}</span></p>
+          <p class="text-[11px] text-slate-600 pl-2">• Nhiệm vụ: Cùng ngồi học, kiểm tra chéo bài vở đầu giờ, đôn đốc nhắc nhở nề nếp và hỗ trợ nhau học tập.</p>
+        </div>
+
+        <div>
+          <p class="font-bold text-purple-900 uppercase">V. Động lực ghi nhận & Biện pháp khắc phục hệ quả logic:</p>
+          <div class="space-y-1 mt-1 pl-2 text-[11px]">
+            <p><b>1. Phần thưởng / Sự ghi nhận mong muốn khi hoàn thành tốt cam kết:</b></p>
+            <p class="border-b border-dotted border-slate-400 pb-0.5 w-[95%] italic text-slate-600">Được cộng 20 điểm rèn luyện, tuyên dương trước lớp, xếp loại Rèn luyện Tốt tháng.</p>
+            <p class="pt-1"><b>2. Hình thức tự giác khắc phục hệ quả nếu tái vi phạm:</b></p>
+            <p class="border-b border-dotted border-slate-400 pb-0.5 w-[95%] italic text-slate-600">Tự giác trực nhật bù 1 tuần, chăm sóc bồn hoa sân trường, bàn giao điện thoại cho GVCN cất tủ đầu giờ.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chữ ký 3 bên -->
+      <div class="pt-6 grid grid-cols-3 gap-2 text-xs text-center border-t border-slate-300">
+        <div>
+          <p class="font-bold uppercase">ĐẠI DIỆN PHỤ HUYNH</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
+          <div class="h-16"></div>
+          <p class="font-semibold text-slate-600">................................................</p>
+        </div>
+        <div>
+          <p class="font-bold uppercase">HỌC SINH CAM KẾT</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
+          <div class="h-16"></div>
+          <p class="font-semibold text-blue-900">${student ? student.fullName : '................................................'}</p>
+        </div>
+        <div>
+          <p class="font-bold uppercase">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
+          <div class="h-16"></div>
+          <p class="font-semibold text-slate-600">................................................</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * BIỂU MẪU 03: SỔ THEO DÕI TIẾN BỘ HÀNG TUẦN (WEEKLY PROGRESS LOG)
+ */
+function generateForm3HTML(student, deskMate) {
+  const nameVal = student ? student.fullName : '....................................................................';
+  const groupVal = student ? `Tổ ${student.groupNumber}` : '................';
+  const deskMateVal = deskMate ? `${deskMate.fullName}${deskMate.role !== 'Thành viên' ? ' (' + deskMate.role + ')' : ''}` : '....................................................................';
+
+  return `
+    <div class="pedagogical-a4-document space-y-4 text-slate-800 leading-relaxed">
+      <!-- Header Bộ GD&ĐT -->
+      <div class="flex justify-between items-start border-b pb-3 border-slate-300">
+        <div class="text-center font-bold text-xs uppercase leading-tight">
+          SỞ GD&ĐT LÂM ĐỒNG<br>
+          <span class="text-sm font-extrabold text-blue-900">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</span><br>
+          <span class="font-normal text-[11px] text-slate-500">Lớp: 10A3 • Năm học 2026 - 2027</span>
+        </div>
+        <div class="text-center font-bold text-xs leading-tight">
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
+          <span class="text-xs font-semibold underline">Độc lập — Tự do — Hạnh phúc</span><br>
+          <span class="font-normal italic text-[11px] text-slate-500">Mũi Né, ngày ..... tháng ..... năm 2026</span>
+        </div>
+      </div>
+
+      <!-- Tiêu đề chính -->
+      <div class="text-center py-2">
+        <h1 class="text-base sm:text-lg font-black uppercase text-purple-900 tracking-wide">
+          SỔ THEO DÕI TIẾN BỘ HÀNG TUẦN (WEEKLY PROGRESS LOG)
+        </h1>
+        <p class="text-xs italic text-slate-600 mt-0.5">
+          (Dành cho Ban Cán sự lớp & GVCN phối hợp ghi nhận sự chuyển biến tích cực của học sinh)
+        </p>
+      </div>
+
+      <!-- Thông tin học sinh -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs bg-slate-50 p-2.5 rounded border border-slate-200">
+        <div><b>Học sinh:</b> <span class="text-blue-900 font-bold">${nameVal}</span></div>
+        <div><b>Lớp:</b> <span class="font-bold">10A3</span> • <b>Tổ:</b> ${groupVal}</div>
+        <div><b>Bạn đồng hành:</b> <span class="text-slate-800 font-bold">${deskMateVal}</span></div>
+      </div>
+
+      <!-- Bảng theo dõi 4 tuần -->
+      <div class="overflow-x-auto pt-1">
+        <table class="w-full border-collapse border border-slate-400 text-xs">
+          <thead>
+            <tr class="bg-purple-100/70 text-purple-950 font-bold text-center">
+              <th class="border border-slate-400 p-2 w-16">Thời gian</th>
+              <th class="border border-slate-400 p-2 w-48">Chuyên cần & Nền nếp</th>
+              <th class="border border-slate-400 p-2 w-48">Ý thức học tập & Điểm số</th>
+              <th class="border border-slate-400 p-2">Việc tốt / Nỗ lực vi mô ghi nhận</th>
+              <th class="border border-slate-400 p-2 w-32">Đánh giá của GVCN</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 1</td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p class="text-slate-500 italic">Ví dụ: Tích cực kê bàn ghế, chuẩn bị phấn bảng cho lớp, giúp bạn trực nhật...</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-center text-[11px]">
+                <div class="h-10"></div>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 2</td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p class="text-slate-500 italic">Ví dụ: Có tiến bộ rõ rệt trong giờ Toán/Lý, phát biểu xây dựng bài 2 lần...</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-center text-[11px]">
+                <div class="h-10"></div>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 3</td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p class="text-slate-500 italic">Ví dụ: Tự giác học bài, không dùng điện thoại, cùng bạn đạt điểm khá...</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-center text-[11px]">
+                <div class="h-10"></div>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 4</td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-[11px]">
+                <p class="text-slate-500 italic">Ví dụ: Hoàn thành 100% mục tiêu cam kết, đạt danh hiệu Học sinh nỗ lực tuần...</p>
+              </td>
+              <td class="border border-slate-400 p-2 text-center text-[11px]">
+                <div class="h-10"></div>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Đánh giá tổng kết sau 4 tuần -->
+      <div class="bg-purple-50/50 p-3 rounded border border-purple-200 text-xs space-y-2">
+        <p class="font-bold text-purple-900">KẾT LUẬN CHUNG SAU 4 TUẦN CỦA GVCN:</p>
+        <div class="flex flex-wrap gap-4 pl-2 text-[11px]">
+          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Đạt mục tiêu giao ước:</b> Tuyên dương trước lớp & ghi nhận điểm cộng</span></label>
+          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Có tiến bộ:</b> Cần tiếp tục duy trì và đôn đốc thêm</span></label>
+          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Chưa đạt:</b> Cần họp gia đình để điều chỉnh giải pháp</span></label>
+        </div>
+        <p class="pt-1"><b>Nhận xét cụ thể của GVCN:</b> <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[80%]">....................................................................................................</span></p>
+      </div>
+
+      <!-- Chữ ký xác nhận -->
+      <div class="pt-4 grid grid-cols-3 gap-2 text-xs text-center border-t border-slate-300">
+        <div>
+          <p class="font-bold uppercase">BAN CÁN SỰ LỚP</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
+          <div class="h-14"></div>
+          <p class="font-semibold text-slate-600">................................................</p>
+        </div>
+        <div>
+          <p class="font-bold uppercase">Ý KIẾN PHỤ HUYNH</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
+          <div class="h-14"></div>
+          <p class="font-semibold text-slate-600">................................................</p>
+        </div>
+        <div>
+          <p class="font-bold uppercase">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
+          <div class="h-14"></div>
+          <p class="font-semibold text-slate-600">................................................</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Thực hiện in biểu mẫu sư phạm hiện tại: Khổ dọc A4 (Portrait)
+ */
+function printCurrentPedagogicalForm() {
+  const paper = document.getElementById('pedagogical-form-paper');
+  if (!paper) {
+    showToast('Không tìm thấy nội dung biểu mẫu để in!', 'error');
+    return;
+  }
+
+  const printIframe = document.createElement('iframe');
+  printIframe.style.position = 'fixed';
+  printIframe.style.right = '0';
+  printIframe.style.bottom = '0';
+  printIframe.style.width = '0';
+  printIframe.style.height = '0';
+  printIframe.style.border = '0';
+  document.body.appendChild(printIframe);
+
+  const doc = printIframe.contentWindow.document;
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <title>Biểu Mẫu Sư Phạm Lớp 10A3</title>
+      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+      <style>
+        @page {
+          size: A4 portrait;
+          margin: 10mm 15mm;
+        }
+        * {
+          box-sizing: border-box;
+          font-family: 'Times New Roman', Times, serif, 'Plus Jakarta Sans', sans-serif;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          color: #000;
+          background: #fff;
+          font-size: 11.5pt;
+          line-height: 1.4;
+        }
+        .pedagogical-a4-document {
+          width: 100%;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 8px;
+          margin-bottom: 8px;
+        }
+        th, td {
+          border: 1px solid #444;
+          padding: 5px 6px;
+        }
+        th {
+          background-color: #f2f2f2;
+          font-weight: bold;
+          text-align: center;
+        }
+        .border-dotted {
+          border-bottom: 1px dotted #555 !important;
+        }
+        @media print {
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      ${paper.innerHTML}
+    </body>
+    </html>
+  `);
+  doc.close();
+
+  setTimeout(() => {
+    printIframe.contentWindow.focus();
+    printIframe.contentWindow.print();
+    setTimeout(() => {
+      printIframe.remove();
+    }, 1500);
+  }, 300);
+}
+
 

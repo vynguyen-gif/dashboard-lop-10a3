@@ -11,7 +11,7 @@ const STORAGE_KEYS = {
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
-  SEATING: 'dashboard10a3_official_45_seating_v21'
+  SEATING: 'dashboard10a3_official_45_seating_v22'
 };
 
 
@@ -1634,7 +1634,7 @@ function getDefaultSeating() {
       pairWithTable: 5,
       title: 'Bàn 6',
       subtitle: 'Ghép Bàn 5',
-      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ) [Đổi từ Bàn 3 D2 sang]
+      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_35' }, // Nguyễn Ngọc Trinh (29đ) [Đổi chỗ với Anh Thư]
       rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
     },
     // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TÁCH GIA NGUYÊN & GIA VŨ VỀ 2 PHÍA NGOÀI CÙNG]
@@ -1752,7 +1752,7 @@ function getDefaultSeating() {
       pairWithTable: 4,
       title: 'Bàn 3',
       subtitle: 'Ghép Bàn 4',
-      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_35' }, // Nguyễn Ngọc Trinh (TỔ TRƯỞNG TỔ 4 & CS Văn - 29đ)
+      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ) [Đổi chỗ với Ngọc Trinh]
       rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_08' } // Ngô Thị Diễm Hằng (37đ) [Chuyển từ Bàn 6 D1 sang Bàn 3 D2 để tránh nhìn Tuấn Hưng]
     },
     {

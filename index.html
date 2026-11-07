@@ -350,17 +350,49 @@
             <div class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
               <label for="leaderboard-week-select" class="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">Xem Tuần:</label>
               <select id="leaderboard-week-select" onchange="changeLeaderboardWeek(this.value)" class="text-xs font-black bg-transparent text-amber-600 dark:text-amber-400 focus:outline-none cursor-pointer">
-                <option value="10" selected>Tuần 10 (Hiện tại - Chuẩn hóa)</option>
-                <option value="9">Tuần 9</option>
-                <option value="8">Tuần 8</option>
-                <option value="7">Tuần 7</option>
-                <option value="6">Tuần 6</option>
-                <option value="5">Tuần 5</option>
-                <option value="4">Tuần 4</option>
-                <option value="3">Tuần 3</option>
-                <option value="2">Tuần 2</option>
-                <option value="1">Tuần 1</option>
-                <option value="all">Toàn bộ học kỳ 1 (Lũy kế)</option>
+                <optgroup label="🌟 TỔNG KẾT HỌC KỲ & CẢ NĂM">
+                  <option value="all_hk1">⭐ Tổng kết Học kỳ 1 (Lũy kế Tuần 1 - 16)</option>
+                  <option value="all_hk2">⭐ Tổng kết Học kỳ 2 (Lũy kế Tuần 18 - 35)</option>
+                  <option value="all_year">🏆 Tổng kết Cả Năm Học (Tuần 1 - 35)</option>
+                </optgroup>
+                <optgroup label="📘 HỌC KỲ 1 (TUẦN 1 ĐẾN 16)">
+                  <option value="10" selected>Tuần 10 (Hiện tại - Chuẩn hóa)</option>
+                  <option value="16">Tuần 16 (Cuối Học kỳ 1)</option>
+                  <option value="15">Tuần 15</option>
+                  <option value="14">Tuần 14</option>
+                  <option value="13">Tuần 13</option>
+                  <option value="12">Tuần 12</option>
+                  <option value="11">Tuần 11</option>
+                  <option value="9">Tuần 9</option>
+                  <option value="8">Tuần 8</option>
+                  <option value="7">Tuần 7</option>
+                  <option value="6">Tuần 6</option>
+                  <option value="5">Tuần 5</option>
+                  <option value="4">Tuần 4</option>
+                  <option value="3">Tuần 3</option>
+                  <option value="2">Tuần 2</option>
+                  <option value="1">Tuần 1 (Khai giảng & Ổn định)</option>
+                </optgroup>
+                <optgroup label="📗 HỌC KỲ 2 (TUẦN 18 ĐẾN 35)">
+                  <option value="35">Tuần 35 (Tổng kết Năm học)</option>
+                  <option value="34">Tuần 34</option>
+                  <option value="33">Tuần 33</option>
+                  <option value="32">Tuần 32</option>
+                  <option value="31">Tuần 31</option>
+                  <option value="30">Tuần 30</option>
+                  <option value="29">Tuần 29</option>
+                  <option value="28">Tuần 28</option>
+                  <option value="27">Tuần 27</option>
+                  <option value="26">Tuần 26</option>
+                  <option value="25">Tuần 25</option>
+                  <option value="24">Tuần 24</option>
+                  <option value="23">Tuần 23</option>
+                  <option value="22">Tuần 22</option>
+                  <option value="21">Tuần 21</option>
+                  <option value="20">Tuần 20</option>
+                  <option value="19">Tuần 19</option>
+                  <option value="18">Tuần 18 (Bắt đầu Học kỳ 2)</option>
+                </optgroup>
               </select>
             </div>
 
@@ -493,16 +525,44 @@
               <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
                 <span class="font-bold text-slate-600 dark:text-slate-400">Tuần:</span>
                 <select id="score-input-week" class="bg-transparent font-black text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
-                  <option value="10" selected>Tuần 10 (Hiện tại)</option>
-                  <option value="9">Tuần 9</option>
-                  <option value="8">Tuần 8</option>
-                  <option value="7">Tuần 7</option>
-                  <option value="6">Tuần 6</option>
-                  <option value="5">Tuần 5</option>
-                  <option value="4">Tuần 4</option>
-                  <option value="3">Tuần 3</option>
-                  <option value="2">Tuần 2</option>
-                  <option value="1">Tuần 1</option>
+                  <optgroup label="📘 HỌC KỲ 1 (TUẦN 1 - 16)">
+                    <option value="10" selected>Tuần 10 (Hiện tại)</option>
+                    <option value="16">Tuần 16 (Cuối HK1)</option>
+                    <option value="15">Tuần 15</option>
+                    <option value="14">Tuần 14</option>
+                    <option value="13">Tuần 13</option>
+                    <option value="12">Tuần 12</option>
+                    <option value="11">Tuần 11</option>
+                    <option value="9">Tuần 9</option>
+                    <option value="8">Tuần 8</option>
+                    <option value="7">Tuần 7</option>
+                    <option value="6">Tuần 6</option>
+                    <option value="5">Tuần 5</option>
+                    <option value="4">Tuần 4</option>
+                    <option value="3">Tuần 3</option>
+                    <option value="2">Tuần 2</option>
+                    <option value="1">Tuần 1</option>
+                  </optgroup>
+                  <optgroup label="📗 HỌC KỲ 2 (TUẦN 18 - 35)">
+                    <option value="18">Tuần 18 (Bắt đầu HK2)</option>
+                    <option value="19">Tuần 19</option>
+                    <option value="20">Tuần 20</option>
+                    <option value="21">Tuần 21</option>
+                    <option value="22">Tuần 22</option>
+                    <option value="23">Tuần 23</option>
+                    <option value="24">Tuần 24</option>
+                    <option value="25">Tuần 25</option>
+                    <option value="26">Tuần 26</option>
+                    <option value="27">Tuần 27</option>
+                    <option value="28">Tuần 28</option>
+                    <option value="29">Tuần 29</option>
+                    <option value="30">Tuần 30</option>
+                    <option value="31">Tuần 31</option>
+                    <option value="32">Tuần 32</option>
+                    <option value="33">Tuần 33</option>
+                    <option value="34">Tuần 34</option>
+                    <option value="35">Tuần 35 (Tổng kết năm)</option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -1619,7 +1679,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=2.6"></script>
+  <script src="app.js?v=2.7"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">

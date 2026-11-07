@@ -810,7 +810,15 @@ html.dark #section-scoring input {
   border-color: #334155 !important;
 }
 
-html.dark #section-scoring select option {
+html.dark #section-leaderboard optgroup,
+html.dark #section-scoring optgroup {
+  background-color: #0f172a !important;
+  color: #fbbf24 !important;
+  font-weight: 800;
+}
+
+html.dark #section-scoring select option,
+html.dark #section-leaderboard select option {
   background-color: #0f172a !important;
   color: #f8fafc !important;
 }

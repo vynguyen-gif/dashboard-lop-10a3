@@ -3401,9 +3401,20 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
 
   const logs = appState.dailyLogs.filter(log => {
     if (log.studentId !== studentId) return false;
-    if (weekFilter === 'all') return true;
-    // Nếu log chưa có thuộc tính week, mặc định gán cho tuần 10 (tuần bắt đầu áp dụng số hóa)
-    const logWeek = log.week || '10';
+    const logWeek = Number(log.week) || 10;
+    
+    // Tổng kết Học kỳ 1: Tuần 1 đến Tuần 16
+    if (weekFilter === 'all' || weekFilter === 'all_hk1') {
+      return logWeek >= 1 && logWeek <= 16;
+    }
+    // Tổng kết Học kỳ 2: Tuần 18 đến Tuần 35
+    if (weekFilter === 'all_hk2') {
+      return logWeek >= 18 && logWeek <= 35;
+    }
+    // Tổng kết Cả Năm Học: Tuần 1 đến Tuần 35
+    if (weekFilter === 'all_year') {
+      return true;
+    }
     return String(logWeek) === String(weekFilter);
   });
 
@@ -3468,9 +3479,17 @@ function renderLeaderboard() {
 
   const weekLabel = document.getElementById('podium-week-label');
   if (weekLabel) {
-    weekLabel.textContent = weekFilter === 'all' 
-      ? 'Thành tích lũy kế toàn bộ học kỳ của 45 học sinh Lớp 10A3' 
-      : `Ghi nhận thành tích thi đua xuất sắc nhất trong Tuần ${weekFilter}`;
+    if (weekFilter === 'all' || weekFilter === 'all_hk1') {
+      weekLabel.textContent = 'Thành tích lũy kế toàn bộ Học kỳ 1 (Tuần 1 đến 16) của 45 học sinh Lớp 10A3';
+    } else if (weekFilter === 'all_hk2') {
+      weekLabel.textContent = 'Thành tích lũy kế toàn bộ Học kỳ 2 (Tuần 18 đến 35) của 45 học sinh Lớp 10A3';
+    } else if (weekFilter === 'all_year') {
+      weekLabel.textContent = 'Bảng vàng vinh danh Cả Năm Học 2026 - 2027 (Tuần 1 đến 35) của 45 học sinh Lớp 10A3';
+    } else {
+      const wNum = Number(weekFilter);
+      const termName = wNum >= 18 ? 'Học kỳ 2' : 'Học kỳ 1';
+      weekLabel.textContent = `Ghi nhận thành tích thi đua xuất sắc nhất trong Tuần ${weekFilter} (${termName})`;
+    }
   }
 
   const rankedList = getRankedStudents(weekFilter);
@@ -3700,7 +3719,17 @@ function printLeaderboardDirectly() {
 function generatePrintLeaderboardHTML() {
   const weekFilter = appState.activeLeaderboardWeek || '10';
   const rankedList = getRankedStudents(weekFilter);
-  const weekText = weekFilter === 'all' ? 'TỔNG KẾT TOÀN HỌC KỲ 1' : `TUẦN ${weekFilter}`;
+  let weekText = `TUẦN ${weekFilter}`;
+  if (weekFilter === 'all' || weekFilter === 'all_hk1') {
+    weekText = 'TỔNG KẾT THI ĐUA HỌC KỲ 1 (TUẦN 1 - 16)';
+  } else if (weekFilter === 'all_hk2') {
+    weekText = 'TỔNG KẾT THI ĐUA HỌC KỲ 2 (TUẦN 18 - 35)';
+  } else if (weekFilter === 'all_year') {
+    weekText = 'TỔNG KẾT THI ĐUA CẢ NĂM HỌC 2026 - 2027 (TUẦN 1 - 35)';
+  } else {
+    const wNum = Number(weekFilter);
+    weekText = `TUẦN ${weekFilter} — ${wNum >= 18 ? 'HỌC KỲ 2' : 'HỌC KỲ 1'}`;
+  }
 
   return `
     <div class="bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[210mm] mx-auto p-4 space-y-3">

@@ -7,11 +7,11 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v27',
+  STUDENTS: 'dashboard10a3_official_45_students_v28',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
-  SEATING: 'dashboard10a3_official_45_seating_v27'
+  SEATING: 'dashboard10a3_official_45_seating_v28'
 };
 
 
@@ -1634,7 +1634,7 @@ function getDefaultSeating() {
       pairWithTable: 5,
       title: 'Bàn 6',
       subtitle: 'Ghép Bàn 5',
-      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_35' }, // Nguyễn Ngọc Trinh (29đ) [Đổi chỗ với Anh Thư]
+      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_33' }, // Đỗ Quốc Thành (35đ) [Đổi chỗ với Ngọc Trinh]
       rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
     },
     // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TÁCH GIA NGUYÊN & GIA VŨ VỀ 2 PHÍA NGOÀI CÙNG]
@@ -1648,7 +1648,7 @@ function getDefaultSeating() {
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
       leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_38' }, // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đổi chỗ với Văn Vũ]
-      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_33' } // Đỗ Quốc Thành (35đ)
+      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_35' } // Nguyễn Ngọc Trinh (Tổ trưởng T5 & CS Văn - 29đ) [Đổi chỗ với Quốc Thành]
     },
     {
       tableId: 'tbl_d1_t8',

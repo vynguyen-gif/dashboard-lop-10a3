@@ -7,11 +7,11 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v29',
+  STUDENTS: 'dashboard10a3_official_45_students_v30',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
-  SEATING: 'dashboard10a3_official_45_seating_v29'
+  SEATING: 'dashboard10a3_official_45_seating_v30'
 };
 
 
@@ -22,7 +22,7 @@ const ROLES = {
   lead_t1: { id: 'lead_t1', label: '👤 Tổ trưởng T1 (Yến Vy)', canScore: true, canLock: false, canReset: false, allowedGroups: [1] },
   lead_t2: { id: 'lead_t2', label: '👤 Tổ trưởng T2 (Gia Nguyên)', canScore: true, canLock: false, canReset: false, allowedGroups: [2] },
   lead_t3: { id: 'lead_t3', label: '👤 Tổ trưởng T3 (Phi Hoàng)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
-  lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Thanh Tuyền)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
+  lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Duy Khôi)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
   lead_t5: { id: 'lead_t5', label: '👤 Tổ trưởng T5 (Ngọc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
   lead_t6: { id: 'lead_t6', label: '👤 Tổ trưởng T6 (Mỹ Ngân)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
   member: { id: 'member', label: '👁️ Thành viên (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
@@ -1333,7 +1333,7 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyễn Thị Thanh Tuyền (12/01)', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
-  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thủ quỹ', isSpecialSupport: false },
   { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
@@ -1346,11 +1346,11 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 4 (8 học sinh • Điểm TB Lực Học: 35.56) =====
-  { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyễn Thị Thanh Tuyền (14/06)', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Tổ trưởng & CS Anh', isSpecialSupport: false },
   { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 28, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_45', code: '1703509575', fullName: 'Đỗ Khôi Vỹ', dob: '08/12/2011', academicScore: 36, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phạm Ngọc Tường Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
-  { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Cán sự Anh', isSpecialSupport: false },
+  { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyễn Thị Thanh Tuyền (14/06)', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_22', code: '1701941028', fullName: 'Nguyễn Hữu Đan Mạch', dob: '01/01/2011', academicScore: 39, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_08', code: '1702997106', fullName: 'Ngô Thị Diễm Hằng', dob: '18/11/2011', academicScore: 37, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_09', code: '1701980221', fullName: 'Nguyễn Vinh Hoa', dob: '15/07/2011', academicScore: 37, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
@@ -1739,7 +1739,7 @@ function getDefaultSeating() {
       pairWithTable: 1,
       title: 'Bàn 2',
       subtitle: 'Ghép Bàn 1',
-      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06) (Tổ trưởng T4 - 38đ) [Đổi chỗ với Duy Khôi]
+      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06) (38đ)
       rightSeat: { seatId: 'seat_r2_g4_t2_r', position: 'right', studentId: 'hs_10a3_45' } // Đỗ Khôi Vỹ (36đ) [Khôi Vỹ lên bàn đầu sát bục giảng, không còn làm việc riêng]
     },
     // [HÀNG 2: BÀN 3 GHÉP BÀN 4 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
@@ -1764,7 +1764,7 @@ function getDefaultSeating() {
       pairWithTable: 3,
       title: 'Bàn 4',
       subtitle: 'Ghép Bàn 3',
-      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_15' }, // Võ Quốc Duy Khôi (Cán sự Anh - 35đ) [Đổi chỗ với Thanh Tuyền 14/06]
+      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_15' }, // Võ Quốc Duy Khôi (Tổ trưởng T4 & CS Anh - 35đ)
       rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đôi bạn cùng tiến]
     },
 

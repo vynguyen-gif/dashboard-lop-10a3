@@ -7,11 +7,11 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v31',
+  STUDENTS: 'dashboard10a3_official_45_students_v32',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
-  SEATING: 'dashboard10a3_official_45_seating_v31'
+  SEATING: 'dashboard10a3_official_45_seating_v32'
 };
 
 
@@ -1332,8 +1332,8 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_34', code: '1704831627', fullName: 'Nguyễn Ngọc Anh Thư', dob: '24/10/2011', academicScore: 29, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyễn Thị Thanh Tuyền (12/01)', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thủ quỹ', isSpecialSupport: false },
+  { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Cán sự Văn', isSpecialSupport: false },
+  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thủ quỹ & CS Sử', isSpecialSupport: false },
   { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
@@ -1356,7 +1356,7 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_09', code: '1701980221', fullName: 'Nguyễn Vinh Hoa', dob: '15/07/2011', academicScore: 37, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 5 (7 học sinh • Điểm TB Lực Học: 33.43) =====
-  { id: 'hs_10a3_35', code: '1703919858', fullName: 'Nguyễn Ngọc Trinh', dob: '18/04/2011', academicScore: 29, groupNumber: 5, role: 'Tổ trưởng & CS Văn', isSpecialSupport: false },
+  { id: 'hs_10a3_35', code: '1703919858', fullName: 'Nguyễn Ngọc Trinh', dob: '18/04/2011', academicScore: 29, groupNumber: 5, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_27', code: '1702997079', fullName: 'Trần Lê Hồng Nhung', dob: '20/10/2011', academicScore: 36, groupNumber: 5, role: 'Lớp trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_42', code: '1702780409', fullName: 'Lê Văn Vũ', dob: '03/01/2011', academicScore: 39, groupNumber: 5, role: 'Lớp phó Học tập & CS Lý', isSpecialSupport: false },
   { id: 'hs_10a3_18', code: '1702780393', fullName: 'Nguyễn Đỗ Kim Yến Linh', dob: '19/06/2011', academicScore: 37, groupNumber: 5, role: 'Thành viên', isSpecialSupport: false },
@@ -1648,7 +1648,7 @@ function getDefaultSeating() {
       title: 'Bàn 7',
       subtitle: 'Ghép Bàn 8',
       leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_38' }, // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đổi chỗ với Văn Vũ]
-      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_35' } // Nguyễn Ngọc Trinh (Tổ trưởng T5 & CS Văn - 29đ) [Đổi chỗ với Quốc Thành]
+      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_35' } // Nguyễn Ngọc Trinh (Tổ trưởng T5 - 29đ) [Đổi chỗ với Quốc Thành]
     },
     {
       tableId: 'tbl_d1_t8',
@@ -1659,7 +1659,7 @@ function getDefaultSeating() {
       pairWithTable: 7,
       title: 'Bàn 8',
       subtitle: 'Ghép Bàn 7',
-      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_02' }, // Nguyễn Thị Kim Bơ (33đ) [Học tốt]
+      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_02' }, // Nguyễn Thị Kim Bơ (Cán sự Văn - 33đ) [Học tốt]
       rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_16' } // Nguyễn Tấn Kỳ (37đ)
     },
 

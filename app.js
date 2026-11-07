@@ -760,29 +760,86 @@ function renderStudentsTable() {
   tbody.innerHTML = '';
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp</td></tr>`;
-    document.getElementById('students-table-summary').textContent = `Hiển thị 0 học sinh`;
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp</td></tr>';
+    document.getElementById('students-table-summary').textContent = 'Hiển thị 0 học sinh';
     return;
   }
 
   filtered.forEach((stu, index) => {
     const score = calculateStudentScore(stu.id);
     const tier = getRankingTier(score);
+
+    // Tính điểm cộng và điểm trừ của học sinh từ dailyLogs
+    const stuLogs = appState.dailyLogs.filter(log => log.studentId === stu.id);
+    let bonusPts = 0;
+    let violPts = 0;
+    const bonusList = [];
+    const violList = [];
+
+    stuLogs.forEach(l => {
+      const pts = Number(l.pointsChanged) || 0;
+      if (pts > 0) {
+        bonusPts += pts;
+        bonusList.push(l);
+      } else if (pts < 0) {
+        violPts += pts;
+        violList.push(l);
+      }
+    });
+
+    const bonusHtml = bonusPts > 0 
+      ? `
+        <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bấm để xem lịch sử điểm cộng chi tiết">
+          <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:border-emerald-400 transition shadow-2xs">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>${bonusPts} đ</span>
+          </span>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 max-w-[170px] mx-auto text-left space-y-0.5">
+            ${bonusList.slice(0, 2).map(b => `
+              <div class="truncate text-emerald-600 dark:text-emerald-400 font-semibold" title="${escapeHtml(b.ruleLabel)} (+${b.pointsChanged}đ${b.week ? `, Tuần ${b.week}` : ''})">
+                • +${b.pointsChanged}đ ${escapeHtml(b.ruleLabel)}
+              </div>
+            `).join('')}
+            ${bonusList.length > 2 ? `<div class="text-[9px] text-emerald-600 dark:text-emerald-400 italic text-center hover:underline">+${bonusList.length - 2} khen thưởng khác...</div>` : ''}
+          </div>
+        </div>
+      `
+      : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 đ</span>';
+
+    const violHtml = violPts < 0 
+      ? `
+        <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bấm để xem chi tiết vi phạm">
+          <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 hover:border-rose-400 transition shadow-2xs">
+            <i class="fa-solid fa-minus text-[10px]"></i>
+            <span>${Math.abs(violPts)} đ</span>
+          </span>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 max-w-[170px] mx-auto text-left space-y-0.5">
+            ${violList.slice(0, 2).map(v => `
+              <div class="truncate text-rose-600 dark:text-rose-400 font-semibold" title="${escapeHtml(v.ruleLabel)} (${v.pointsChanged}đ${v.week ? `, Tuần ${v.week}` : ''})">
+                • ${v.pointsChanged}đ ${escapeHtml(v.ruleLabel)}
+              </div>
+            `).join('')}
+            ${violList.length > 2 ? `<div class="text-[9px] text-rose-600 dark:text-rose-400 italic text-center hover:underline">+${violList.length - 2} vi phạm khác...</div>` : ''}
+          </div>
+        </div>
+      `
+      : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 đ</span>';
+
     const tr = document.createElement('tr');
-    tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+    tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/60 transition border-b border-slate-100 dark:border-slate-800';
 
     tr.innerHTML = `
       <td class="py-3 px-4 font-mono text-xs text-slate-400">${index + 1}</td>
       <td class="py-3 px-4 cursor-pointer" onclick="openStudentDetailModal('${stu.id}')">
-        <span class="font-bold text-slate-800 text-sm hover:text-blue-600 transition block">${escapeHtml(stu.fullName)}</span>
+        <span class="font-bold text-slate-800 dark:text-slate-100 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition block">${escapeHtml(stu.fullName)}</span>
         <span class="text-[11px] text-slate-400 font-mono flex items-center space-x-2 mt-0.5">
           <span><i class="fa-regular fa-id-card text-[10px] mr-1"></i>${stu.code || 'Chưa có mã'}</span>
           ${stu.dob ? `<span>• <i class="fa-regular fa-calendar text-[10px] mr-1"></i>${stu.dob}</span>` : ''}
-          ${stu.academicScore ? `<span class="px-1.5 py-0.2 bg-indigo-50 text-indigo-700 font-bold rounded text-[10px]"><i class="fa-solid fa-graduation-cap text-[9px] mr-1"></i>${stu.academicScore}đ</span>` : ''}
+          ${stu.academicScore ? `<span class="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold rounded text-[10px]"><i class="fa-solid fa-graduation-cap text-[9px] mr-1"></i>${stu.academicScore}đ</span>` : ''}
         </span>
       </td>
       <td class="py-3 px-4 text-center">
-        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
           Tổ ${stu.groupNumber}
         </span>
       </td>
@@ -791,11 +848,17 @@ function renderStudentsTable() {
       </td>
       <td class="py-3 px-4 text-center">
         ${stu.isSpecialSupport 
-          ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300"><i class="fa-solid fa-shield-heart text-amber-600"></i><span>Cần theo dõi</span></span>' 
-          : '<span class="text-slate-300 text-xs">—</span>'}
+          ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"><i class="fa-solid fa-shield-heart text-amber-600 dark:text-amber-400"></i><span>Cần theo dõi</span></span>' 
+          : '<span class="text-slate-300 dark:text-slate-600 text-xs">—</span>'}
+      </td>
+      <td class="py-3 px-3 text-center">
+        ${bonusHtml}
+      </td>
+      <td class="py-3 px-3 text-center">
+        ${violHtml}
       </td>
       <td class="py-3 px-4 text-right">
-        <span class="font-black text-sm ${score >= 90 ? 'text-emerald-600' : score >= 70 ? 'text-blue-600' : 'text-rose-600'}">${score} đ</span>
+        <span class="font-black text-sm ${score >= 90 ? 'text-emerald-600 dark:text-emerald-400' : score >= 70 ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'}">${score} đ</span>
       </td>
       <td class="py-3 px-4 text-center">
         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-bold border ${tier.color}">
@@ -803,9 +866,9 @@ function renderStudentsTable() {
         </span>
       </td>
       <td class="py-3 px-4 text-center space-x-1">
-        <button onclick="quickScoreSingle('${stu.id}')" title="Chấm điểm em này" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"><i class="fa-solid fa-star"></i></button>
-        <button onclick="openEditStudentModal('${stu.id}')" title="Sửa thông tin" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
-        <button onclick="deleteStudent('${stu.id}')" title="Xóa học sinh" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+        <button onclick="quickScoreSingle('${stu.id}')" title="Chấm điểm em này" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition"><i class="fa-solid fa-star"></i></button>
+        <button onclick="openEditStudentModal('${stu.id}')" title="Sửa thông tin" class="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
+        <button onclick="deleteStudent('${stu.id}')" title="Xóa học sinh" class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     `;
     tbody.appendChild(tr);

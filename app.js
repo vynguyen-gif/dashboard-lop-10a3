@@ -64,12 +64,12 @@ const BONUS_RULES = [
 
 // THANG ĐIỂM TRỪ
 const VIOLATION_RULES = [
-  // I. LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY)
-  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: '⚠️ [LỖI KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra', points: -50, icon: 'fa-file-circle-xmark' },
-  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: -50, icon: 'fa-hand-fist' },
-  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: -30, icon: 'fa-mobile-screen-button' },
-  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: -30, icon: 'fa-user-xmark' },
-  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô', points: -50, icon: 'fa-triangle-exclamation' },
+  // I. LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY - 0 ĐIỂM TRỪ)
+  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: '⚠️ [LỖI KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra', points: 0, icon: 'fa-file-circle-xmark' },
+  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: 0, icon: 'fa-hand-fist' },
+  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: 0, icon: 'fa-mobile-screen-button' },
+  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: 0, icon: 'fa-user-xmark' },
+  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô', points: 0, icon: 'fa-triangle-exclamation' },
 
   // II. HỌC TẬP & KỶ LUẬT TIẾT HỌC
   { key: 'viol_no_homework', group: 'academic', isRestricted: false, label: '📚 Không soạn bài / Không làm bài tập về nhà (1 lần)', points: -15, icon: 'fa-book-skull' },
@@ -841,25 +841,34 @@ function renderStudentsTable() {
 
   filtered.forEach((stu, index) => {
     const score = calculateStudentScore(stu.id);
-    const tier = getRankingTier(score);
 
     // Tính điểm cộng và điểm trừ của học sinh từ dailyLogs
     const stuLogs = appState.dailyLogs.filter(log => log.studentId === stu.id);
     let bonusPts = 0;
     let violPts = 0;
+    let hasRestricted = false;
     const bonusList = [];
     const violList = [];
 
     stuLogs.forEach(l => {
       const pts = Number(l.pointsChanged) || 0;
+      const matchedViolRule = VIOLATION_RULES.find(vr => vr.key === l.ruleKey);
+      if (matchedViolRule && matchedViolRule.isRestricted) {
+        hasRestricted = true;
+      }
+
       if (pts > 0) {
         bonusPts += pts;
         bonusList.push(l);
       } else if (pts < 0) {
         violPts += pts;
         violList.push(l);
+      } else if (l.type === 'violation' || (matchedViolRule && matchedViolRule.isRestricted)) {
+        violList.push(l);
       }
     });
+
+    const tier = getRankingTier(score, hasRestricted);
 
     const bonusHtml = bonusPts > 0 
       ? `
@@ -880,19 +889,28 @@ function renderStudentsTable() {
       `
       : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 đ</span>';
 
-    const violHtml = violPts < 0 
+    const hasViolEntries = violPts < 0 || hasRestricted || violList.length > 0;
+    const violBadgeText = hasRestricted 
+      ? (violPts < 0 ? `⚠️ Khống chế (${violPts}đ)` : '⚠️ Khống chế (0đ)')
+      : `${Math.abs(violPts)} đ`;
+
+    const violHtml = hasViolEntries 
       ? `
         <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bấm để xem chi tiết vi phạm">
           <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 hover:border-rose-400 transition shadow-2xs">
             <i class="fa-solid fa-minus text-[10px]"></i>
-            <span>${Math.abs(violPts)} đ</span>
+            <span>${violBadgeText}</span>
           </span>
           <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 max-w-[170px] mx-auto text-left space-y-0.5">
-            ${violList.slice(0, 2).map(v => `
-              <div class="truncate text-rose-600 dark:text-rose-400 font-semibold" title="${escapeHtml(v.ruleLabel)} (${v.pointsChanged}đ${v.week ? `, Tuần ${v.week}` : ''})">
-                • ${v.pointsChanged}đ ${escapeHtml(v.ruleLabel)}
-              </div>
-            `).join('')}
+            ${violList.slice(0, 2).map(v => {
+              const r = VIOLATION_RULES.find(vr => vr.key === v.ruleKey);
+              const isRestrictedRule = r && r.isRestricted;
+              const ptsLabel = isRestrictedRule ? '⚠️' : `${v.pointsChanged}đ`;
+              return `
+              <div class="truncate text-rose-600 dark:text-rose-400 font-semibold" title="${escapeHtml(v.ruleLabel)} (${ptsLabel}${v.week ? `, Tuần ${v.week}` : ''})">
+                • ${ptsLabel} ${escapeHtml(v.ruleLabel)}
+              </div>`;
+            }).join('')}
             ${violList.length > 2 ? `<div class="text-[9px] text-rose-600 dark:text-rose-400 italic text-center hover:underline">+${violList.length - 2} vi phạm khác...</div>` : ''}
           </div>
         </div>
@@ -3588,8 +3606,23 @@ function getRankedStudents(weekFilter) {
     };
   });
 
-  // Sắp xếp giảm dần theo tổng điểm tuần. Nếu bằng điểm, ưu tiên ít điểm trừ hơn, sau đó điểm lực học
+  // PHƯƠNG ÁN 1: BẬC XẾP LOẠI ƯU TIÊN TRƯỚC (TIER-FIRST RANKING)
+  // Nhóm Khống chế giữ điểm thực tế nhưng bị xếp ở đáy bảng thi đua (priority 0)
+  function getTierPriority(item) {
+    if (item.hasRestrictedViolation) return 0; // Đáy bảng thi đua
+    if (item.totalScore >= RANKING_TIERS.GOOD.min) return 4; // Tốt (>= 90đ)
+    if (item.totalScore >= RANKING_TIERS.FAIR.min) return 3; // Khá (70 - 89đ)
+    if (item.totalScore >= RANKING_TIERS.PASS.min) return 2; // Đạt (50 - 69đ)
+    return 1; // Chưa đạt do điểm thấp (< 50đ)
+  }
+
+  // Sắp xếp: Ưu tiên Bậc thi đua trước, sau đó điểm tuần từ cao xuống thấp
   list.sort((a, b) => {
+    const tierA = getTierPriority(a);
+    const tierB = getTierPriority(b);
+    if (tierB !== tierA) {
+      return tierB - tierA; // Bậc cao hơn xếp trên
+    }
     if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
     if (a.violPts !== b.violPts) return b.violPts - a.violPts; // violPts là số âm, lớn hơn tức là ít bị trừ hơn
     return (b.academicScore || 0) - (a.academicScore || 0);
@@ -3807,10 +3840,13 @@ function renderLeaderboardTable(preloadedList) {
 
   tbody.innerHTML = filtered.map(stu => {
     const rank = stu.rank;
-    const rankBadge = rank === 1 ? '<span class="w-6 h-6 rounded-full bg-amber-400 text-amber-950 font-black text-xs inline-flex items-center justify-center shadow-xs">🥇</span>'
-                    : rank === 2 ? '<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-800 font-bold text-xs inline-flex items-center justify-center">🥈</span>'
-                    : rank === 3 ? '<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-bold text-xs inline-flex items-center justify-center">🥉</span>'
-                    : `<span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs inline-flex items-center justify-center">${rank}</span>`;
+    const isRestricted = stu.hasRestrictedViolation;
+    const rankBadge = isRestricted 
+      ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 font-black text-[11px] border border-rose-400 dark:border-rose-800 inline-flex items-center gap-1 shadow-2xs" title="Hạ bậc xuống cuối bảng do vi phạm Lỗi khống chế">⚠️ ${rank}</span>`
+      : rank === 1 ? '<span class="w-6 h-6 rounded-full bg-amber-400 text-amber-950 font-black text-xs inline-flex items-center justify-center shadow-xs">🥇</span>'
+      : rank === 2 ? '<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-800 font-bold text-xs inline-flex items-center justify-center">🥈</span>'
+      : rank === 3 ? '<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-bold text-xs inline-flex items-center justify-center">🥉</span>'
+      : `<span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs inline-flex items-center justify-center">${rank}</span>`;
 
     const tierBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${stu.tier.color}">${stu.tier.label}</span>`;
 
@@ -3825,8 +3861,12 @@ function renderLeaderboardTable(preloadedList) {
       progressBadges.push('<span class="text-[9px] bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">Kèm cặp</span>');
     }
 
+    const rowClass = isRestricted 
+      ? 'hover:bg-rose-50/70 dark:hover:bg-rose-950/40 bg-rose-50/30 dark:bg-rose-950/20 transition border-b border-rose-200 dark:border-rose-900/60 cursor-pointer'
+      : 'hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700/60 cursor-pointer';
+
     return `
-      <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700/60 cursor-pointer" onclick="openStudentDetailModal('${stu.id}')">
+      <tr class="${rowClass}" onclick="openStudentDetailModal('${stu.id}')">
         <td class="py-2.5 px-3 text-center">${rankBadge}</td>
         <td class="py-2.5 px-3">
           <div class="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
@@ -3946,15 +3986,15 @@ function generatePrintLeaderboardHTML() {
           </thead>
           <tbody>
             ${rankedList.map(s => `
-              <tr class="${s.rank <= 3 ? 'bg-amber-50 font-semibold' : ''}">
-                <td class="border border-black p-1 text-center font-bold">${s.rank}</td>
+              <tr class="${s.hasRestrictedViolation ? 'bg-rose-50' : s.rank <= 3 ? 'bg-amber-50 font-semibold' : ''}">
+                <td class="border border-black p-1 text-center font-bold">${s.hasRestrictedViolation ? `⚠️ ${s.rank}` : s.rank}</td>
                 <td class="border border-black p-1">${s.fullName} ${s.role && s.role !== 'Thành viên' ? `(${s.role})` : ''}</td>
                 <td class="border border-black p-1 text-center">T${s.groupNumber}</td>
                 <td class="border border-black p-1 text-center">${s.baseScore}</td>
                 <td class="border border-black p-1 text-center text-emerald-800">+${s.bonusPts}</td>
                 <td class="border border-black p-1 text-center text-rose-800">${s.violPts}</td>
                 <td class="border border-black p-1 text-center font-black">${s.totalScore}</td>
-                <td class="border border-black p-1 text-center font-bold">${s.tier.label}</td>
+                <td class="border border-black p-1 text-center font-bold ${s.hasRestrictedViolation ? 'text-rose-900 font-black' : ''}">${s.tier.label}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -4031,7 +4071,15 @@ function onDropdownRuleChange(type, ruleKey) {
     const cardBadge = document.getElementById('violation-card-badge');
     if (violCard) {
       if (cardTitle) cardTitle.textContent = rule.label;
-      if (cardBadge) cardBadge.textContent = `${rule.points} điểm`;
+      if (cardBadge) {
+        if (rule.isRestricted) {
+          cardBadge.textContent = 'Khống chế ⚠️ (0đ)';
+          cardBadge.className = 'px-2 py-0.5 bg-rose-600 text-white font-black text-xs rounded-full border border-rose-300';
+        } else {
+          cardBadge.textContent = `${rule.points} điểm`;
+          cardBadge.className = 'px-2 py-0.5 bg-rose-500 text-white font-black text-xs rounded-full';
+        }
+      }
       violCard.classList.remove('hidden');
     }
   }
@@ -4041,13 +4089,19 @@ function onDropdownRuleChange(type, ruleKey) {
   const pointsBadge = document.getElementById('preview-points-badge');
 
   if (ruleText && appState.activeRule) {
-    ruleText.textContent = `[${type === 'bonus' ? 'ĐIỂM CỘNG' : 'ĐIỂM TRỪ'}] ${appState.activeRule.label}`;
+    const isRestricted = appState.activeRule.isRestricted;
+    ruleText.textContent = `[${isRestricted ? 'LỖI KHỐNG CHẾ ⚠️' : type === 'bonus' ? 'ĐIỂM CỘNG' : 'ĐIỂM TRỪ'}] ${appState.activeRule.label}`;
   }
   if (pointsBadge && appState.activeRule) {
-    pointsBadge.textContent = type === 'bonus' ? `+${appState.activeRule.points} điểm` : `${appState.activeRule.points} điểm`;
-    pointsBadge.className = type === 'bonus' 
-      ? 'font-black text-base text-emerald-400 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-600' 
-      : 'font-black text-base text-rose-400 px-2 py-0.5 rounded bg-rose-950/80 border border-rose-600';
+    if (appState.activeRule.isRestricted) {
+      pointsBadge.textContent = 'Khống chế ⚠️ (0đ)';
+      pointsBadge.className = 'font-black text-xs text-rose-300 px-2 py-0.5 rounded bg-rose-950/90 border border-rose-500';
+    } else {
+      pointsBadge.textContent = type === 'bonus' ? `+${appState.activeRule.points} điểm` : `${appState.activeRule.points} điểm`;
+      pointsBadge.className = type === 'bonus' 
+        ? 'font-black text-base text-emerald-400 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-600' 
+        : 'font-black text-base text-rose-400 px-2 py-0.5 rounded bg-rose-950/80 border border-rose-600';
+    }
   }
 }
 

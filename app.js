@@ -11,7 +11,7 @@ const STORAGE_KEYS = {
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
-  SEATING: 'dashboard10a3_official_45_seating_v23'
+  SEATING: 'dashboard10a3_official_45_seating_v24'
 };
 
 
@@ -1816,8 +1816,8 @@ function getDefaultSeating() {
       pairWithTable: 7,
       title: 'Bàn 8',
       subtitle: 'Ghép Bàn 7',
-      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_24' }, // Nguyễn Hoàng Gia Nguyên (38đ) [Đổi chỗ với Văn Vũ]
-      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: 'hs_10a3_09' } // Nguyễn Vinh Hoa (TỔ TRƯỞNG TỔ 5 - 37đ) [Tổ trưởng ngồi Bàn 8 bao quát tổ]
+      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (TỔ TRƯỞNG TỔ 5 - 37đ)
+      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: 'hs_10a3_24' } // Nguyễn Hoàng Gia Nguyên (38đ) [Đổi chỗ với Vinh Hoa]
     },
 
     // --- TỔ 6 (Bàn 9 -> 12) ---

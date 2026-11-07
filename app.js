@@ -8,8 +8,8 @@
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v24',
-  LOGS: 'dashboard10a3_official_45_logs_v7',
-  LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v2',
+  LOGS: 'dashboard10a3_official_45_logs_v9',
+  LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   SEATING: 'dashboard10a3_official_45_seating_v21'
 };
@@ -84,8 +84,8 @@ let appState = {
   selectedFormStudentId: '',
   theme: 'light',
   starsEnabled: true,
-  activeLeaderboardWeek: '10',
-  lockedWeeks: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+  activeLeaderboardWeek: '9',
+  lockedWeeks: [],
   currentUserRole: 'gvcn'
 };
 
@@ -141,14 +141,9 @@ function loadDataFromStorage() {
 
     appState.students = rawStudents ? JSON.parse(rawStudents) : [];
     appState.dailyLogs = rawLogs ? JSON.parse(rawLogs) : [];
-    appState.lockedWeeks = rawLocked ? JSON.parse(rawLocked) : ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    appState.lockedWeeks = rawLocked ? JSON.parse(rawLocked) : [];
     appState.currentUserRole = rawRole || 'gvcn';
-
-    // Nếu chưa có nhật ký nào, tự động nạp bộ dữ liệu thi đua chuẩn hóa các tuần 1 - 8
-    if (appState.dailyLogs.length === 0) {
-      appState.dailyLogs = seedHistoricalWeeklyLogs();
-      saveDataToStorage();
-    }
+    appState.activeLeaderboardWeek = '9';
 
     loadSeatingData();
   } catch (err) {
@@ -4288,4 +4283,65 @@ function renderScoringPermissionsUI() {
       submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk text-sm mr-1.5"></i><span>XÁC NHẬN GHI ĐIỂM NGAY</span>';
     }
   }
+}
+
+// ==================== CÁC HÀM XỬ LÝ RESET ĐIỂM THI ĐUA ====================
+
+function openResetDisciplineModal() {
+  const currentRole = appState.currentUserRole || 'gvcn';
+  if (currentRole !== 'gvcn') {
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền mở công cụ Reset điểm thi đua!', 'error');
+    return;
+  }
+
+  const modal = document.getElementById('modal-reset-discipline');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    const countEl = document.getElementById('reset-modal-log-count');
+    if (countEl) countEl.textContent = `${appState.dailyLogs.length} logs`;
+  }
+}
+
+function closeResetDisciplineModal() {
+  const modal = document.getElementById('modal-reset-discipline');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function executeResetWeekOnly(weekVal) {
+  const wStr = String(weekVal || appState.activeLeaderboardWeek || '9');
+  const countBefore = appState.dailyLogs.length;
+
+  appState.dailyLogs = appState.dailyLogs.filter(l => String(l.week) !== wStr);
+  const deletedCount = countBefore - appState.dailyLogs.length;
+
+  saveDataToStorage();
+  refreshAllUI();
+  closeResetDisciplineModal();
+
+  showToast(`Đã reset sạch sẽ điểm Tuần ${wStr}! Tất cả 45 học sinh ở Tuần ${wStr} đã về đúng 100 điểm ban đầu (đã xóa ${deletedCount} lượt điểm).`, 'success');
+}
+
+function executeResetAllToBaseline() {
+  const countBefore = appState.dailyLogs.length;
+  appState.dailyLogs = [];
+  appState.lockedWeeks = [];
+
+  saveDataToStorage();
+  refreshAllUI();
+  closeResetDisciplineModal();
+
+  showToast(`Đã xóa sạch toàn bộ ${countBefore} lượt điểm cũ! Tất cả 45 học sinh đã trở về đúng 100 điểm sàn ban đầu để bắt đầu từ Tuần 9.`, 'success');
+}
+
+function executeLoadSampleLogs() {
+  appState.dailyLogs = seedHistoricalWeeklyLogs();
+  saveDataToStorage();
+  refreshAllUI();
+  closeResetDisciplineModal();
+
+  showToast(`Đã nạp thành công bộ dữ liệu thi đua mẫu để tham khảo!`, 'info');
 }

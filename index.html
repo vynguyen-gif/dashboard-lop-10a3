@@ -165,6 +165,10 @@
         </div>
 
         <!-- Quick Action: Nạp lại 45 HS chuẩn -->
+        <button onclick="openResetDisciplineModal()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 rounded-lg text-xs font-bold shadow-xs transition" title="Reset điểm thi đua về 100 điểm ban đầu">
+          <i class="fa-solid fa-rotate-left text-rose-600 dark:text-rose-400"></i>
+          <span>Reset Điểm</span>
+        </button>
         <button onclick="injectOfficial45Students(true)" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-lg text-xs font-bold shadow-xs transition" title="Khôi phục danh sách 45 HS THPT Bùi Thị Xuân - Mũi Né">
           <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
           <span class="hidden sm:inline">Nạp 45 HS Chuẩn</span>
@@ -375,14 +379,14 @@
                   <option value="all_year">🏆 Tổng kết Cả Năm Học (Tuần 1 - 35)</option>
                 </optgroup>
                 <optgroup label="📘 HỌC KỲ 1 (TUẦN 1 ĐẾN 16)">
-                  <option value="10" selected>Tuần 10 (Hiện tại - Chuẩn hóa)</option>
+                  <option value="10">Tuần 10</option>
                   <option value="16">Tuần 16 (Cuối Học kỳ 1)</option>
                   <option value="15">Tuần 15</option>
                   <option value="14">Tuần 14</option>
                   <option value="13">Tuần 13</option>
                   <option value="12">Tuần 12</option>
                   <option value="11">Tuần 11</option>
-                  <option value="9">Tuần 9</option>
+                  <option value="9" selected>Tuần 9 (Hiện tại - Tuần học này)</option>
                   <option value="8">Tuần 8</option>
                   <option value="7">Tuần 7</option>
                   <option value="6">Tuần 6</option>
@@ -427,7 +431,7 @@
                 <span id="btn-toggle-lock-text">Khóa Tuần Này</span>
               </button>
 
-              <button type="button" onclick="confirmResetWeekDiscipline()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl text-xs transition" title="Reset toàn bộ điểm tuần này về 100 điểm sàn ban đầu">
+              <button type="button" onclick="openResetDisciplineModal()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl text-xs transition" title="Reset toàn bộ điểm tuần này về 100 điểm sàn ban đầu">
                 <i class="fa-solid fa-rotate-left"></i>
                 <span>Reset Về 100đ</span>
               </button>
@@ -563,14 +567,14 @@
                 <span class="font-bold text-slate-600 dark:text-slate-400">Tuần:</span>
                 <select id="score-input-week" onchange="renderScoringPermissionsUI()" class="bg-transparent font-black text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
                   <optgroup label="📘 HỌC KỲ 1 (TUẦN 1 - 16)">
-                    <option value="10" selected>Tuần 10 (Hiện tại)</option>
+                    <option value="10">Tuần 10</option>
                     <option value="16">Tuần 16 (Cuối HK1)</option>
                     <option value="15">Tuần 15</option>
                     <option value="14">Tuần 14</option>
                     <option value="13">Tuần 13</option>
                     <option value="12">Tuần 12</option>
                     <option value="11">Tuần 11</option>
-                    <option value="9">Tuần 9</option>
+                    <option value="9" selected>Tuần 9 (Hiện tại)</option>
                     <option value="8">Tuần 8</option>
                     <option value="7">Tuần 7</option>
                     <option value="6">Tuần 6</option>
@@ -874,6 +878,10 @@
             <button onclick="injectFull45StudentsPrompt()" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition flex items-center space-x-1.5" title="Khởi tạo chuẩn 45 học sinh lớp 10A3">
               <i class="fa-solid fa-arrows-rotate"></i>
               <span>Chuẩn Hóa 45 HS</span>
+            </button>
+            <button onclick="openResetDisciplineModal()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 rounded-lg text-xs font-bold transition flex items-center space-x-1.5" title="Reset toàn bộ điểm thi đua về 100 điểm ban đầu">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Reset Điểm Về 100đ</span>
             </button>
           </div>
         </div>
@@ -1733,7 +1741,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=2.8"></script>
+  <script src="app.js?v=2.9"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">
@@ -1763,6 +1771,96 @@
       <!-- Preview Body -->
       <div id="print-leaderboard-content" class="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-100/70 flex justify-center">
         <!-- Rendered by generatePrintLeaderboardHTML() -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== MODAL RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU ==================== -->
+  <div id="modal-reset-discipline" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col animate-scaleUp">
+      <!-- Modal Header -->
+      <div class="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-rose-50 to-white dark:from-rose-950/40 dark:to-slate-900">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 flex items-center justify-center font-bold text-base shadow-xs">
+            <i class="fa-solid fa-rotate-left"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-slate-900 dark:text-white text-base">Reset Điểm Thi Đua Về Ban Đầu</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Đưa quỹ điểm thi đua của học sinh về đúng 100 điểm sàn nguyên bản</p>
+          </div>
+        </div>
+        <button onclick="closeResetDisciplineModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 space-y-4 text-xs">
+        <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <span class="text-slate-500 dark:text-slate-400 font-semibold">Tuần học hiện tại:</span>
+            <span class="font-black text-blue-600 dark:text-blue-400 text-sm ml-1.5">Tuần 9</span>
+          </div>
+          <div>
+            <span class="text-slate-500 dark:text-slate-400 font-semibold">Tổng số lượt điểm trong hệ thống:</span>
+            <span id="reset-modal-log-count" class="font-black text-amber-600 dark:text-amber-400 text-sm ml-1.5">0 logs</span>
+          </div>
+        </div>
+
+        <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+          Thầy/Cô vui lòng lựa chọn phạm vi muốn reset. Sau khi reset, quỹ điểm sẽ lập tức trở về <strong>100 điểm ban đầu</strong> mà không bị nạp lại dữ liệu cũ:
+        </p>
+
+        <!-- Lựa chọn 1: Reset Tuần Hiện Tại (Tuần 9) -->
+        <div class="p-4 rounded-xl border-2 border-blue-200 dark:border-blue-900 bg-blue-50/40 dark:bg-blue-950/20 hover:border-blue-400 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h4 class="font-black text-slate-900 dark:text-white text-sm flex items-center space-x-1.5">
+              <i class="fa-solid fa-calendar-day text-blue-600 dark:text-blue-400"></i>
+              <span>Lựa chọn 1: Reset Chỉ Điểm Tuần Này (Tuần 9)</span>
+            </h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Xóa sạch điểm cộng và điểm trừ phát sinh trong Tuần 9. Đưa 45 học sinh ở Tuần 9 về 100 điểm.
+            </p>
+          </div>
+          <button type="button" onclick="executeResetWeekOnly('9')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-sm whitespace-nowrap transition cursor-pointer">
+            Reset Tuần 9 Về 100đ
+          </button>
+        </div>
+
+        <!-- Lựa chọn 2: Reset TOÀN BỘ Tất Cả Các Tuần Về 100đ (Xóa sạch điểm cũ) -->
+        <div class="p-4 rounded-xl border-2 border-rose-300 dark:border-rose-900 bg-rose-50/40 dark:bg-rose-950/20 hover:border-rose-500 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h4 class="font-black text-rose-700 dark:text-rose-300 text-sm flex items-center space-x-1.5">
+              <i class="fa-solid fa-triangle-exclamation text-rose-600 dark:text-rose-400"></i>
+              <span>Lựa chọn 2: XÓA SẠCH TOÀN BỘ ĐIỂM CŨ (Tất Cả Các Tuần 1 - 9)</span>
+            </h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Khuyên dùng: Xóa toàn bộ lịch sử điểm cộng/trừ để lớp 10A3 bắt đầu dùng số hóa chính thức từ Tuần 9 với 45 em đều có 100 điểm ban đầu.
+            </p>
+          </div>
+          <button type="button" onclick="executeResetAllToBaseline()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-md shadow-rose-600/30 whitespace-nowrap transition cursor-pointer">
+            Xóa Sạch Tất Cả Về 100đ
+          </button>
+        </div>
+
+        <!-- Lựa chọn 3: Nạp Lại Dữ Liệu Thi Đua Mẫu (Nếu muốn xem mẫu) -->
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-between gap-3 text-slate-500">
+          <div>
+            <span class="font-bold text-slate-700 dark:text-slate-300">Tùy chọn: Nạp lại bộ dữ liệu thi đua mẫu</span>
+            <p class="text-[10px] text-slate-400 mt-0.5">Chỉ dùng khi muốn tham khảo bảng xếp hạng mẫu của tuần 1 đến 8.</p>
+          </div>
+          <button type="button" onclick="executeLoadSampleLogs()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-lg transition whitespace-nowrap">
+            Nạp Lại Mẫu
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3 px-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <button type="button" onclick="closeResetDisciplineModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 font-bold rounded-xl text-xs transition">
+          Đóng Cửa Sổ
+        </button>
       </div>
     </div>
   </div>

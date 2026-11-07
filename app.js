@@ -9,7 +9,23 @@
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v24',
   LOGS: 'dashboard10a3_official_45_logs_v7',
+  LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v2',
+  CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   SEATING: 'dashboard10a3_official_45_seating_v21'
+};
+
+
+// ==================== HỆ THỐNG PHÂN QUYỀN VAI TRÒ (RBAC) ====================
+const ROLES = {
+  gvcn: { id: 'gvcn', label: '👑 GVCN Lớp 10A3', canScore: true, canLock: true, canReset: true, allowedGroups: 'all' },
+  monitor: { id: 'monitor', label: '🎖️ Lớp trưởng (Đan Mạch)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
+  lead_t1: { id: 'lead_t1', label: '👤 Tổ trưởng T1 (Yến Vy)', canScore: true, canLock: false, canReset: false, allowedGroups: [1] },
+  lead_t2: { id: 'lead_t2', label: '👤 Tổ trưởng T2 (Gia Nguyên)', canScore: true, canLock: false, canReset: false, allowedGroups: [2] },
+  lead_t3: { id: 'lead_t3', label: '👤 Tổ trưởng T3 (Phi Hoàng)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
+  lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Ngọc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
+  lead_t5: { id: 'lead_t5', label: '👤 Tổ trưởng T5 (Vinh Hoa)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
+  lead_t6: { id: 'lead_t6', label: '👤 Tổ trưởng T6 (Mỹ Ngân)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
+  member: { id: 'member', label: '👁️ Thành viên (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -68,7 +84,9 @@ let appState = {
   selectedFormStudentId: '',
   theme: 'light',
   starsEnabled: true,
-  activeLeaderboardWeek: '10'
+  activeLeaderboardWeek: '10',
+  lockedWeeks: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+  currentUserRole: 'gvcn'
 };
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
@@ -118,9 +136,13 @@ function loadDataFromStorage() {
   try {
     const rawStudents = localStorage.getItem(STORAGE_KEYS.STUDENTS);
     const rawLogs = localStorage.getItem(STORAGE_KEYS.LOGS);
+    const rawLocked = localStorage.getItem(STORAGE_KEYS.LOCKED_WEEKS);
+    const rawRole = localStorage.getItem(STORAGE_KEYS.CURRENT_ROLE);
 
     appState.students = rawStudents ? JSON.parse(rawStudents) : [];
     appState.dailyLogs = rawLogs ? JSON.parse(rawLogs) : [];
+    appState.lockedWeeks = rawLocked ? JSON.parse(rawLocked) : ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    appState.currentUserRole = rawRole || 'gvcn';
 
     // Nếu chưa có nhật ký nào, tự động nạp bộ dữ liệu thi đua chuẩn hóa các tuần 1 - 8
     if (appState.dailyLogs.length === 0) {
@@ -139,6 +161,8 @@ function saveDataToStorage() {
   try {
     localStorage.setItem(STORAGE_KEYS.STUDENTS, JSON.stringify(appState.students));
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(appState.dailyLogs));
+    localStorage.setItem(STORAGE_KEYS.LOCKED_WEEKS, JSON.stringify(appState.lockedWeeks));
+    localStorage.setItem(STORAGE_KEYS.CURRENT_ROLE, appState.currentUserRole);
     
     const countDisplay = document.getElementById('storage-count');
     if (countDisplay) {
@@ -246,6 +270,8 @@ function switchTab(tabName) {
     renderCharts();
   } else if (tabName === 'leaderboard') {
     renderLeaderboard();
+  renderScoringPermissionsUI();
+  const hSel = document.getElementById('header-user-role-selector'); if (hSel) hSel.value = appState.currentUserRole || 'gvcn';
   } else if (tabName === 'scoring') {
     renderScoringStudentPills();
   } else if (tabName === 'students') {
@@ -664,6 +690,32 @@ function selectRule(type, ruleKey) {
 }
 
 function submitScoringEntry() {
+  // 1. Kiểm tra quyền hạn vai trò
+  const currentRole = appState.currentUserRole || 'gvcn';
+  const roleMeta = ROLES[currentRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Tài khoản của bạn đang ở Chế độ Chỉ Xem! Chỉ GVCN, Lớp trưởng và 6 Tổ trưởng mới có quyền ghi nhận điểm.', 'error');
+    return;
+  }
+
+  // 2. Kiểm tra tuần có bị khóa không
+  const currentWeek = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
+  if (isWeekLocked(currentWeek)) {
+    showToast(`Tuần ${currentWeek} đã chốt sổ và khóa điểm! Vui lòng chọn tuần đang mở hoặc liên hệ GVCN mở khóa.`, 'error');
+    return;
+  }
+
+  // 3. Nếu là Tổ trưởng, chỉ được chấm điểm thành viên trong tổ mình
+  if (currentRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(currentRole.replace('lead_t', ''), 10);
+    const selectedStudents = appState.students.filter(s => appState.selectedStudentIds.has(s.id));
+    const foreignStudents = selectedStudents.filter(s => Number(s.groupNumber) !== leaderGroup);
+    if (foreignStudents.length > 0) {
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được quyền chấm điểm cho các bạn thuộc Tổ ${leaderGroup}!`, 'warning');
+      return;
+    }
+  }
+
   if (appState.selectedStudentIds.size === 0) {
     showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên trái!', 'warning');
     return;
@@ -866,9 +918,11 @@ function renderStudentsTable() {
         </span>
       </td>
       <td class="py-3 px-4 text-center space-x-1">
-        <button onclick="quickScoreSingle('${stu.id}')" title="Chấm điểm em này" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition"><i class="fa-solid fa-star"></i></button>
-        <button onclick="openEditStudentModal('${stu.id}')" title="Sửa thông tin" class="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
-        <button onclick="deleteStudent('${stu.id}')" title="Xóa học sinh" class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+        ${appState.currentUserRole === "member" 
+          ? '<span class="text-xs text-slate-400 italic">Chỉ xem</span>' 
+          : `<button onclick="quickScoreSingle('${stu.id}')" title="Chấm điểm em này" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition"><i class="fa-solid fa-star"></i></button>
+             <button onclick="openEditStudentModal('${stu.id}')" title="Sửa thông tin" class="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
+             <button onclick="deleteStudent('${stu.id}')" title="Xóa học sinh" class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>`}
       </td>
     `;
     tbody.appendChild(tr);
@@ -3399,50 +3453,97 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
   let hasPairedProgress = false;
   let hasBabySteps = false;
 
-  const logs = appState.dailyLogs.filter(log => {
-    if (log.studentId !== studentId) return false;
-    const logWeek = Number(log.week) || 10;
-    
-    // Tổng kết Học kỳ 1: Tuần 1 đến Tuần 16
-    if (weekFilter === 'all' || weekFilter === 'all_hk1') {
-      return logWeek >= 1 && logWeek <= 16;
-    }
-    // Tổng kết Học kỳ 2: Tuần 18 đến Tuần 35
-    if (weekFilter === 'all_hk2') {
-      return logWeek >= 18 && logWeek <= 35;
-    }
-    // Tổng kết Cả Năm Học: Tuần 1 đến Tuần 35
-    if (weekFilter === 'all_year') {
-      return true;
-    }
-    return String(logWeek) === String(weekFilter);
-  });
+  const isCumulative = weekFilter === 'all' || weekFilter === 'all_hk1' || weekFilter === 'all_hk2' || weekFilter === 'all_year';
 
-  logs.forEach(log => {
-    const pts = Number(log.pointsChanged) || 0;
-    if (pts > 0) bonusPts += pts;
-    else if (pts < 0) violPts += pts;
+  if (!isCumulative) {
+    // 1. TÍNH ĐIỂM CỦA 1 TUẦN CỤ THỂ (Điểm tự động về ban đầu 100đ nếu là tuần mới chưa có vi phạm/thưởng)
+    const logs = appState.dailyLogs.filter(log => {
+      if (log.studentId !== studentId) return false;
+      const logWeek = log.week || '10';
+      return String(logWeek) === String(weekFilter);
+    });
 
-    if (log.ruleKey === 'bonus_paired_progress' || log.ruleKey === 'bonus_peer_tutoring') {
-      hasPairedProgress = true;
+    logs.forEach(log => {
+      const pts = Number(log.pointsChanged) || 0;
+      if (pts > 0) bonusPts += pts;
+      else if (pts < 0) violPts += pts;
+
+      if (log.ruleKey === 'bonus_paired_progress' || log.ruleKey === 'bonus_peer_tutoring') {
+        hasPairedProgress = true;
+      }
+      if (log.ruleKey === 'bonus_baby_steps') {
+        hasBabySteps = true;
+      }
+    });
+
+    const baseScore = BASE_WEEKLY_SCORE; // 100 điểm sàn tuần
+    const totalScore = baseScore + bonusPts + violPts;
+
+    return {
+      baseScore,
+      bonusPts,
+      violPts,
+      totalScore,
+      hasPairedProgress,
+      hasBabySteps,
+      logCount: logs.length,
+      isCumulative: false
+    };
+  } else {
+    // 2. TÍNH ĐIỂM CỘNG DỒN BẢNG XẾP HẠNG TỔNG (Lũy kế điểm số qua các tuần)
+    let minW = 1, maxW = 16;
+    if (weekFilter === 'all_hk2') { minW = 18; maxW = 35; }
+    else if (weekFilter === 'all_year') { minW = 1; maxW = 35; }
+
+    // Tìm các tuần đã hoàn thành / có điểm
+    const weeksSet = new Set();
+    appState.dailyLogs.forEach(l => {
+      const w = Number(l.week) || 10;
+      if (w >= minW && w <= maxW) weeksSet.add(w);
+    });
+    // Tối thiểu tuần 1 đến tuần 10 nếu ở HK1
+    for (let w = minW; w <= Math.min(maxW, 10); w++) {
+      weeksSet.add(w);
     }
-    if (log.ruleKey === 'bonus_baby_steps') {
-      hasBabySteps = true;
-    }
-  });
+    const numWeeks = Math.max(1, weeksSet.size);
 
-  const baseScore = BASE_WEEKLY_SCORE; // 100 điểm sàn tuần
-  const totalScore = baseScore + bonusPts + violPts;
+    const logs = appState.dailyLogs.filter(log => {
+      if (log.studentId !== studentId) return false;
+      const w = Number(log.week) || 10;
+      return w >= minW && w <= maxW;
+    });
 
-  return {
-    baseScore,
-    bonusPts,
-    violPts,
-    totalScore,
-    hasPairedProgress,
-    hasBabySteps,
-    logCount: logs.length
-  };
+    logs.forEach(log => {
+      const pts = Number(log.pointsChanged) || 0;
+      if (pts > 0) bonusPts += pts;
+      else if (pts < 0) violPts += pts;
+
+      if (log.ruleKey === 'bonus_paired_progress' || log.ruleKey === 'bonus_peer_tutoring') {
+        hasPairedProgress = true;
+      }
+      if (log.ruleKey === 'bonus_baby_steps') {
+        hasBabySteps = true;
+      }
+    });
+
+    // Cộng dồn điểm các tuần: Mỗi tuần bắt đầu 100đ sàn
+    const cumulativeBase = numWeeks * BASE_WEEKLY_SCORE;
+    const totalScore = cumulativeBase + bonusPts + violPts;
+    const avgScorePerWeek = (totalScore / numWeeks).toFixed(1);
+
+    return {
+      baseScore: cumulativeBase,
+      bonusPts,
+      violPts,
+      totalScore,
+      avgScorePerWeek,
+      numWeeks,
+      hasPairedProgress,
+      hasBabySteps,
+      logCount: logs.length,
+      isCumulative: true
+    };
+  }
 }
 
 function getRankedStudents(weekFilter) {
@@ -3480,11 +3581,11 @@ function renderLeaderboard() {
   const weekLabel = document.getElementById('podium-week-label');
   if (weekLabel) {
     if (weekFilter === 'all' || weekFilter === 'all_hk1') {
-      weekLabel.textContent = 'Thành tích lũy kế toàn bộ Học kỳ 1 (Tuần 1 đến 16) của 45 học sinh Lớp 10A3';
+      weekLabel.textContent = 'Thành tích lũy kế cộng dồn toàn bộ Học kỳ 1 (Tuần 1 đến 16) của 45 học sinh Lớp 10A3';
     } else if (weekFilter === 'all_hk2') {
-      weekLabel.textContent = 'Thành tích lũy kế toàn bộ Học kỳ 2 (Tuần 18 đến 35) của 45 học sinh Lớp 10A3';
+      weekLabel.textContent = 'Thành tích lũy kế cộng dồn toàn bộ Học kỳ 2 (Tuần 18 đến 35) của 45 học sinh Lớp 10A3';
     } else if (weekFilter === 'all_year') {
-      weekLabel.textContent = 'Bảng vàng vinh danh Cả Năm Học 2026 - 2027 (Tuần 1 đến 35) của 45 học sinh Lớp 10A3';
+      weekLabel.textContent = 'Bảng vàng vinh danh cộng dồn Cả Năm Học 2026 - 2027 (Tuần 1 đến 35) của 45 học sinh Lớp 10A3';
     } else {
       const wNum = Number(weekFilter);
       const termName = wNum >= 18 ? 'Học kỳ 2' : 'Học kỳ 1';
@@ -3492,11 +3593,51 @@ function renderLeaderboard() {
     }
   }
 
+  // Cập nhật trạng thái Khóa / Mở khóa tuần trên Leaderboard Toolbar
+  updateLeaderboardLockStatusUI(weekFilter);
+
   const rankedList = getRankedStudents(weekFilter);
 
   renderLeaderboardPodium(rankedList);
   renderLeaderboardGroups(rankedList);
   renderLeaderboardTable(rankedList);
+}
+
+function updateLeaderboardLockStatusUI(weekFilter) {
+  const badge = document.getElementById('leaderboard-lock-status-badge');
+  const icon = document.getElementById('leaderboard-lock-status-icon');
+  const text = document.getElementById('leaderboard-lock-status-text');
+  const btnLock = document.getElementById('btn-toggle-lock-leaderboard');
+  const btnLockText = document.getElementById('btn-toggle-lock-text');
+  const btnLockIcon = document.getElementById('btn-toggle-lock-icon');
+
+  if (!badge) return;
+
+  const isCumulative = weekFilter === 'all' || weekFilter === 'all_hk1' || weekFilter === 'all_hk2' || weekFilter === 'all_year';
+  if (isCumulative) {
+    badge.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center space-x-1';
+    icon.className = 'fa-solid fa-chart-line text-xs';
+    text.textContent = 'Bảng Cộng Dồn';
+    if (btnLock) btnLock.classList.add('hidden');
+    return;
+  }
+
+  if (btnLock) btnLock.classList.remove('hidden');
+
+  const locked = isWeekLocked(weekFilter);
+  if (locked) {
+    badge.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 flex items-center space-x-1';
+    icon.className = 'fa-solid fa-lock text-xs';
+    text.textContent = 'Đã Khóa Sổ';
+    if (btnLockText) btnLockText.textContent = 'Mở Khóa Tuần';
+    if (btnLockIcon) btnLockIcon.className = 'fa-solid fa-lock-open';
+  } else {
+    badge.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center space-x-1';
+    icon.className = 'fa-solid fa-lock-open text-xs';
+    text.textContent = 'Đang Mở';
+    if (btnLockText) btnLockText.textContent = 'Khóa Sổ Tuần';
+    if (btnLockIcon) btnLockIcon.className = 'fa-solid fa-lock';
+  }
 }
 
 function renderLeaderboardPodium(rankedList) {
@@ -3971,4 +4112,180 @@ function seedHistoricalWeeklyLogs() {
     ...item,
     timestamp: new Date(item.date).getTime()
   }));
+}
+
+// ==================== CƠ CHẾ KHÓA TUẦN, RESET ĐIỂM & PHÂN QUYỀN ====================
+
+function isWeekLocked(weekVal) {
+  if (!appState.lockedWeeks) return false;
+  return appState.lockedWeeks.includes(String(weekVal));
+}
+
+function toggleCurrentLeaderboardWeekLock() {
+  const currentRole = appState.currentUserRole || 'gvcn';
+  if (currentRole !== 'gvcn') {
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Khóa hoặc Mở khóa sổ điểm tuần!', 'error');
+    return;
+  }
+
+  const weekVal = appState.activeLeaderboardWeek || '10';
+  const isCumulative = weekVal === 'all' || weekVal === 'all_hk1' || weekVal === 'all_hk2' || weekVal === 'all_year';
+  if (isCumulative) {
+    showToast('Không thể khóa Bảng tổng hợp lũy kế! Vui lòng chọn 1 tuần cụ thể để khóa.', 'warning');
+    return;
+  }
+
+  const wStr = String(weekVal);
+  if (!appState.lockedWeeks) appState.lockedWeeks = [];
+
+  const locked = appState.lockedWeeks.includes(wStr);
+  if (locked) {
+    appState.lockedWeeks = appState.lockedWeeks.filter(w => w !== wStr);
+    showToast(`Đã MỞ KHÓA sổ điểm Tuần ${wStr}! Ban cán sự có thể cập nhật điểm.`, 'success');
+  } else {
+    appState.lockedWeeks.push(wStr);
+    showToast(`Đã KHÓA SỔ điểm Tuần ${wStr}! Điểm số tuần này được bảo vệ an toàn.`, 'success');
+  }
+
+  saveDataToStorage();
+  refreshAllUI();
+}
+
+function confirmResetWeekDiscipline() {
+  const currentRole = appState.currentUserRole || 'gvcn';
+  if (currentRole !== 'gvcn') {
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Reset điểm thi đua của học sinh!', 'error');
+    return;
+  }
+
+  const weekVal = appState.activeLeaderboardWeek || '10';
+  let targetDesc = `Tuần ${weekVal}`;
+  if (weekVal === 'all' || weekVal === 'all_hk1') targetDesc = 'toàn bộ Học kỳ 1 (Tuần 1 - 16)';
+  else if (weekVal === 'all_hk2') targetDesc = 'toàn bộ Học kỳ 2 (Tuần 18 - 35)';
+  else if (weekVal === 'all_year') targetDesc = 'CẢ NĂM HỌC (Tuần 1 - 35)';
+
+  const confirmed = confirm(
+    `[XÁC NHẬN RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU]\n\nThầy/Cô có chắc chắn muốn đưa điểm của tất cả 45 học sinh trong ${targetDesc} về mốc 100 ĐIỂM SÀN BAN ĐẦU không?\n\n(Toàn bộ điểm cộng và điểm trừ của giai đoạn này sẽ được làm mới về 0)`
+  );
+
+  if (!confirmed) return;
+
+  if (weekVal === 'all' || weekVal === 'all_hk1') {
+    appState.dailyLogs = appState.dailyLogs.filter(l => {
+      const w = Number(l.week) || 10;
+      return !(w >= 1 && w <= 16);
+    });
+  } else if (weekVal === 'all_hk2') {
+    appState.dailyLogs = appState.dailyLogs.filter(l => {
+      const w = Number(l.week) || 10;
+      return !(w >= 18 && w <= 35);
+    });
+  } else if (weekVal === 'all_year') {
+    appState.dailyLogs = [];
+  } else {
+    appState.dailyLogs = appState.dailyLogs.filter(l => String(l.week) !== String(weekVal));
+  }
+
+  saveDataToStorage();
+  refreshAllUI();
+  showToast(`Đã reset thành công điểm thi đua của ${targetDesc} về 100 điểm ban đầu!`, 'success');
+}
+
+function changeCurrentUserRole(roleId) {
+  appState.currentUserRole = roleId;
+  saveDataToStorage();
+
+  const roleMeta = ROLES[roleId] || ROLES.member;
+
+  // Header select sync
+  const headerSelect = document.getElementById('header-user-role-selector');
+  if (headerSelect && headerSelect.value !== roleId) {
+    headerSelect.value = roleId;
+  }
+
+  // Header badge sync
+  const roleBadge = document.getElementById('header-role-badge');
+  if (roleBadge) {
+    if (roleMeta.canScore) {
+      roleBadge.textContent = 'Được chấm';
+      roleBadge.className = 'px-1.5 py-0.5 rounded font-black text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+    } else {
+      roleBadge.textContent = 'Chỉ xem';
+      roleBadge.className = 'px-1.5 py-0.5 rounded font-black text-[10px] bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+    }
+  }
+
+  // Nếu là Tổ trưởng, tự động chọn người ghi nhận và lọc đúng tổ mình
+  if (roleId.startsWith('lead_t')) {
+    const groupNum = parseInt(roleId.replace('lead_t', ''), 10);
+    if (!isNaN(groupNum)) {
+      filterScoringGroup(groupNum);
+      const recSelect = document.getElementById('score-recorder-select');
+      if (recSelect) {
+        recSelect.value = `Tổ trưởng Tổ ${groupNum}`;
+      }
+    }
+  } else if (roleId === 'monitor') {
+    const recSelect = document.getElementById('score-recorder-select');
+    if (recSelect) recSelect.value = 'Lớp trưởng (Nguyễn Đan Mạch)';
+  } else if (roleId === 'gvcn') {
+    const recSelect = document.getElementById('score-recorder-select');
+    if (recSelect) recSelect.value = 'GVCN Lớp 10A3';
+  }
+
+  refreshAllUI();
+  showToast(`Đã chuyển vai trò: ${roleMeta.label}`, 'info');
+}
+
+function renderScoringPermissionsUI() {
+  const currentRole = appState.currentUserRole || 'gvcn';
+  const roleMeta = ROLES[currentRole] || ROLES.member;
+  const currentWeek = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
+  const weekLocked = isWeekLocked(currentWeek);
+
+  const roleBanner = document.getElementById('scoring-role-alert-banner');
+  const lockedBanner = document.getElementById('scoring-locked-week-banner');
+  const submitBtn = document.getElementById('btn-submit-scoring');
+  const bonusSelect = document.getElementById('select-bonus-rule');
+  const violSelect = document.getElementById('select-violation-rule');
+
+  // Check Role Banner
+  if (roleBanner) {
+    if (!roleMeta.canScore) {
+      roleBanner.classList.remove('hidden');
+    } else {
+      roleBanner.classList.add('hidden');
+    }
+  }
+
+  // Check Locked Banner
+  if (lockedBanner) {
+    if (weekLocked) {
+      lockedBanner.classList.remove('hidden');
+    } else {
+      lockedBanner.classList.add('hidden');
+    }
+  }
+
+  // Check button & select disabling
+  const canOperate = roleMeta.canScore && !weekLocked;
+
+  if (bonusSelect) bonusSelect.disabled = !canOperate;
+  if (violSelect) violSelect.disabled = !canOperate;
+
+  if (submitBtn) {
+    if (!roleMeta.canScore) {
+      submitBtn.disabled = true;
+      submitBtn.className = 'px-5 py-2.5 bg-slate-400 text-slate-800 rounded-xl font-bold text-xs cursor-not-allowed opacity-75';
+      submitBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i><span>Chỉ Xem (Chưa được cấp quyền chấm)</span>';
+    } else if (weekLocked) {
+      submitBtn.disabled = true;
+      submitBtn.className = 'px-5 py-2.5 bg-amber-600 text-white rounded-xl font-bold text-xs cursor-not-allowed opacity-80';
+      submitBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i><span>Tuần Này Đã Khóa Sổ Điểm</span>';
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.className = 'px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:scale-95 font-black text-xs text-slate-950 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition cursor-pointer whitespace-nowrap';
+      submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk text-sm mr-1.5"></i><span>XÁC NHẬN GHI ĐIỂM NGAY</span>';
+    }
+  }
 }

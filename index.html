@@ -145,6 +145,25 @@
       </div>
 
       <div class="flex items-center space-x-3">
+        <!-- Role Selector Switcher -->
+        <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+          <span class="text-slate-500 dark:text-slate-400 font-bold hidden xl:inline">Vai trò:</span>
+          <select id="header-user-role-selector" onchange="changeCurrentUserRole(this.value)" class="bg-transparent font-black text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer">
+            <option value="gvcn" selected>👑 GVCN (Chủ nhiệm)</option>
+            <option value="monitor">🎖️ Lớp trưởng (Đan Mạch)</option>
+            <option value="lead_t1">👤 Tổ trưởng T1 (Yến Vy)</option>
+            <option value="lead_t2">👤 Tổ trưởng T2 (Gia Nguyên)</option>
+            <option value="lead_t3">👤 Tổ trưởng T3 (Phi Hoàng)</option>
+            <option value="lead_t4">👤 Tổ trưởng T4 (Ngọc Trinh)</option>
+            <option value="lead_t5">👤 Tổ trưởng T5 (Vinh Hoa)</option>
+            <option value="lead_t6">👤 Tổ trưởng T6 (Mỹ Ngân)</option>
+            <option value="member">👁️ Thành viên (Chỉ xem)</option>
+          </select>
+          <span id="header-role-badge" class="px-1.5 py-0.5 rounded font-black text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+            Được chấm
+          </span>
+        </div>
+
         <!-- Quick Action: Nạp lại 45 HS chuẩn -->
         <button onclick="injectOfficial45Students(true)" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-lg text-xs font-bold shadow-xs transition" title="Khôi phục danh sách 45 HS THPT Bùi Thị Xuân - Mũi Né">
           <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
@@ -396,6 +415,24 @@
               </select>
             </div>
 
+            <!-- Trạng thái & Khóa/Mở Khóa Tuần & Reset điểm -->
+            <div class="flex items-center space-x-2">
+              <span id="leaderboard-lock-status-badge" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center space-x-1">
+                <i id="leaderboard-lock-status-icon" class="fa-solid fa-lock-open text-xs"></i>
+                <span id="leaderboard-lock-status-text">Đang mở</span>
+              </span>
+
+              <button id="btn-toggle-lock-leaderboard" type="button" onclick="toggleCurrentLeaderboardWeekLock()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold rounded-xl text-xs border border-slate-300 dark:border-slate-600 transition" title="Khóa hoặc mở khóa sổ điểm tuần này">
+                <i id="btn-toggle-lock-icon" class="fa-solid fa-lock"></i>
+                <span id="btn-toggle-lock-text">Khóa Tuần Này</span>
+              </button>
+
+              <button type="button" onclick="confirmResetWeekDiscipline()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl text-xs transition" title="Reset toàn bộ điểm tuần này về 100 điểm sàn ban đầu">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Reset Về 100đ</span>
+              </button>
+            </div>
+
             <button type="button" onclick="openPrintLeaderboardModal()" class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold rounded-xl text-xs shadow-sm transition">
               <i class="fa-solid fa-print"></i>
               <span>Xuất Bản In A4</span>
@@ -524,7 +561,7 @@
               <!-- Chọn Tuần -->
               <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
                 <span class="font-bold text-slate-600 dark:text-slate-400">Tuần:</span>
-                <select id="score-input-week" class="bg-transparent font-black text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
+                <select id="score-input-week" onchange="renderScoringPermissionsUI()" class="bg-transparent font-black text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
                   <optgroup label="📘 HỌC KỲ 1 (TUẦN 1 - 16)">
                     <option value="10" selected>Tuần 10 (Hiện tại)</option>
                     <option value="16">Tuần 16 (Cuối HK1)</option>
@@ -589,6 +626,23 @@
                 <input type="hidden" id="score-input-recorder" value="Sao đỏ trực nhật">
               </div>
             </div>
+          </div>
+
+          <!-- Alert Banner: Quyền xem / Tuần khóa -->
+          <div id="scoring-role-alert-banner" class="hidden p-3 rounded-xl border bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-xs font-bold flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-shield-halved text-blue-600 text-sm"></i>
+              <span id="scoring-role-alert-text">Chế độ Chỉ Xem: Bạn đang truy cập với vai trò Thành viên lớp. Chỉ GVCN, Lớp trưởng và 6 Tổ trưởng mới có quyền cộng/trừ điểm thi đua.</span>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-300 font-black text-[10px]">CHỈ XEM</span>
+          </div>
+
+          <div id="scoring-locked-week-banner" class="hidden p-3 rounded-xl border bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-lock text-amber-600 text-sm"></i>
+              <span id="scoring-locked-alert-text">TUẦN NÀY ĐÃ CHỐT SỔ VÀ KHÓA ĐIỂM THI ĐUA. Điểm số được bảo vệ an toàn. Chỉ GVCN mới có quyền mở khóa.</span>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-300 font-black text-[10px]">ĐÃ KHÓA</span>
           </div>
 
           <!-- BỐ CỤC 3 CỘT TRỰC QUAN GỌN GÀNG (ALL-IN-ONE COMPACT VIEW) -->
@@ -748,7 +802,7 @@
             <div class="flex flex-col sm:flex-row gap-2.5 items-stretch md:items-center">
               <input type="text" id="score-note" placeholder="Ghi chú thêm (Tiết, môn, chi tiết...)" class="bg-slate-800 border border-slate-700 text-white placeholder-slate-400 text-xs rounded-xl px-3 py-2 w-full sm:w-60 focus:outline-none focus:ring-2 focus:ring-blue-400">
               
-              <button type="button" onclick="submitScoringEntry()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:scale-95 font-black text-xs text-slate-950 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition cursor-pointer whitespace-nowrap">
+              <button id="btn-submit-scoring" type="button" onclick="submitScoringEntry()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:scale-95 font-black text-xs text-slate-950 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition cursor-pointer whitespace-nowrap">
                 <i class="fa-solid fa-floppy-disk text-sm"></i>
                 <span>XÁC NHẬN GHI ĐIỂM NGAY</span>
               </button>
@@ -1679,7 +1733,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=2.7"></script>
+  <script src="app.js?v=2.8"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">

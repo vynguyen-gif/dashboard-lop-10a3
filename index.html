@@ -718,16 +718,26 @@
                 <!-- MENU XỔ XUỐNG ĐIỂM CỘNG -->
                 <select id="select-bonus-rule" onchange="onDropdownRuleChange('bonus', this.value)" class="w-full bg-white dark:bg-slate-900 border-2 border-emerald-400 dark:border-emerald-600 rounded-xl p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition cursor-pointer">
                   <option value="">-- Bấm vào đây để chọn điểm cộng (+5 đến +50đ) --</option>
-                  <option value="bonus_school_honors">[+50đ] 🏆 Đạt điểm Tốt toàn diện / Khen thưởng cấp trường</option>
-                  <option value="bonus_duty_excellent">[+20đ] 👤 Cán sự lớp / Tổ trưởng hoàn thành xuất sắc</option>
-                  <option value="bonus_paired_progress">[+15đ] 🤝 Đôi bạn cùng tiến: Cùng tiến bộ (+15đ cả hai)</option>
-                  <option value="bonus_baby_steps">[+10đ] 📈 Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết</option>
-                  <option value="bonus_peer_tutoring">[+10đ] 👥 Kèm bạn yếu Toán/Lý (+10đ cả hai)</option>
-                  <option value="bonus_board_solution">[+10đ] 🧑‍🏫 Xung phong lên bảng giải bài đúng</option>
-                  <option value="bonus_effort_support">[+10đ] 💖 Học sinh diện hỗ trợ nỗ lực làm bài</option>
-                  <option value="bonus_group_homework">[+10đ] 👨‍👩‍👧 Cả tổ 100% làm bài tập về nhà (+10đ/bạn)</option>
-                  <option value="bonus_logical_consequence">[+5đ]  🌿 Tự giác khắc phục hệ quả (Trực nhật bù, tưới cây)</option>
-                  <option value="bonus_individual_effort">[+5đ]  ✨ Hoàn thành bài tập cá nhân / Phát biểu hay</option>
+                  <optgroup label="🏆 IV. KHEN THƯỞNG CHUYÊN CẦN & TIẾT HỌC">
+                    <option value="bonus_class_attendance">[+50đ] 🏆 Lớp / Tổ đi học đủ 100% cả tuần</option>
+                    <option value="bonus_individual_attendance">[+40đ] 🎖️ Cá nhân đi học đủ cả tuần (Đúng giờ, nghiêm túc)</option>
+                    <option value="bonus_full_10_lesson">[+50đ] 🌟 Tiết học xếp loại Tốt Full 10 điểm (Cả tổ/lớp)</option>
+                    <option value="bonus_good_lesson">[+25đ] ✨ Tiết học xếp loại Tốt (Cả tổ)</option>
+                  </optgroup>
+                  <optgroup label="💡 II. HỌC TẬP & PHÁT BIỂU">
+                    <option value="bonus_high_score">[+10đ] 💯 Điểm 8, 9, 10 (Kiểm tra miệng, 15p, lên bảng)</option>
+                    <option value="bonus_speech_multiple">[+10đ] 🧑‍🏫 Xung phong phát biểu tích cực (≥ 3 lần/tiết)</option>
+                    <option value="bonus_speech_single">[+5đ]  💡 Phát biểu xây dựng bài (1 lần)</option>
+                    <option value="bonus_board_solution">[+10đ] 🧑‍🏫 Xung phong lên bảng giải bài đúng</option>
+                    <option value="bonus_group_homework">[+10đ] 👨‍👩‍👧 Cả tổ 100% làm bài tập về nhà (+10đ/bạn)</option>
+                  </optgroup>
+                  <optgroup label="🤝 TIẾN BỘ & PHONG TRÀO">
+                    <option value="bonus_duty_excellent">[+20đ] 👤 Cán sự lớp / Tổ trưởng hoàn thành xuất sắc</option>
+                    <option value="bonus_paired_progress">[+15đ] 🤝 Đôi bạn cùng tiến: Cùng tiến bộ (+15đ cả hai)</option>
+                    <option value="bonus_baby_steps">[+10đ] 📈 Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết</option>
+                    <option value="bonus_effort_support">[+10đ] 💖 Học sinh diện hỗ trợ nỗ lực làm bài</option>
+                    <option value="bonus_logical_consequence">[+10đ] 🌿 Tự giác khắc phục hệ quả (Trực nhật bù, làm bài bù)</option>
+                  </optgroup>
                 </select>
 
                 <!-- Thẻ xem trước tiêu chí cộng vừa chọn -->
@@ -761,14 +771,29 @@
                 </label>
                 <!-- MENU XỔ XUỐNG ĐIỂM TRỪ -->
                 <select id="select-violation-rule" onchange="onDropdownRuleChange('violation', this.value)" class="w-full bg-white dark:bg-slate-900 border-2 border-rose-400 dark:border-rose-600 rounded-xl p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 transition cursor-pointer">
-                  <option value="">-- Bấm vào đây để chọn lỗi vi phạm (-5 đến -20đ) --</option>
-                  <option value="viol_absent_no_excuse">[-20đ] 🚫 Vắng học không phép</option>
-                  <option value="viol_profanity">[-15đ] 🔇 Nói tục / Chửi thề</option>
-                  <option value="viol_cheating">[-15đ] 📑 Chép bài / Gian lận kiểm tra</option>
-                  <option value="viol_no_homework">[-10đ] 📚 Không làm bài / Không học bài cũ</option>
-                  <option value="viol_distraction_phone">[-10đ] 📱 Làm việc riêng / Dùng ĐT / Tự ý đổi chỗ</option>
-                  <option value="viol_sleeping_eating">[-5đ]  💤 Ngủ gục / Nói chuyện / Ăn vặt / Thiếu đồ dùng</option>
-                  <option value="viol_late_uniform">[-5đ]  ⏰ Đi học muộn / Sai đồng phục, phù hiệu</option>
+                  <option value="">-- Bấm vào đây để chọn lỗi vi phạm (-5 đến -50đ) --</option>
+                  <optgroup label="⚠️ NHÓM I: LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY)">
+                    <option value="viol_cheating">[-50đ] ⚠️ [KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra</option>
+                    <option value="viol_fighting">[-50đ] 🚫 [KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết</option>
+                    <option value="viol_phone">[-30đ] 📱 [KHỐNG CHẾ] Sử dụng điện thoại trong giờ không xin phép</option>
+                    <option value="viol_truancy">[-30đ] 🏃 [KHỐNG CHẾ] Trốn tiết / Vắng học không phép</option>
+                    <option value="viol_disrespect">[-30đ] ⚡ [KHỐNG CHẾ] Vô lễ với thầy cô / Nói tục chửi thề nặng</option>
+                  </optgroup>
+                  <optgroup label="📚 NHÓM II: HỌC TẬP & KỶ LUẬT TIẾT HỌC">
+                    <option value="viol_no_homework">[-15đ] 📚 Không soạn bài / Không làm bài tập về nhà (1 lần)</option>
+                    <option value="viol_inattentive">[-15đ] 💤 Không nghiêm túc, làm việc riêng, ngủ gục, nói chuyện</option>
+                    <option value="viol_low_score">[-15đ] 📉 Điểm dưới 5 (Miệng / 15 phút / Giữa kỳ)</option>
+                    <option value="viol_seat_change">[-20đ] 🔄 Tự ý đổi chỗ ngồi không xin phép</option>
+                  </optgroup>
+                  <optgroup label="👔 NHÓM III: CHUYÊN CẦN & NỀ NẾP">
+                    <option value="viol_late">[-15đ] ⏰ Đi học trễ (muộn giờ)</option>
+                    <option value="viol_uniform">[-20đ] 👔 Vi phạm tác phong: Tóc dài, nhuộm tóc, đạp quai hậu, sai đồng phục</option>
+                    <option value="viol_profanity">[-15đ] 🔇 Nói tục, chửi thề trong lớp</option>
+                    <option value="viol_eating_drawing">[-15đ] 🥤 Ăn quà vặt trong giờ / Ghi vẽ bậy lên bàn học</option>
+                    <option value="viol_cleaning_trash">[-10đ] 🧹 Trực nhật bẩn / Xả rác bừa bãi</option>
+                    <option value="viol_late_docs">[-10đ] 📑 Nộp trễ giấy tờ / Không tham gia phong trào chung</option>
+                    <option value="viol_excused_absence">[-5đ]  📝 Vắng có phép</option>
+                  </optgroup>
                 </select>
 
                 <!-- Thẻ xem trước lỗi trừ vừa chọn -->
@@ -1741,7 +1766,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=2.9"></script>
+  <script src="app.js?v=3.0"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">

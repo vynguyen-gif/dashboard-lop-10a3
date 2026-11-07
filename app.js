@@ -8,7 +8,7 @@
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v24',
-  LOGS: 'dashboard10a3_official_45_logs_v9',
+  LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   SEATING: 'dashboard10a3_official_45_seating_v21'
@@ -35,32 +35,56 @@ const RANKING_TIERS = {
   GOOD: { label: 'Tốt', min: 90, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
   FAIR: { label: 'Khá', min: 70, color: 'text-blue-700 bg-blue-50 border-blue-300' },
   PASS: { label: 'Đạt', min: 50, color: 'text-amber-700 bg-amber-50 border-amber-300' },
-  FAIL: { label: 'Chưa đạt', min: 0, color: 'text-rose-700 bg-rose-50 border-rose-300' }
+  FAIL: { label: 'Chưa đạt', min: 0, color: 'text-rose-700 bg-rose-50 border-rose-300' },
+  RESTRICTED: { label: 'Chưa đạt (Khống chế ⚠️)', min: 0, color: 'text-rose-900 bg-rose-100 dark:bg-rose-950/80 border-rose-500 dark:border-rose-700 font-black' }
 };
 
 // THANG ĐIỂM CỘNG
 const BONUS_RULES = [
-  { key: 'bonus_school_honors', label: 'Đạt điểm Tốt toàn diện / Thành tích cấp trường', points: 50, icon: 'fa-trophy' },
-  { key: 'bonus_duty_excellent', label: 'Cán sự làm tốt nhiệm vụ tháng', points: 20, icon: 'fa-user-check' },
-  { key: 'bonus_paired_progress', label: 'Đôi bạn cùng tiến: Cùng tiến bộ / Kèm bạn đạt kết quả tốt (+15 cho cả hai)', points: 15, icon: 'fa-handshake-angle' },
-  { key: 'bonus_baby_steps', label: 'Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết giao ước tuần', points: 10, icon: 'fa-stairs' },
-  { key: 'bonus_logical_consequence', label: 'Tự giác khắc phục hệ quả (Trực nhật bù, tưới cây, lao động tích cực)', points: 5, icon: 'fa-broom' },
-  { key: 'bonus_peer_tutoring', label: 'Kèm bạn yếu Toán/Lý (+10 cho cả hai)', points: 10, icon: 'fa-user-group' },
-  { key: 'bonus_board_solution', label: 'Xung phong lên bảng đúng', points: 10, icon: 'fa-chalkboard-user' },
-  { key: 'bonus_effort_support', label: 'Học sinh diện hỗ trợ có nỗ lực làm bài', points: 10, icon: 'fa-heart-circle-bolt' },
-  { key: 'bonus_group_homework', label: 'Cả tổ 100% làm bài tập (+10/người)', points: 10, icon: 'fa-users' },
-  { key: 'bonus_individual_effort', label: 'Hoàn thành bài tập cá nhân / Trực nhật tự giác / Bổ sung ý kiến', points: 5, icon: 'fa-hand-sparkles' }
+  // IV. THƯỞNG CHUYÊN CẦN & TẬP THỂ
+  { key: 'bonus_class_attendance', group: 'attendance', label: 'Lớp / Tổ đi học đủ 100% cả tuần (Không vắng, không trễ)', points: 50, icon: 'fa-trophy' },
+  { key: 'bonus_individual_attendance', group: 'attendance', label: 'HS đi học đủ cả tuần (Không vắng, không trễ, đúng đồng phục, tóc nghiêm túc)', points: 40, icon: 'fa-medal' },
+  { key: 'bonus_full_10_lesson', group: 'lesson', label: 'Tiết học xếp loại Tốt Full 10 điểm (Cả tổ/lớp)', points: 50, icon: 'fa-crown' },
+  { key: 'bonus_good_lesson', group: 'lesson', label: 'Tiết học xếp loại Tốt (Cả tổ)', points: 25, icon: 'fa-star' },
+
+  // II. HỌC TẬP & PHÁT BIỂU
+  { key: 'bonus_high_score', group: 'academic', label: 'Điểm 8, 9, 10 (Kiểm tra miệng, 15 phút, lên bảng)', points: 10, icon: 'fa-award' },
+  { key: 'bonus_speech_multiple', group: 'academic', label: 'Phát biểu 3 lần trong 1 tiết học', points: 10, icon: 'fa-hand-sparkles' },
+  { key: 'bonus_speech_single', group: 'academic', label: 'Phát biểu xây dựng bài (1 lần)', points: 5, icon: 'fa-lightbulb' },
+  { key: 'bonus_board_solution', group: 'academic', label: 'Xung phong lên bảng giải bài đúng', points: 10, icon: 'fa-chalkboard-user' },
+
+  // TIẾN BỘ & PHONG TRÀO
+  { key: 'bonus_duty_excellent', group: 'duty', label: 'Cán sự lớp / Tổ trưởng hoàn thành xuất sắc nhiệm vụ', points: 20, icon: 'fa-user-check' },
+  { key: 'bonus_paired_progress', group: 'progress', label: 'Đôi bạn cùng tiến: Cùng tiến bộ / Kèm bạn đạt kết quả tốt (+15 cho cả hai)', points: 15, icon: 'fa-handshake-angle' },
+  { key: 'bonus_baby_steps', group: 'progress', label: 'Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết giao ước tuần', points: 10, icon: 'fa-stairs' },
+  { key: 'bonus_effort_support', group: 'progress', label: 'Học sinh diện hỗ trợ có nỗ lực làm bài', points: 10, icon: 'fa-heart-circle-bolt' },
+  { key: 'bonus_group_homework', group: 'academic', label: 'Cả tổ 100% làm bài tập về nhà (+10/người)', points: 10, icon: 'fa-users' },
+  { key: 'bonus_logical_consequence', group: 'progress', label: 'Tự giác khắc phục hệ quả (Trực nhật bù, làm bài bù, lao động tích cực)', points: 10, icon: 'fa-broom' }
 ];
 
 // THANG ĐIỂM TRỪ
 const VIOLATION_RULES = [
-  { key: 'viol_absent_no_excuse', label: 'Vắng không phép', points: -20, icon: 'fa-user-xmark' },
-  { key: 'viol_profanity', label: 'Nói tục / chửi thề', points: -15, icon: 'fa-comment-slash' },
-  { key: 'viol_cheating', label: 'Chép bài / gian lận kiểm tra', points: -15, icon: 'fa-file-circle-xmark' },
-  { key: 'viol_no_homework', label: 'Không làm bài / không học bài', points: -10, icon: 'fa-book-skull' },
-  { key: 'viol_distraction_phone', label: 'Làm việc riêng / sử dụng ĐT / tự ý đổi chỗ', points: -10, icon: 'fa-mobile-screen-button' },
-  { key: 'viol_sleeping_eating', label: 'Ngủ gục / nói chuyện / ăn vặt / thiếu đồ dùng', points: -5, icon: 'fa-bed' },
-  { key: 'viol_late_uniform', label: 'Đi muộn / sai đồng phục', points: -5, icon: 'fa-clock' }
+  // I. LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY)
+  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: '⚠️ [LỖI KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra', points: -50, icon: 'fa-file-circle-xmark' },
+  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: -50, icon: 'fa-hand-fist' },
+  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: -30, icon: 'fa-mobile-screen-button' },
+  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: -30, icon: 'fa-user-xmark' },
+  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Vô lễ với thầy cô / Nói tục chửi thề nặng nề', points: -30, icon: 'fa-triangle-exclamation' },
+
+  // II. HỌC TẬP & KỶ LUẬT TIẾT HỌC
+  { key: 'viol_no_homework', group: 'academic', isRestricted: false, label: '📚 Không soạn bài / Không làm bài tập về nhà (1 lần)', points: -15, icon: 'fa-book-skull' },
+  { key: 'viol_inattentive', group: 'academic', isRestricted: false, label: '💤 Không nghiêm túc, làm việc riêng, ngủ gục, nói chuyện', points: -15, icon: 'fa-bed' },
+  { key: 'viol_low_score', group: 'academic', isRestricted: false, label: '📉 Điểm dưới 5 (Miệng / 15 phút / Giữa kỳ)', points: -15, icon: 'fa-chart-line-down' },
+  { key: 'viol_seat_change', group: 'academic', isRestricted: false, label: '🔄 Tự ý đổi chỗ ngồi không xin phép', points: -20, icon: 'fa-arrows-split-up-and-left' },
+
+  // III. CHUYÊN CẦN & NỀ NẾP
+  { key: 'viol_late', group: 'conduct', isRestricted: false, label: '⏰ Đi học trễ (muộn giờ)', points: -15, icon: 'fa-clock' },
+  { key: 'viol_uniform', group: 'conduct', isRestricted: false, label: '👔 Vi phạm tác phong: Tóc dài, nhuộm tóc, đạp quai hậu, sai đồng phục', points: -20, icon: 'fa-shirt' },
+  { key: 'viol_profanity', group: 'conduct', isRestricted: false, label: '🔇 Nói tục, chửi thề trong lớp', points: -15, icon: 'fa-comment-slash' },
+  { key: 'viol_eating_drawing', group: 'conduct', isRestricted: false, label: '🥤 Ăn quà vặt trong giờ / Ghi vẽ bậy lên bàn học', points: -15, icon: 'fa-cookie-bite' },
+  { key: 'viol_cleaning_trash', group: 'conduct', isRestricted: false, label: '🧹 Trực nhật bẩn / Xả rác bừa bãi', points: -10, icon: 'fa-trash-can' },
+  { key: 'viol_late_docs', group: 'conduct', isRestricted: false, label: '📑 Nộp trễ giấy tờ / Không tham gia phong trào chung', points: -10, icon: 'fa-file-lines' },
+  { key: 'viol_excused_absence', group: 'conduct', isRestricted: false, label: '📝 Vắng có phép', points: -5, icon: 'fa-envelope-open-text' }
 ];
 
 // ==================== STATE HỆ THỐNG ====================
@@ -179,7 +203,10 @@ function calculateStudentScore(studentId) {
   return score;
 }
 
-function getRankingTier(score) {
+function getRankingTier(score, hasRestrictedViolation = false) {
+  if (hasRestrictedViolation) {
+    return RANKING_TIERS.RESTRICTED;
+  }
   if (score >= RANKING_TIERS.GOOD.min) return RANKING_TIERS.GOOD;
   if (score >= RANKING_TIERS.FAIR.min) return RANKING_TIERS.FAIR;
   if (score >= RANKING_TIERS.PASS.min) return RANKING_TIERS.PASS;
@@ -483,7 +510,8 @@ function renderCharts() {
     let counts = { good: 0, fair: 0, pass: 0, fail: 0 };
     appState.students.forEach(s => {
       const score = calculateStudentScore(s.id);
-      const tier = getRankingTier(score);
+      const hasRestricted = violList.some(v => { const r = VIOLATION_RULES.find(vr => vr.key === v.ruleKey); return r && r.isRestricted; });
+    const tier = getRankingTier(score, hasRestricted);
       if (tier.label === 'Tốt') counts.good++;
       else if (tier.label === 'Khá') counts.fair++;
       else if (tier.label === 'Đạt') counts.pass++;
@@ -3447,6 +3475,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
   let violPts = 0;
   let hasPairedProgress = false;
   let hasBabySteps = false;
+  let hasRestrictedViolation = false;
 
   const isCumulative = weekFilter === 'all' || weekFilter === 'all_hk1' || weekFilter === 'all_hk2' || weekFilter === 'all_year';
 
@@ -3469,6 +3498,10 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       if (log.ruleKey === 'bonus_baby_steps') {
         hasBabySteps = true;
       }
+      const matchedRule = VIOLATION_RULES.find(r => r.key === log.ruleKey);
+      if (matchedRule && matchedRule.isRestricted) {
+        hasRestrictedViolation = true;
+      }
     });
 
     const baseScore = BASE_WEEKLY_SCORE; // 100 điểm sàn tuần
@@ -3481,6 +3514,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       totalScore,
       hasPairedProgress,
       hasBabySteps,
+      hasRestrictedViolation,
       logCount: logs.length,
       isCumulative: false
     };
@@ -3519,6 +3553,10 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       if (log.ruleKey === 'bonus_baby_steps') {
         hasBabySteps = true;
       }
+      const matchedRule = VIOLATION_RULES.find(r => r.key === log.ruleKey);
+      if (matchedRule && matchedRule.isRestricted) {
+        hasRestrictedViolation = true;
+      }
     });
 
     // Cộng dồn điểm các tuần: Mỗi tuần bắt đầu 100đ sàn
@@ -3535,6 +3573,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       numWeeks,
       hasPairedProgress,
       hasBabySteps,
+      hasRestrictedViolation,
       logCount: logs.length,
       isCumulative: true
     };
@@ -3560,7 +3599,7 @@ function getRankedStudents(weekFilter) {
   // Gán thứ hạng (Rank 1 -> 45)
   list.forEach((item, index) => {
     item.rank = index + 1;
-    item.tier = getRankingTier(item.totalScore);
+    item.tier = getRankingTier(item.totalScore, item.hasRestrictedViolation);
   });
 
   return list;

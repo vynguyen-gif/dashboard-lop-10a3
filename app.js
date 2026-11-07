@@ -31,10 +31,11 @@ const ROLES = {
 const BASE_WEEKLY_SCORE = 100;
 
 // Thang Xếp Loại Tháng: Tốt (>= 90), Khá (70-89), Đạt (50-69), Chưa đạt (<50)
+// Thang Xếp Loại: Tốt (>= 95), Khá (80-94), Đạt (60-79), Chưa đạt (<60)
 const RANKING_TIERS = {
-  GOOD: { label: 'Tốt', min: 90, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
-  FAIR: { label: 'Khá', min: 70, color: 'text-blue-700 bg-blue-50 border-blue-300' },
-  PASS: { label: 'Đạt', min: 50, color: 'text-amber-700 bg-amber-50 border-amber-300' },
+  GOOD: { label: 'Tốt', min: 95, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
+  FAIR: { label: 'Khá', min: 80, color: 'text-blue-700 bg-blue-50 border-blue-300' },
+  PASS: { label: 'Đạt', min: 60, color: 'text-amber-700 bg-amber-50 border-amber-300' },
   FAIL: { label: 'Chưa đạt', min: 0, color: 'text-rose-700 bg-rose-50 border-rose-300' },
   RESTRICTED: { label: 'Chưa đạt (Khống chế ⚠️)', min: 0, color: 'text-rose-900 bg-rose-100 dark:bg-rose-950/80 border-rose-500 dark:border-rose-700 font-black' }
 };
@@ -3610,10 +3611,10 @@ function getRankedStudents(weekFilter) {
   // Nhóm Khống chế giữ điểm thực tế nhưng bị xếp ở đáy bảng thi đua (priority 0)
   function getTierPriority(item) {
     if (item.hasRestrictedViolation) return 0; // Đáy bảng thi đua
-    if (item.totalScore >= RANKING_TIERS.GOOD.min) return 4; // Tốt (>= 90đ)
-    if (item.totalScore >= RANKING_TIERS.FAIR.min) return 3; // Khá (70 - 89đ)
-    if (item.totalScore >= RANKING_TIERS.PASS.min) return 2; // Đạt (50 - 69đ)
-    return 1; // Chưa đạt do điểm thấp (< 50đ)
+    if (item.totalScore >= RANKING_TIERS.GOOD.min) return 4; // Tốt (>= 95đ)
+    if (item.totalScore >= RANKING_TIERS.FAIR.min) return 3; // Khá (80 - 94đ)
+    if (item.totalScore >= RANKING_TIERS.PASS.min) return 2; // Đạt (60 - 79đ)
+    return 1; // Chưa đạt do điểm thấp (< 60đ)
   }
 
   // Sắp xếp: Ưu tiên Bậc thi đua trước, sau đó điểm tuần từ cao xuống thấp

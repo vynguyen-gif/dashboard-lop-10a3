@@ -65,12 +65,12 @@ const BONUS_RULES = [
 
 // THANG ĐIỂM TRỪ
 const VIOLATION_RULES = [
-  // I. LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY - 0 ĐIỂM TRỪ)
-  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: '⚠️ [LỖI KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra', points: 0, icon: 'fa-file-circle-xmark' },
-  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: 0, icon: 'fa-hand-fist' },
-  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: 0, icon: 'fa-mobile-screen-button' },
-  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: 0, icon: 'fa-user-xmark' },
-  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô', points: 0, icon: 'fa-triangle-exclamation' },
+  // I. LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY - ĐỀU TRỪ 50 ĐIỂM)
+  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: '⚠️ [LỖI KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra', points: -50, icon: 'fa-file-circle-xmark' },
+  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: -50, icon: 'fa-hand-fist' },
+  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: -50, icon: 'fa-mobile-screen-button' },
+  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: -50, icon: 'fa-user-xmark' },
+  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô', points: -50, icon: 'fa-triangle-exclamation' },
 
   // II. HỌC TẬP & KỶ LUẬT TIẾT HỌC
   { key: 'viol_no_homework', group: 'academic', isRestricted: false, label: '📚 Không soạn bài / Không làm bài tập về nhà (1 lần)', points: -15, icon: 'fa-book-skull' },
@@ -4074,7 +4074,7 @@ function onDropdownRuleChange(type, ruleKey) {
       if (cardTitle) cardTitle.textContent = rule.label;
       if (cardBadge) {
         if (rule.isRestricted) {
-          cardBadge.textContent = 'Khống chế ⚠️ (0đ)';
+          cardBadge.textContent = 'Khống chế ⚠️ (-50đ)';
           cardBadge.className = 'px-2 py-0.5 bg-rose-600 text-white font-black text-xs rounded-full border border-rose-300';
         } else {
           cardBadge.textContent = `${rule.points} điểm`;
@@ -4095,7 +4095,7 @@ function onDropdownRuleChange(type, ruleKey) {
   }
   if (pointsBadge && appState.activeRule) {
     if (appState.activeRule.isRestricted) {
-      pointsBadge.textContent = 'Khống chế ⚠️ (0đ)';
+      pointsBadge.textContent = 'Khống chế ⚠️ (-50đ)';
       pointsBadge.className = 'font-black text-xs text-rose-300 px-2 py-0.5 rounded bg-rose-950/90 border border-rose-500';
     } else {
       pointsBadge.textContent = type === 'bonus' ? `+${appState.activeRule.points} điểm` : `${appState.activeRule.points} điểm`;

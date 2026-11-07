@@ -771,13 +771,13 @@
                 </label>
                 <!-- MENU XỔ XUỐNG ĐIỂM TRỪ -->
                 <select id="select-violation-rule" onchange="onDropdownRuleChange('violation', this.value)" class="w-full bg-white dark:bg-slate-900 border-2 border-rose-400 dark:border-rose-600 rounded-xl p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 transition cursor-pointer">
-                  <option value="">-- Bấm vào đây để chọn lỗi vi phạm --</option>
-                  <optgroup label="⚠️ NHÓM I: LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY - 0 ĐIỂM TRỪ)">
-                    <option value="viol_cheating">[Khống chế ⚠️] Gian lận thi cử / Chép bài kiểm tra (0đ)</option>
-                    <option value="viol_fighting">[Khống chế ⚠️] Đánh nhau / Gây gổ mất đoàn kết (0đ)</option>
-                    <option value="viol_phone">[Khống chế ⚠️] Sử dụng điện thoại trong giờ không xin phép (0đ)</option>
-                    <option value="viol_truancy">[Khống chế ⚠️] Trốn tiết / Vắng học không phép (0đ)</option>
-                    <option value="viol_disrespect">[Khống chế ⚠️] Nói tục, chửi thề / Vô lễ với thầy cô (0đ)</option>
+                  <option value="">-- Bấm vào đây để chọn lỗi vi phạm (-5 đến -50đ) --</option>
+                  <optgroup label="⚠️ NHÓM I: LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY - ĐỀU TRỪ 50Đ)">
+                    <option value="viol_cheating">[-50đ] ⚠️ [KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra</option>
+                    <option value="viol_fighting">[-50đ] 🚫 [KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết</option>
+                    <option value="viol_phone">[-50đ] 📱 [KHỐNG CHẾ] Sử dụng điện thoại trong giờ không xin phép</option>
+                    <option value="viol_truancy">[-50đ] 🏃 [KHỐNG CHẾ] Trốn tiết / Vắng học không phép</option>
+                    <option value="viol_disrespect">[-50đ] ⚡ [KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô</option>
                   </optgroup>
                   <optgroup label="📚 NHÓM II: HỌC TẬP & KỶ LUẬT TIẾT HỌC">
                     <option value="viol_no_homework">[-15đ] 📚 Không soạn bài / Không làm bài tập về nhà (1 lần)</option>
@@ -1765,7 +1765,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=3.3"></script>
+  <script src="app.js?v=3.4"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">

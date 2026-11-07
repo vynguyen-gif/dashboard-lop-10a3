@@ -802,10 +802,17 @@ html.dark .modal-backdrop > div {
 }
 
 html.dark #section-leaderboard select,
-html.dark #section-leaderboard input {
+html.dark #section-leaderboard input,
+html.dark #section-scoring select,
+html.dark #section-scoring input {
   background-color: #1e293b !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
+}
+
+html.dark #section-scoring select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
 }
 
 html.dark #leaderboard-table-body tr:hover {

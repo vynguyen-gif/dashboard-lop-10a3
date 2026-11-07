@@ -8,7 +8,7 @@
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
   STUDENTS: 'dashboard10a3_official_45_students_v24',
-  LOGS: 'dashboard10a3_official_45_logs_v6',
+  LOGS: 'dashboard10a3_official_45_logs_v7',
   SEATING: 'dashboard10a3_official_45_seating_v21'
 };
 
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Kiểm tra URL hash (vd: #scoring, #students, #forms) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
-  if (initialHash && ['dashboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup'].includes(initialHash)) {
+  if (initialHash && ['dashboard', 'leaderboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup'].includes(initialHash)) {
     switchTab(initialHash);
   } else if (initialHash === 'print-preview') {
     switchTab('seating');
@@ -121,6 +121,13 @@ function loadDataFromStorage() {
 
     appState.students = rawStudents ? JSON.parse(rawStudents) : [];
     appState.dailyLogs = rawLogs ? JSON.parse(rawLogs) : [];
+
+    // Nếu chưa có nhật ký nào, tự động nạp bộ dữ liệu thi đua chuẩn hóa các tuần 1 - 8
+    if (appState.dailyLogs.length === 0) {
+      appState.dailyLogs = seedHistoricalWeeklyLogs();
+      saveDataToStorage();
+    }
+
     loadSeatingData();
   } catch (err) {
     console.error('Lỗi khi đọc LocalStorage:', err);
@@ -183,6 +190,7 @@ function getGroupStats() {
 function switchTab(tabName) {
   const sections = {
     dashboard: document.getElementById('section-dashboard'),
+    leaderboard: document.getElementById('section-leaderboard'),
     scoring: document.getElementById('section-scoring'),
     students: document.getElementById('section-students'),
     seating: document.getElementById('section-seating'),
@@ -193,6 +201,7 @@ function switchTab(tabName) {
 
   const navButtons = {
     dashboard: document.getElementById('nav-dashboard'),
+    leaderboard: document.getElementById('nav-leaderboard'),
     scoring: document.getElementById('nav-scoring'),
     students: document.getElementById('nav-students'),
     seating: document.getElementById('nav-seating'),
@@ -203,6 +212,7 @@ function switchTab(tabName) {
 
   const titles = {
     dashboard: 'Bảng Điều Khiển Tổng Quan Thi Đua Lớp 10A3',
+    leaderboard: 'Bảng Xếp Hạng Thi Đua Học Sinh & Tổ Xuất Sắc Theo Tuần',
     scoring: 'Phiếu Ghi Nhận Điểm Thi Đua Tự Quản (Ban Cán Sự / Sao Đỏ)',
     students: 'Danh Sách & Quản Trị Học Sinh Lớp 10A3',
     seating: 'Sơ Đồ Chỗ Ngồi Lớp Học 10A3 (2 Dãy • 6 Tổ • 24 Bàn)',
@@ -549,6 +559,23 @@ function renderScoringStudentPills() {
     return Number(s.groupNumber) === Number(appState.activeScoringGroup);
   });
 
+  // Populate quick-select-student-dropdown
+  const quickSelect = document.getElementById('quick-select-student-dropdown');
+  if (quickSelect) {
+    const currentVal = quickSelect.value;
+    quickSelect.innerHTML = '<option value="">-- Chọn nhanh 1 học sinh theo tên --</option>';
+    const studentsForSelect = appState.activeScoringGroup === 'all' 
+      ? appState.students 
+      : filtered;
+    studentsForSelect.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `T${s.groupNumber} • ${s.fullName} (${s.role || 'Thành viên'})`;
+      quickSelect.appendChild(opt);
+    });
+    quickSelect.value = currentVal;
+  }
+
   if (filtered.length === 0) {
     container.innerHTML = '<p class="col-span-full text-center text-xs text-slate-400 py-4">Chưa có học sinh nào trong tổ này</p>';
     return;
@@ -557,17 +584,17 @@ function renderScoringStudentPills() {
   filtered.forEach(stu => {
     const isSelected = appState.selectedStudentIds.has(stu.id);
     const pill = document.createElement('div');
-    pill.className = `student-pill p-2 rounded-xl border text-xs flex flex-col justify-between ${isSelected ? 'active' : 'bg-white border-slate-200'}`;
+    pill.className = `student-pill p-2 rounded-xl border text-xs flex flex-col justify-between cursor-pointer transition select-none ${isSelected ? 'active bg-blue-50 dark:bg-blue-950/50 border-blue-500 shadow-xs' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300'}`;
     pill.onclick = () => toggleSelectStudent(stu.id);
     pill.innerHTML = `
       <div class="flex items-center justify-between">
-        <span class="text-[10px] font-bold text-slate-400">T${stu.groupNumber}</span>
+        <span class="text-[10px] font-black text-slate-400">T${stu.groupNumber}</span>
         ${isSelected ? '<i class="fa-solid fa-circle-check text-blue-600 text-xs"></i>' : '<i class="fa-regular fa-circle text-slate-300 text-xs"></i>'}
       </div>
-      <p class="font-bold text-slate-800 truncate my-1">${escapeHtml(stu.fullName)}</p>
+      <p class="font-bold text-slate-800 dark:text-slate-100 truncate my-1">${escapeHtml(stu.fullName)}</p>
       <div class="flex items-center justify-between text-[10px]">
-        <span class="text-slate-500 truncate">${escapeHtml(stu.role)}</span>
-        <span class="font-bold text-slate-700">${calculateStudentScore(stu.id)}đ</span>
+        <span class="text-slate-500 dark:text-slate-400 truncate">${escapeHtml(stu.role || 'Thành viên')}</span>
+        <span class="font-bold text-slate-700 dark:text-slate-300">${calculateStudentScore(stu.id)}đ</span>
       </div>
     `;
     container.appendChild(pill);
@@ -638,17 +665,18 @@ function selectRule(type, ruleKey) {
 
 function submitScoringEntry() {
   if (appState.selectedStudentIds.size === 0) {
-    showToast('Vui lòng click chọn ít nhất 1 học sinh cần chấm điểm!', 'warning');
+    showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên trái!', 'warning');
     return;
   }
   if (!appState.activeRule) {
-    showToast('Vui lòng chọn 1 tiêu chí điểm cộng hoặc điểm trừ!', 'warning');
+    showToast('Vui lòng chọn 1 tiêu chí điểm cộng hoặc điểm trừ từ danh sách xổ xuống!', 'warning');
     return;
   }
 
-  const dateVal = document.getElementById('score-input-date').value || new Date().toISOString().split('T')[0];
-  const recorderVal = document.getElementById('score-input-recorder').value.trim() || 'Cán sự lớp';
-  const noteVal = document.getElementById('score-note').value.trim();
+  const dateVal = document.getElementById('score-input-date')?.value || new Date().toISOString().split('T')[0];
+  const recorderVal = document.getElementById('score-input-recorder')?.value.trim() || 'Sao đỏ trực nhật';
+  const weekVal = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
+  const noteVal = document.getElementById('score-note')?.value.trim() || '';
 
   const newLogs = [];
   const selectedIds = Array.from(appState.selectedStudentIds);
@@ -657,6 +685,7 @@ function submitScoringEntry() {
     newLogs.push({
       id: generateUUID(),
       date: dateVal,
+      week: String(weekVal),
       studentId: stuId,
       type: appState.activeRule.type,
       ruleKey: appState.activeRule.key,
@@ -672,13 +701,39 @@ function submitScoringEntry() {
   appState.dailyLogs.unshift(...newLogs);
   saveDataToStorage();
 
-  // Reset form selection
+  // Reset selection and dropdowns
   appState.selectedStudentIds.clear();
-  document.getElementById('score-note').value = '';
+  appState.activeRule = null;
+  
+  const noteInput = document.getElementById('score-note');
+  if (noteInput) noteInput.value = '';
+
+  const bonusSelect = document.getElementById('select-bonus-rule');
+  if (bonusSelect) bonusSelect.value = '';
+  const bonusCard = document.getElementById('bonus-preview-card');
+  if (bonusCard) bonusCard.classList.add('hidden');
+
+  const violSelect = document.getElementById('select-violation-rule');
+  if (violSelect) violSelect.value = '';
+  const violCard = document.getElementById('violation-preview-card');
+  if (violCard) violCard.classList.add('hidden');
+
+  const quickSelect = document.getElementById('quick-select-student-dropdown');
+  if (quickSelect) quickSelect.value = '';
+
+  const ruleText = document.getElementById('preview-rule-text');
+  if (ruleText) ruleText.textContent = 'Hãy chọn học sinh bên trái và chọn 1 tiêu chí từ menu xổ xuống Điểm cộng hoặc Điểm trừ.';
+  
+  const pointsBadge = document.getElementById('preview-points-badge');
+  if (pointsBadge) {
+    pointsBadge.textContent = '0 điểm';
+    pointsBadge.className = 'font-black text-base text-white px-2 py-0.5 rounded bg-slate-800';
+  }
+
   renderScoringStudentPills();
   refreshAllUI();
 
-  showToast(`Đã ghi nhận thành công cho ${newLogs.length} học sinh!`, 'success');
+  showToast(`Đã ghi nhận thành công cho ${newLogs.length} học sinh (Tuần ${weekVal})!`, 'success');
 }
 
 // ==================== RENDERING: QUẢN LÝ DANH SÁCH HỌC SINH (TAB 3) ====================
@@ -3654,4 +3709,174 @@ function generatePrintLeaderboardHTML() {
       </div>
     </div>
   `;
+}
+
+// ==================== HÀM TIỆN ÍCH CHẤM ĐIỂM XỔ XUỐNG (DROPDOWN SCORING) ====================
+
+function onDropdownRuleChange(type, ruleKey) {
+  if (type === 'bonus') {
+    // Reset violation dropdown & card
+    const violSelect = document.getElementById('select-violation-rule');
+    if (violSelect) violSelect.value = '';
+    const violCard = document.getElementById('violation-preview-card');
+    if (violCard) violCard.classList.add('hidden');
+
+    if (!ruleKey) {
+      appState.activeRule = null;
+      updatePreviewBar();
+      const bonusCard = document.getElementById('bonus-preview-card');
+      if (bonusCard) bonusCard.classList.add('hidden');
+      return;
+    }
+
+    const rule = BONUS_RULES.find(r => r.key === ruleKey);
+    if (!rule) return;
+    appState.activeRule = { ...rule, type: 'bonus' };
+
+    const bonusCard = document.getElementById('bonus-preview-card');
+    const cardTitle = document.getElementById('bonus-card-title');
+    const cardBadge = document.getElementById('bonus-card-badge');
+    if (bonusCard) {
+      if (cardTitle) cardTitle.textContent = rule.label;
+      if (cardBadge) cardBadge.textContent = `+${rule.points} điểm`;
+      bonusCard.classList.remove('hidden');
+    }
+  } else {
+    // Reset bonus dropdown & card
+    const bonusSelect = document.getElementById('select-bonus-rule');
+    if (bonusSelect) bonusSelect.value = '';
+    const bonusCard = document.getElementById('bonus-preview-card');
+    if (bonusCard) bonusCard.classList.add('hidden');
+
+    if (!ruleKey) {
+      appState.activeRule = null;
+      updatePreviewBar();
+      const violCard = document.getElementById('violation-preview-card');
+      if (violCard) violCard.classList.add('hidden');
+      return;
+    }
+
+    const rule = VIOLATION_RULES.find(r => r.key === ruleKey);
+    if (!rule) return;
+    appState.activeRule = { ...rule, type: 'violation' };
+
+    const violCard = document.getElementById('violation-preview-card');
+    const cardTitle = document.getElementById('violation-card-title');
+    const cardBadge = document.getElementById('violation-card-badge');
+    if (violCard) {
+      if (cardTitle) cardTitle.textContent = rule.label;
+      if (cardBadge) cardBadge.textContent = `${rule.points} điểm`;
+      violCard.classList.remove('hidden');
+    }
+  }
+
+  // Update preview bar
+  const ruleText = document.getElementById('preview-rule-text');
+  const pointsBadge = document.getElementById('preview-points-badge');
+
+  if (ruleText && appState.activeRule) {
+    ruleText.textContent = `[${type === 'bonus' ? 'ĐIỂM CỘNG' : 'ĐIỂM TRỪ'}] ${appState.activeRule.label}`;
+  }
+  if (pointsBadge && appState.activeRule) {
+    pointsBadge.textContent = type === 'bonus' ? `+${appState.activeRule.points} điểm` : `${appState.activeRule.points} điểm`;
+    pointsBadge.className = type === 'bonus' 
+      ? 'font-black text-base text-emerald-400 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-600' 
+      : 'font-black text-base text-rose-400 px-2 py-0.5 rounded bg-rose-950/80 border border-rose-600';
+  }
+}
+
+function applyDropdownScore(type) {
+  const selectEl = document.getElementById(type === 'bonus' ? 'select-bonus-rule' : 'select-violation-rule');
+  const ruleKey = selectEl ? selectEl.value : '';
+  if (!ruleKey) {
+    showToast(`Vui lòng chọn 1 mục từ danh sách xổ xuống ${type === 'bonus' ? 'Điểm cộng' : 'Điểm trừ'}!`, 'warning');
+    return;
+  }
+  if (appState.selectedStudentIds.size === 0) {
+    showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên trái!', 'warning');
+    return;
+  }
+  onDropdownRuleChange(type, ruleKey);
+  submitScoringEntry();
+}
+
+function onQuickSelectStudentDropdown(studentId) {
+  if (!studentId) return;
+  appState.selectedStudentIds.clear();
+  appState.selectedStudentIds.add(studentId);
+  renderScoringStudentPills();
+  updateSelectedCountUI();
+}
+
+function onRecorderSelectChange(val) {
+  const hiddenInput = document.getElementById('score-input-recorder');
+  if (hiddenInput) hiddenInput.value = val;
+}
+
+// ==================== KHỞI TẠO DỮ LIỆU LỊCH SỬ THI ĐUA TUẦN 1 ĐẾN 8 ====================
+function seedHistoricalWeeklyLogs() {
+  const sampleLogs = [
+    // Tuần 1
+    { week: '1', date: '2026-09-08', studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'Lớp trưởng', note: 'Tổ trưởng T1 điều hành tốt tuần đầu' },
+    { week: '1', date: '2026-09-09', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Lớp trưởng điều hành ổn định nề nếp lớp' },
+    { week: '1', date: '2026-09-10', studentId: 'hs_10a3_24', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Giải bài tập Toán hình tốt' },
+    { week: '1', date: '2026-09-11', studentId: 'hs_10a3_14', type: 'violation', ruleKey: 'viol_sleeping_eating', ruleLabel: 'Ngủ gục / nói chuyện', pointsChanged: -5, recordedBy: 'Sao đỏ trực nhật', note: 'Ngủ gục tiết 3' },
+    { week: '1', date: '2026-09-12', studentId: 'hs_10a3_21', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: 'Đi muộn / sai đồng phục', pointsChanged: -5, recordedBy: 'Sao đỏ trực nhật', note: 'Đi muộn 5 phút' },
+
+    // Tuần 2
+    { week: '2', date: '2026-09-15', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'Lớp trưởng', note: 'Tổ trưởng Tổ 3 bao quát tổ tốt' },
+    { week: '2', date: '2026-09-16', studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 3', note: 'Kèm bạn Kim Trúc học tập' },
+    { week: '2', date: '2026-09-16', studentId: 'hs_10a3_36', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 3', note: 'Chăm chú học tập cùng Mỹ Duyên' },
+    { week: '2', date: '2026-09-17', studentId: 'hs_10a3_33', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh diện hỗ trợ có nỗ lực làm bài', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 2', note: 'Làm đầy đủ bài tập Hóa' },
+    { week: '2', date: '2026-09-18', studentId: 'hs_10a3_06', type: 'violation', ruleKey: 'viol_no_homework', ruleLabel: 'Không làm bài / không học bài', pointsChanged: -10, recordedBy: 'Sao đỏ trực nhật', note: 'Quên vở bài tập Văn' },
+
+    // Tuần 3
+    { week: '3', date: '2026-09-22', studentId: 'hs_10a3_35', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 4 duy trì kỷ luật xuất sắc' },
+    { week: '3', date: '2026-09-23', studentId: 'hs_10a3_14', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nỗ lực vi mô (Baby Steps)', pointsChanged: 10, recordedBy: 'Lớp trưởng', note: 'Hoàn thành cam kết tuần không vi phạm' },
+    { week: '3', date: '2026-09-23', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'Kèm bạn yếu Toán/Lý', pointsChanged: 10, recordedBy: 'GVCN Lớp 10A3', note: 'Hỗ trợ bạn Khang tiến bộ' },
+    { week: '3', date: '2026-09-24', studentId: 'hs_10a3_01', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: 'Đi muộn / sai đồng phục', pointsChanged: -5, recordedBy: 'Sao đỏ trực nhật', note: 'Thiếu phù hiệu' },
+    { week: '3', date: '2026-09-25', studentId: 'hs_10a3_16', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 2', note: 'Kèm Kim Bơ làm bài' },
+
+    // Tuần 4
+    { week: '4', date: '2026-09-29', studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 6 bao quát nề nếp xuất sắc' },
+    { week: '4', date: '2026-09-30', studentId: 'hs_10a3_09', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 5 điều hành tốt' },
+    { week: '4', date: '2026-10-01', studentId: 'hs_10a3_12', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Giải bài tập Hóa học xuất sắc' },
+    { week: '4', date: '2026-10-02', studentId: 'hs_10a3_41', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 1', note: 'Giúp bạn Giàu cùng tiến bộ' },
+    { week: '4', date: '2026-10-02', studentId: 'hs_10a3_06', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nỗ lực vi mô (Baby Steps)', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 1', note: 'Tiến bộ rõ rệt trong giờ Toán' },
+
+    // Tuần 5
+    { week: '5', date: '2026-10-06', studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_school_honors', ruleLabel: 'Đạt điểm Tốt toàn diện', pointsChanged: 50, recordedBy: 'GVCN Lớp 10A3', note: 'Khen thưởng thành tích phong trào cấp trường' },
+    { week: '5', date: '2026-10-07', studentId: 'hs_10a3_03', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Lớp phó & Cán sự Hóa tận tụy' },
+    { week: '5', date: '2026-10-08', studentId: 'hs_10a3_44', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh diện hỗ trợ nỗ lực làm bài', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 4', note: 'Chăm chú nghe giảng và làm bài' },
+    { week: '5', date: '2026-10-09', studentId: 'hs_10a3_38', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 4', note: 'Kèm Tường Vy tiến bộ' },
+
+    // Tuần 6
+    { week: '6', date: '2026-10-13', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Lên bảng giải bài Vật lý đạt điểm 10' },
+    { week: '6', date: '2026-10-14', studentId: 'hs_10a3_20', type: 'bonus', ruleKey: 'bonus_group_homework', ruleLabel: 'Cả tổ 100% làm bài tập', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 3', note: 'Tổ 3 chuẩn bị bài chu đáo' },
+    { week: '6', date: '2026-10-14', studentId: 'hs_10a3_19', type: 'bonus', ruleKey: 'bonus_group_homework', ruleLabel: 'Cả tổ 100% làm bài tập', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 3', note: 'Tổ 3 chuẩn bị bài chu đáo' },
+    { week: '6', date: '2026-10-15', studentId: 'hs_10a3_21', type: 'bonus', ruleKey: 'bonus_logical_consequence', ruleLabel: 'Tự giác khắc phục hệ quả', pointsChanged: 5, recordedBy: 'Tổ trưởng Tổ 6', note: 'Tự giác trực nhật bù chu đáo' },
+    { week: '6', date: '2026-10-16', studentId: 'hs_10a3_08', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Phát biểu xây dựng bài', pointsChanged: 5, recordedBy: 'Sao đỏ trực nhật', note: 'Phát biểu sôi nổi môn Lịch sử' },
+
+    // Tuần 7
+    { week: '7', date: '2026-10-20', studentId: 'hs_10a3_24', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 2 hoàn thành xuất sắc' },
+    { week: '7', date: '2026-10-21', studentId: 'hs_10a3_33', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nỗ lực vi mô (Baby Steps)', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 2', note: 'Nỗ lực học tập rõ rệt' },
+    { week: '7', date: '2026-10-22', studentId: 'hs_10a3_14', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Lớp trưởng', note: 'Đạt điểm 8 kiểm tra 15 phút Toán' },
+    { week: '7', date: '2026-10-22', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'GVCN Lớp 10A3', note: 'Kèm cặp bạn Khang tiến bộ vượt bậc' },
+
+    // Tuần 8
+    { week: '8', date: '2026-10-27', studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_school_honors', ruleLabel: 'Đạt điểm Tốt toàn diện', pointsChanged: 50, recordedBy: 'GVCN Lớp 10A3', note: 'Gương sáng việc tốt nhặt được của rơi trả lại' },
+    { week: '8', date: '2026-10-28', studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Trực nhật tự giác', pointsChanged: 5, recordedBy: 'Tổ trưởng Tổ 3', note: 'Vệ sinh phòng học sạch sẽ' },
+    { week: '8', date: '2026-10-29', studentId: 'hs_10a3_36', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Hoàn thành bài tập cá nhân', pointsChanged: 5, recordedBy: 'Tổ trưởng Tổ 3', note: 'Làm bài tập đầy đủ' },
+    { week: '8', date: '2026-10-30', studentId: 'hs_10a3_16', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Giải bài tập Toán hình chính xác' },
+
+    // Tuần 10 (Hiện tại)
+    { week: '10', date: '2026-11-06', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 3 quản lý nề nếp tổ nghiêm túc' },
+    { week: '10', date: '2026-11-06', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Phát biểu xây dựng bài', pointsChanged: 5, recordedBy: 'Sao đỏ trực nhật', note: 'Phát biểu bài học tích cực' }
+  ];
+
+  return sampleLogs.map(item => ({
+    id: generateUUID(),
+    ...item,
+    timestamp: new Date(item.date).getTime()
+  }));
 }

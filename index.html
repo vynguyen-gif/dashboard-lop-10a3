@@ -38,7 +38,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="styles.css?v=2.4">
+  <link rel="stylesheet" href="styles.css?v=2.5">
 </head>
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden relative">
 
@@ -326,112 +326,371 @@
 
       </section>
 
-      <!-- ==================== TAB 2: CHẤM ĐIỂM & GHI NHẬN (FORM NHẬP LIỆU) ==================== -->
+      
+      <!-- ==================== TAB: BẢNG XẾP HẠNG THI ĐUA THEO TUẦN (LEADERBOARD) ==================== -->
+      <section id="section-leaderboard" class="hidden space-y-6">
+        
+        <!-- Header & Week Selector & Print Button -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shadow-xs">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                <span>Bảng Xếp Hạng Thi Đua Học Sinh & Tổ Xuất Sắc</span>
+              </h3>
+              <p id="podium-week-label" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Ghi nhận thành tích thi đua xuất sắc nhất theo từng tuần học
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <label for="leaderboard-week-select" class="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">Xem Tuần:</label>
+              <select id="leaderboard-week-select" onchange="changeLeaderboardWeek(this.value)" class="text-xs font-black bg-transparent text-amber-600 dark:text-amber-400 focus:outline-none cursor-pointer">
+                <option value="10" selected>Tuần 10 (Hiện tại - Chuẩn hóa)</option>
+                <option value="9">Tuần 9</option>
+                <option value="8">Tuần 8</option>
+                <option value="7">Tuần 7</option>
+                <option value="6">Tuần 6</option>
+                <option value="5">Tuần 5</option>
+                <option value="4">Tuần 4</option>
+                <option value="3">Tuần 3</option>
+                <option value="2">Tuần 2</option>
+                <option value="1">Tuần 1</option>
+                <option value="all">Toàn bộ học kỳ 1 (Lũy kế)</option>
+              </select>
+            </div>
+
+            <button type="button" onclick="openPrintLeaderboardModal()" class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold rounded-xl text-xs shadow-sm transition">
+              <i class="fa-solid fa-print"></i>
+              <span>Xuất Bản In A4</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bục Vinh Danh Top 3 (Podium) -->
+        <div class="bg-gradient-to-b from-amber-50/70 via-white to-white dark:from-slate-800 dark:to-slate-900 p-5 rounded-2xl border border-amber-200/80 dark:border-slate-700 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm font-black">👑</span>
+              <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Top 3 Cá Nhân Xuất Sắc Nhất</h4>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Vinh danh bảng vàng 10A3</span>
+          </div>
+
+          <div id="leaderboard-podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pt-2">
+            <!-- Rendered by renderLeaderboardPodium -->
+          </div>
+        </div>
+
+        <!-- Xếp Hạng Thi Đua 6 Tổ Trong Lớp -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">🚩</span>
+              <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Xếp Hạng Thi Đua 6 Tổ</h4>
+            </div>
+            <div class="text-xs font-bold text-slate-600 dark:text-slate-300">
+              Tổ dẫn đầu tuần: <span id="winning-group-name" class="text-amber-600 dark:text-amber-400 font-black">---</span>
+            </div>
+          </div>
+
+          <div id="leaderboard-groups-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Rendered by renderLeaderboardGroups -->
+          </div>
+        </div>
+
+        <!-- Bảng Tổng Sắp 45 Học Sinh Chi Tiết -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-200 dark:border-slate-700 pb-4">
+            <div>
+              <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
+                <i class="fa-solid fa-list-ol text-blue-600 dark:text-blue-400"></i>
+                <span>Bảng Tổng Sắp Toàn Diện 45 Học Sinh</span>
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sắp xếp theo thứ hạng điểm thi đua từ cao xuống thấp</p>
+            </div>
+
+            <!-- Bộ lọc & Tìm kiếm -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                <input id="leaderboard-search" type="text" oninput="renderLeaderboardTable()" placeholder="Tìm tên học sinh..." class="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 w-44">
+              </div>
+
+              <select id="leaderboard-group-filter" onchange="renderLeaderboardTable()" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                <option value="all">Tất cả các tổ</option>
+                <option value="1">Tổ 1</option>
+                <option value="2">Tổ 2</option>
+                <option value="3">Tổ 3</option>
+                <option value="4">Tổ 4</option>
+                <option value="5">Tổ 5</option>
+                <option value="6">Tổ 6</option>
+              </select>
+
+              <select id="leaderboard-tier-filter" onchange="renderLeaderboardTable()" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                <option value="all">Tất cả xếp loại</option>
+                <option value="Xuất sắc">Xuất sắc</option>
+                <option value="Tốt">Tốt</option>
+                <option value="Khá">Khá</option>
+                <option value="Cần cố gắng">Cần cố gắng</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Bảng 45 học sinh -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-700">
+                  <th class="py-3 px-3 text-center w-12">Hạng</th>
+                  <th class="py-3 px-3">Họ và Tên</th>
+                  <th class="py-3 px-2 text-center w-12">Tổ</th>
+                  <th class="py-3 px-2 text-center w-14">Điểm Sàn</th>
+                  <th class="py-3 px-2 text-center w-14">Điểm Cộng</th>
+                  <th class="py-3 px-2 text-center w-14">Điểm Trừ</th>
+                  <th class="py-3 px-2 text-center w-16">Tổng Điểm</th>
+                  <th class="py-3 px-3 text-center w-24">Xếp Loại</th>
+                  <th class="py-3 px-3 text-center w-28">Huy Hiệu</th>
+                  <th class="py-3 px-3 text-center w-20">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-medium">
+                <!-- Rendered by renderLeaderboardTable -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- ==================== TAB 2: CHẤM ĐIỂM & GHI NHẬN (FORM NHẬP LIỆU GỌN GÀNG) ==================== -->
       <section id="section-scoring" class="hidden space-y-6">
         
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm space-y-6">
-          <div class="border-b border-slate-200 pb-4">
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i class="fa-solid fa-pen-nib"></i></span>
-              <span>Phiếu Ghi Nhận Điểm Thi Đua (Ban Cán Sự / Sao Đỏ)</span>
-            </h3>
-            <p class="text-xs text-slate-500 mt-1">Ghi nhận minh bạch, khách quan. Quỹ điểm tự động cập nhật ngay tức thì vào hồ sơ học sinh.</p>
+        <div class="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm space-y-5">
+          
+          <!-- Header Bar: Tiêu đề + Chọn Tuần + Ngày + Người ghi nhận -->
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-4">
+            <div class="flex items-center space-x-3">
+              <span class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 flex items-center justify-center text-lg font-bold shadow-xs">
+                <i class="fa-solid fa-pen-nib"></i>
+              </span>
+              <div>
+                <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                  <span>Phiếu Chấm Điểm Thi Đua Tự Quản (Tổ Trưởng / Sao Đỏ)</span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Chọn tên học sinh, chọn điểm cộng/trừ từ danh sách xổ xuống và bấm ghi nhận ngay — không cần kéo lên kéo xuống.</p>
+              </div>
+            </div>
+
+            <!-- Meta Controls: Tuần, Ngày, Người ghi -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <!-- Chọn Tuần -->
+              <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                <span class="font-bold text-slate-600 dark:text-slate-400">Tuần:</span>
+                <select id="score-input-week" class="bg-transparent font-black text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
+                  <option value="10" selected>Tuần 10 (Hiện tại)</option>
+                  <option value="9">Tuần 9</option>
+                  <option value="8">Tuần 8</option>
+                  <option value="7">Tuần 7</option>
+                  <option value="6">Tuần 6</option>
+                  <option value="5">Tuần 5</option>
+                  <option value="4">Tuần 4</option>
+                  <option value="3">Tuần 3</option>
+                  <option value="2">Tuần 2</option>
+                  <option value="1">Tuần 1</option>
+                </select>
+              </div>
+
+              <!-- Ngày ghi nhận -->
+              <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                <i class="fa-regular fa-calendar text-slate-400"></i>
+                <input type="date" id="score-input-date" class="bg-transparent text-slate-700 dark:text-slate-200 font-semibold focus:outline-none">
+              </div>
+
+              <!-- Người chấm điểm -->
+              <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                <i class="fa-solid fa-user-check text-slate-400"></i>
+                <select id="score-recorder-select" onchange="onRecorderSelectChange(this.value)" class="bg-transparent font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+                  <option value="Sao đỏ trực nhật">Sao đỏ trực nhật</option>
+                  <option value="Tổ trưởng Tổ 1 (Dương Lục Yến Vy)">Tổ trưởng Tổ 1 (Yến Vy)</option>
+                  <option value="Tổ trưởng Tổ 2 (Nguyễn Hoàng Gia Nguyên)">Tổ trưởng Tổ 2 (Gia Nguyên)</option>
+                  <option value="Tổ trưởng Tổ 3 (Trần Bảo Phi Hoàng)">Tổ trưởng Tổ 3 (Phi Hoàng)</option>
+                  <option value="Tổ trưởng Tổ 4 (Nguyễn Ngọc Trinh)">Tổ trưởng Tổ 4 (Ngọc Trinh)</option>
+                  <option value="Tổ trưởng Tổ 5 (Nguyễn Vinh Hoa)">Tổ trưởng Tổ 5 (Vinh Hoa)</option>
+                  <option value="Tổ trưởng Tổ 6 (Trương Thị Mỹ Ngân)">Tổ trưởng Tổ 6 (Mỹ Ngân)</option>
+                  <option value="Lớp trưởng (Nguyễn Đan Mạch)">Lớp trưởng (Đan Mạch)</option>
+                  <option value="GVCN Lớp 10A3">GVCN Lớp 10A3</option>
+                </select>
+                <input type="hidden" id="score-input-recorder" value="Sao đỏ trực nhật">
+              </div>
+            </div>
           </div>
 
-          <!-- Bước 1: Ngày & Cán sự ghi nhận -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Ngày ghi nhận</label>
-              <input type="date" id="score-input-date" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Người ghi nhận (Sao đỏ / Tổ trưởng)</label>
-              <input type="text" id="score-input-recorder" placeholder="Ví dụ: Lớp trưởng, Sao đỏ Tổ 2, Tổ trưởng Tổ 1..." value="Sao đỏ trực nhật" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-          </div>
-
-          <!-- Bước 2: Chọn Tổ & Chọn Học Sinh -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-xs font-bold text-slate-700 uppercase">3. Chọn Học Sinh Cần Chấm Điểm</label>
-              <span class="text-xs text-slate-500">Bấm chọn một hoặc nhiều học sinh bên dưới:</span>
-            </div>
-
-            <!-- Group Filter Tabs -->
-            <div class="flex flex-wrap gap-2 mb-3">
-              <button type="button" onclick="filterScoringGroup('all')" class="group-tab-btn active px-3 py-1.5 text-xs font-bold rounded-lg border bg-blue-600 text-white border-blue-600" data-group="all">Tất cả tổ</button>
-              <button type="button" onclick="filterScoringGroup(1)" class="group-tab-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-white text-slate-600 border-slate-300 hover:border-blue-400" data-group="1">Tổ 1</button>
-              <button type="button" onclick="filterScoringGroup(2)" class="group-tab-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-white text-slate-600 border-slate-300 hover:border-blue-400" data-group="2">Tổ 2</button>
-              <button type="button" onclick="filterScoringGroup(3)" class="group-tab-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-white text-slate-600 border-slate-300 hover:border-blue-400" data-group="3">Tổ 3</button>
-              <button type="button" onclick="filterScoringGroup(4)" class="group-tab-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-white text-slate-600 border-slate-300 hover:border-blue-400" data-group="4">Tổ 4</button>
-              <button type="button" onclick="filterScoringGroup(5)" class="group-tab-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-white text-slate-600 border-slate-300 hover:border-blue-400" data-group="5">Tổ 5</button>
-              <button type="button" onclick="filterScoringGroup(6)" class="group-tab-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-white text-slate-600 border-slate-300 hover:border-blue-400" data-group="6">Tổ 6</button>
-
-              <button type="button" onclick="selectAllVisibleStudents()" class="ml-auto text-xs px-2.5 py-1 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg font-semibold">
-                <i class="fa-solid fa-check-double mr-1"></i> Chọn cả tổ đang xem
-              </button>
-              <button type="button" onclick="clearSelectedStudents()" class="text-xs px-2.5 py-1 text-slate-500 hover:bg-slate-100 border border-slate-200 rounded-lg">
-                Bỏ chọn
-              </button>
-            </div>
-
-            <!-- Student Selection Pills Container -->
-            <div id="scoring-students-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 max-h-56 overflow-y-auto p-3 bg-slate-50/60 rounded-xl border border-slate-200">
-              <!-- Dynamically populated student cards -->
-            </div>
-            <div class="mt-2 text-xs text-blue-700 font-semibold flex items-center justify-between">
-              <span id="selected-students-count-text">Đã chọn: 0 học sinh</span>
-              <span class="text-slate-500">Mẹo: Click vào thẻ học sinh để chọn/bỏ chọn</span>
-            </div>
-          </div>
-
-          <!-- Bước 3: Thang Điểm Thưởng & Trừ -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+          <!-- BỐ CỤC 3 CỘT TRỰC QUAN GỌN GÀNG (ALL-IN-ONE COMPACT VIEW) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
-            <!-- CỘT ĐIỂM CỘNG (BONUS) -->
-            <div class="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4">
-              <div class="flex items-center space-x-2 mb-3 text-emerald-800 font-bold text-sm">
-                <span class="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg"><i class="fa-solid fa-plus text-xs"></i></span>
-                <span>TIÊU CHÍ ĐIỂM CỘNG (Thưởng Nỗ Lực)</span>
+            <!-- CỘT 1: DANH SÁCH TÊN HỌC SINH (5 cols) -->
+            <div class="lg:col-span-5 bg-slate-50/70 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-md bg-blue-500 text-white flex items-center justify-center text-xs font-bold">1</span>
+                    <h4 class="text-xs font-black uppercase text-slate-800 dark:text-slate-200 tracking-wider">Danh Sách Học Sinh</h4>
+                  </div>
+                  <span id="selected-students-count-text" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                    Đã chọn: 0 em
+                  </span>
+                </div>
+
+                <!-- Tabs lọc Tổ cực nhanh -->
+                <div class="flex items-center gap-1 mb-2.5 overflow-x-auto pb-1 text-xs">
+                  <button type="button" onclick="filterScoringGroup('all')" class="group-tab-btn active px-2.5 py-1 text-xs font-bold rounded-lg border bg-blue-600 text-white border-blue-600 transition" data-group="all">Tất cả</button>
+                  <button type="button" onclick="filterScoringGroup(1)" class="group-tab-btn px-2.5 py-1 text-xs font-bold rounded-lg border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-blue-500 transition" data-group="1">Tổ 1</button>
+                  <button type="button" onclick="filterScoringGroup(2)" class="group-tab-btn px-2.5 py-1 text-xs font-bold rounded-lg border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-blue-500 transition" data-group="2">Tổ 2</button>
+                  <button type="button" onclick="filterScoringGroup(3)" class="group-tab-btn px-2.5 py-1 text-xs font-bold rounded-lg border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-blue-500 transition" data-group="3">Tổ 3</button>
+                  <button type="button" onclick="filterScoringGroup(4)" class="group-tab-btn px-2.5 py-1 text-xs font-bold rounded-lg border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-blue-500 transition" data-group="4">Tổ 4</button>
+                  <button type="button" onclick="filterScoringGroup(5)" class="group-tab-btn px-2.5 py-1 text-xs font-bold rounded-lg border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-blue-500 transition" data-group="5">Tổ 5</button>
+                  <button type="button" onclick="filterScoringGroup(6)" class="group-tab-btn px-2.5 py-1 text-xs font-bold rounded-lg border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-blue-500 transition" data-group="6">Tổ 6</button>
+                </div>
+
+                <!-- Tiện ích: Chọn dropdown nhanh 1 em HOẶC chọn cả tổ -->
+                <div class="flex items-center space-x-2 mb-2.5">
+                  <select id="quick-select-student-dropdown" onchange="onQuickSelectStudentDropdown(this.value)" class="flex-1 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Chọn nhanh 1 học sinh theo tên --</option>
+                    <!-- Populated dynamically -->
+                  </select>
+                  <button type="button" onclick="selectAllVisibleStudents()" class="text-xs px-2.5 py-1.5 bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg font-bold whitespace-nowrap transition" title="Chọn tất cả học sinh đang hiển thị trong tổ">
+                    <i class="fa-solid fa-check-double mr-1"></i> Cả tổ
+                  </button>
+                  <button type="button" onclick="clearSelectedStudents()" class="text-xs px-2 py-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition" title="Bỏ chọn tất cả">
+                    Bỏ chọn
+                  </button>
+                </div>
+
+                <!-- Danh Sách Học Sinh Dạng Card Gọn Gàng (Click là chọn/bỏ chọn) -->
+                <div id="scoring-students-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-2 max-h-72 overflow-y-auto p-2 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <!-- Dynamically populated student cards -->
+                </div>
               </div>
-              <div class="space-y-2" id="bonus-buttons-list">
-                <!-- Dynamically or statically injected buttons -->
-              </div>
+
+              <!-- Ghi chú chân danh sách -->
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 italic flex items-center space-x-1">
+                <i class="fa-solid fa-circle-info text-blue-500"></i>
+                <span>Tổ trưởng bấm chọn bạn cần chấm điểm, hoặc bấm "Cả tổ" khi chấm trực nhật / bài tập cả tổ.</span>
+              </p>
             </div>
 
-            <!-- CỘT ĐIỂM TRỪ (VIOLATION) -->
-            <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-4">
-              <div class="flex items-center space-x-2 mb-3 text-rose-800 font-bold text-sm">
-                <span class="p-1.5 bg-rose-100 text-rose-700 rounded-lg"><i class="fa-solid fa-minus text-xs"></i></span>
-                <span>TIÊU CHÍ ĐIỂM TRỪ (Kỷ Luật Thi Đua)</span>
+            <!-- CỘT 2: DANH SÁCH XỔ XUỐNG ĐIỂM CỘNG (3.5 cols) -->
+            <div class="lg:col-span-3.5 sm:col-span-6 bg-gradient-to-b from-emerald-50/80 to-white dark:from-emerald-950/20 dark:to-slate-800 p-4 rounded-2xl border-2 border-emerald-300 dark:border-emerald-800/80 flex flex-col justify-between space-y-3 shadow-xs">
+              <div>
+                <div class="flex items-center space-x-2 text-emerald-800 dark:text-emerald-300 font-black text-xs uppercase tracking-wider mb-2">
+                  <span class="w-6 h-6 rounded-md bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">2</span>
+                  <i class="fa-solid fa-plus-circle text-emerald-600"></i>
+                  <span>Danh Sách Điểm Cộng (+)</span>
+                </div>
+
+                <label for="select-bonus-rule" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Xổ xuống để chọn tiêu chí khen thưởng:
+                </label>
+                <!-- MENU XỔ XUỐNG ĐIỂM CỘNG -->
+                <select id="select-bonus-rule" onchange="onDropdownRuleChange('bonus', this.value)" class="w-full bg-white dark:bg-slate-900 border-2 border-emerald-400 dark:border-emerald-600 rounded-xl p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition cursor-pointer">
+                  <option value="">-- Bấm vào đây để chọn điểm cộng (+5 đến +50đ) --</option>
+                  <option value="bonus_school_honors">[+50đ] 🏆 Đạt điểm Tốt toàn diện / Khen thưởng cấp trường</option>
+                  <option value="bonus_duty_excellent">[+20đ] 👤 Cán sự lớp / Tổ trưởng hoàn thành xuất sắc</option>
+                  <option value="bonus_paired_progress">[+15đ] 🤝 Đôi bạn cùng tiến: Cùng tiến bộ (+15đ cả hai)</option>
+                  <option value="bonus_baby_steps">[+10đ] 📈 Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết</option>
+                  <option value="bonus_peer_tutoring">[+10đ] 👥 Kèm bạn yếu Toán/Lý (+10đ cả hai)</option>
+                  <option value="bonus_board_solution">[+10đ] 🧑‍🏫 Xung phong lên bảng giải bài đúng</option>
+                  <option value="bonus_effort_support">[+10đ] 💖 Học sinh diện hỗ trợ nỗ lực làm bài</option>
+                  <option value="bonus_group_homework">[+10đ] 👨‍👩‍👧 Cả tổ 100% làm bài tập về nhà (+10đ/bạn)</option>
+                  <option value="bonus_logical_consequence">[+5đ]  🌿 Tự giác khắc phục hệ quả (Trực nhật bù, tưới cây)</option>
+                  <option value="bonus_individual_effort">[+5đ]  ✨ Hoàn thành bài tập cá nhân / Phát biểu hay</option>
+                </select>
+
+                <!-- Thẻ xem trước tiêu chí cộng vừa chọn -->
+                <div id="bonus-preview-card" class="mt-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-emerald-200 dark:border-emerald-800/60 hidden space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">Tiêu chí được chọn:</span>
+                    <span id="bonus-card-badge" class="px-2 py-0.5 bg-emerald-500 text-white font-black text-xs rounded-full">+10 điểm</span>
+                  </div>
+                  <p id="bonus-card-title" class="text-xs font-extrabold text-slate-800 dark:text-slate-100"></p>
+                </div>
               </div>
-              <div class="space-y-2" id="violation-buttons-list">
-                <!-- Dynamically or statically injected buttons -->
+
+              <!-- Nút nhanh Áp dụng Điểm Cộng -->
+              <button type="button" onclick="applyDropdownScore('bonus')" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20 transition cursor-pointer">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Ghi Nhận Điểm Cộng Cho HS Đã Chọn</span>
+              </button>
+            </div>
+
+            <!-- CỘT 3: DANH SÁCH XỔ XUỐNG ĐIỂM TRỪ (3.5 cols) -->
+            <div class="lg:col-span-3.5 sm:col-span-6 bg-gradient-to-b from-rose-50/80 to-white dark:from-rose-950/20 dark:to-slate-800 p-4 rounded-2xl border-2 border-rose-300 dark:border-rose-800/80 flex flex-col justify-between space-y-3 shadow-xs">
+              <div>
+                <div class="flex items-center space-x-2 text-rose-800 dark:text-rose-300 font-black text-xs uppercase tracking-wider mb-2">
+                  <span class="w-6 h-6 rounded-md bg-rose-500 text-white flex items-center justify-center text-xs font-bold">3</span>
+                  <i class="fa-solid fa-minus-circle text-rose-600"></i>
+                  <span>Danh Sách Điểm Trừ (-)</span>
+                </div>
+
+                <label for="select-violation-rule" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Xổ xuống để chọn lỗi vi phạm nề nếp:
+                </label>
+                <!-- MENU XỔ XUỐNG ĐIỂM TRỪ -->
+                <select id="select-violation-rule" onchange="onDropdownRuleChange('violation', this.value)" class="w-full bg-white dark:bg-slate-900 border-2 border-rose-400 dark:border-rose-600 rounded-xl p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 transition cursor-pointer">
+                  <option value="">-- Bấm vào đây để chọn lỗi vi phạm (-5 đến -20đ) --</option>
+                  <option value="viol_absent_no_excuse">[-20đ] 🚫 Vắng học không phép</option>
+                  <option value="viol_profanity">[-15đ] 🔇 Nói tục / Chửi thề</option>
+                  <option value="viol_cheating">[-15đ] 📑 Chép bài / Gian lận kiểm tra</option>
+                  <option value="viol_no_homework">[-10đ] 📚 Không làm bài / Không học bài cũ</option>
+                  <option value="viol_distraction_phone">[-10đ] 📱 Làm việc riêng / Dùng ĐT / Tự ý đổi chỗ</option>
+                  <option value="viol_sleeping_eating">[-5đ]  💤 Ngủ gục / Nói chuyện / Ăn vặt / Thiếu đồ dùng</option>
+                  <option value="viol_late_uniform">[-5đ]  ⏰ Đi học muộn / Sai đồng phục, phù hiệu</option>
+                </select>
+
+                <!-- Thẻ xem trước lỗi trừ vừa chọn -->
+                <div id="violation-preview-card" class="mt-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-rose-200 dark:border-rose-800/60 hidden space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-rose-700 dark:text-rose-400 uppercase">Lỗi vi phạm được chọn:</span>
+                    <span id="violation-card-badge" class="px-2 py-0.5 bg-rose-500 text-white font-black text-xs rounded-full">-10 điểm</span>
+                  </div>
+                  <p id="violation-card-title" class="text-xs font-extrabold text-slate-800 dark:text-slate-100"></p>
+                </div>
               </div>
+
+              <!-- Nút nhanh Áp dụng Điểm Trừ -->
+              <button type="button" onclick="applyDropdownScore('violation')" class="w-full py-2.5 px-3 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-xl font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-rose-600/20 transition cursor-pointer">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Ghi Nhận Điểm Trừ Cho HS Đã Chọn</span>
+              </button>
             </div>
 
           </div>
 
-          <!-- Bước 4: Tóm Tắt & Ghi Chú & Nút Lưu -->
-          <div class="bg-slate-900 text-white p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
+          <!-- DOCK TỔNG KẾT & GHI NHẬN TỨC THÌ (Zero Scroll Action Dock) -->
+          <div class="bg-slate-900 dark:bg-slate-950 text-white p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl border border-slate-800">
             <div class="space-y-1">
-              <div class="flex items-center space-x-2 text-xs text-slate-300">
-                <span class="font-bold uppercase tracking-wider text-slate-400">Xem trước biến động:</span>
-                <span id="preview-students-badge" class="bg-slate-800 px-2 py-0.5 rounded text-blue-300">0 học sinh được chọn</span>
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <span class="font-black text-amber-400 uppercase tracking-wider">⚡ Tóm tắt chấm điểm:</span>
+                <span id="preview-students-badge" class="bg-blue-900/60 text-blue-300 border border-blue-700/60 px-2 py-0.5 rounded font-bold">0 học sinh được chọn</span>
+                <span id="preview-points-badge" class="font-black text-base text-white px-2 py-0.5 rounded bg-slate-800">0 điểm</span>
               </div>
-              <p id="preview-rule-text" class="text-sm font-semibold text-slate-100">Chưa chọn tiêu chí điểm nào</p>
-              <div class="flex items-baseline space-x-2">
-                <span class="text-xs text-slate-400">Điểm áp dụng:</span>
-                <span id="preview-points-badge" class="text-xl font-black text-amber-400">0 điểm</span>
-              </div>
+              <p id="preview-rule-text" class="text-xs sm:text-sm font-semibold text-slate-300">
+                Hãy chọn học sinh bên trái và chọn 1 tiêu chí từ menu xổ xuống Điểm cộng hoặc Điểm trừ.
+              </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 items-stretch md:items-center">
-              <input type="text" id="score-note" placeholder="Ghi chú thêm (Tên tiết học, môn, biểu dương...)" class="bg-slate-800 border border-slate-700 text-white placeholder-slate-400 text-sm rounded-lg px-3 py-2 w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-blue-400">
+            <div class="flex flex-col sm:flex-row gap-2.5 items-stretch md:items-center">
+              <input type="text" id="score-note" placeholder="Ghi chú thêm (Tiết, môn, chi tiết...)" class="bg-slate-800 border border-slate-700 text-white placeholder-slate-400 text-xs rounded-xl px-3 py-2 w-full sm:w-60 focus:outline-none focus:ring-2 focus:ring-blue-400">
               
-              <button type="button" onclick="submitScoringEntry()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 font-bold text-sm text-slate-950 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition cursor-pointer">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>Ghi Nhận & Lưu</span>
+              <button type="button" onclick="submitScoringEntry()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:scale-95 font-black text-xs text-slate-950 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition cursor-pointer whitespace-nowrap">
+                <i class="fa-solid fa-floppy-disk text-sm"></i>
+                <span>XÁC NHẬN GHI ĐIỂM NGAY</span>
               </button>
             </div>
           </div>
@@ -1358,7 +1617,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=2.4"></script>
+  <script src="app.js?v=2.5"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">

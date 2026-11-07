@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- Full rectangle background for maskable -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Graduation Cap Icon (within safe area 410x410) -->
+  <g transform="translate(256, 185) scale(1.05)">
+    <!-- Cap Diamond -->
+    <polygon points="0,-72 135,0 0,72 -135,0" fill="url(#gold)"/>
+    <!-- Cap Skull Cap Underneath -->
+    <path d="M -70,16 C -70,60 70,60 70,16 L 70,38 C 70,82 -70,82 -70,38 Z" fill="#d97706"/>
+    <!-- Tassel Button & Cord -->
+    <circle cx="0" cy="0" r="10" fill="#ffffff"/>
+    <path d="M 0,0 C 65,10 105,35 115,75" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+    <rect x="107" y="75" width="16" height="30" rx="4" fill="#ffffff"/>
+  </g>
+
+  <!-- Class text 10A3 -->
+  <text x="256" y="370" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="95" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="4">10A3</text>
+  <text x="256" y="415" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" fill="#93c5fd" text-anchor="middle" letter-spacing="2">THPT BÙI THỊ XUÂN</text>
+</svg>

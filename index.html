@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Quản Trị Lớp Học Tự Quản 10A3</title>
+
+  <!-- PWA Manifest & App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lớp 10A3">
+  <meta name="application-name" content="Lớp 10A3">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,6 +174,12 @@
             Được chấm
           </span>
         </div>
+
+        <!-- PWA Install Button (Hiện khi trình duyệt hỗ trợ hoặc bấm để xem hướng dẫn) -->
+        <button id="btn-install-pwa" onclick="promptPWAInstall()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold rounded-lg text-xs shadow-sm transition" title="Cài đặt ứng dụng Lớp 10A3 lên điện thoại hoặc máy tính">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>Cài Đặt App</span>
+        </button>
 
         <!-- Quick Action: Nạp lại 45 HS chuẩn -->
         <button onclick="openResetDisciplineModal()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 rounded-lg text-xs font-bold shadow-xs transition" title="Reset điểm thi đua về 100 điểm ban đầu">
@@ -1770,7 +1787,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- Scripts -->
-  <script src="app.js?v=4.7"></script>
+  <script src="app.js?v=5.0"></script>
 
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">

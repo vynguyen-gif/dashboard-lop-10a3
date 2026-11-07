@@ -4438,3 +4438,119 @@ function executeLoadSampleLogs() {
 
   showToast(`Đã nạp thành công bộ dữ liệu thi đua mẫu để tham khảo!`, 'info');
 }
+
+// ==================== PWA INSTALL & SERVICE WORKER LOGIC ====================
+let deferredPWAInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => {
+        console.log('[PWA] Service Worker đăng ký thành công với scope:', reg.scope);
+      })
+      .catch((err) => {
+        console.warn('[PWA] Không thể đăng ký Service Worker:', err);
+      });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPWAInstallPrompt = e;
+  const btn = document.getElementById('btn-install-pwa');
+  if (btn) {
+    btn.classList.add('animate-pulse');
+  }
+});
+
+function promptPWAInstall() {
+  if (deferredPWAInstallPrompt) {
+    deferredPWAInstallPrompt.prompt();
+    deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        showToast('Đang cài đặt Ứng dụng Lớp 10A3 vào máy...', 'success');
+      }
+      deferredPWAInstallPrompt = null;
+    });
+  } else {
+    // Modal hướng dẫn cài đặt chi tiết cho từng loại thiết bị (iPhone, Android, Windows)
+    showPWAInstallGuideModal();
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  showToast('Đã cài đặt thành công Ứng dụng Lớp 10A3! Bạn có thể mở trực tiếp từ màn hình chính.', 'success');
+});
+
+function showPWAInstallGuideModal() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isAndroid = /Android/.test(navigator.userAgent);
+  
+  let instructions = '';
+  if (isIOS) {
+    instructions = `
+      <div class="space-y-3 text-slate-700 dark:text-slate-200">
+        <p class="font-bold text-blue-600 dark:text-blue-400">📱 Hướng dẫn cài trên iPhone / iPad (Safari):</p>
+        <ol class="list-decimal list-inside space-y-2 text-xs">
+          <li>Bấm vào nút <strong>Chia sẻ (Share)</strong> ở thanh dưới cùng Safari (biểu tượng <i class="fa-solid fa-arrow-up-from-bracket text-blue-500"></i> hình vuông có mũi tên lên).</li>
+          <li>Cuộn xuống và chọn <strong>"Thêm vào MH chính"</strong> (hoặc <em>"Add to Home Screen"</em> <i class="fa-solid fa-plus-square text-blue-500"></i>).</li>
+          <li>Bấm <strong>"Thêm" (Add)</strong> ở góc trên bên phải.</li>
+          <li>Xong! Icon <strong>Lớp 10A3</strong> sẽ xuất hiện ngoài màn hình chính để mở toàn màn hình như App thật.</li>
+        </ol>
+      </div>
+    `;
+  } else if (isAndroid) {
+    instructions = `
+      <div class="space-y-3 text-slate-700 dark:text-slate-200">
+        <p class="font-bold text-emerald-600 dark:text-emerald-400">🤖 Hướng dẫn cài trên Android (Chrome):</p>
+        <ol class="list-decimal list-inside space-y-2 text-xs">
+          <li>Bấm vào biểu tượng <strong>3 dấu chấm đứng (⋮)</strong> ở góc trên cùng bên phải Chrome.</li>
+          <li>Chọn dòng <strong>"Cài đặt ứng dụng"</strong> (hoặc <em>"Thêm vào Màn hình chính"</em>).</li>
+          <li>Bấm <strong>"Cài đặt"</strong> để xác nhận.</li>
+          <li>Xong! App Lớp 10A3 sẽ xuất hiện trên màn hình điện thoại.</li>
+        </ol>
+      </div>
+    `;
+  } else {
+    instructions = `
+      <div class="space-y-3 text-slate-700 dark:text-slate-200">
+        <p class="font-bold text-blue-600 dark:text-blue-400">💻 Hướng dẫn cài trên Máy tính (Chrome / Edge / Cốc Cốc):</p>
+        <ol class="list-decimal list-inside space-y-2 text-xs">
+          <li>Nhìn lên thanh nhập địa chỉ web (URL) ở trên cùng.</li>
+          <li>Bấm vào biểu tượng <strong>Cài đặt (Install App <i class="fa-solid fa-download text-blue-500"></i>)</strong> ở góc phải thanh địa chỉ.</li>
+          <li>Bấm nút <strong>"Cài đặt"</strong>.</li>
+          <li>App sẽ tự động mở thành một cửa sổ phần mềm độc lập và tạo icon ngoài Desktop Windows.</li>
+        </ol>
+      </div>
+    `;
+  }
+
+  const modalHtml = `
+    <div id="modal-pwa-guide" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-sm">
+              <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">Cài Đặt App Lớp 10A3</h3>
+          </div>
+          <button onclick="document.getElementById('modal-pwa-guide').remove()" class="text-slate-400 hover:text-slate-600 p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+        ${instructions}
+        <div class="pt-2 flex justify-end">
+          <button onclick="document.getElementById('modal-pwa-guide').remove()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition">
+            Đã Hiểu
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const existing = document.getElementById('modal-pwa-guide');
+  if (existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+

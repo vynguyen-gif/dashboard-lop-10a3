@@ -69,7 +69,7 @@ const VIOLATION_RULES = [
   { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: -50, icon: 'fa-hand-fist' },
   { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: -30, icon: 'fa-mobile-screen-button' },
   { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: -30, icon: 'fa-user-xmark' },
-  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Vô lễ với thầy cô / Nói tục chửi thề nặng nề', points: -30, icon: 'fa-triangle-exclamation' },
+  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô', points: -50, icon: 'fa-triangle-exclamation' },
 
   // II. HỌC TẬP & KỶ LUẬT TIẾT HỌC
   { key: 'viol_no_homework', group: 'academic', isRestricted: false, label: '📚 Không soạn bài / Không làm bài tập về nhà (1 lần)', points: -15, icon: 'fa-book-skull' },
@@ -80,7 +80,6 @@ const VIOLATION_RULES = [
   // III. CHUYÊN CẦN & NỀ NẾP
   { key: 'viol_late', group: 'conduct', isRestricted: false, label: '⏰ Đi học trễ (muộn giờ)', points: -15, icon: 'fa-clock' },
   { key: 'viol_uniform', group: 'conduct', isRestricted: false, label: '👔 Vi phạm tác phong: Tóc dài, nhuộm tóc, đạp quai hậu, sai đồng phục', points: -20, icon: 'fa-shirt' },
-  { key: 'viol_profanity', group: 'conduct', isRestricted: false, label: '🔇 Nói tục, chửi thề trong lớp', points: -15, icon: 'fa-comment-slash' },
   { key: 'viol_eating_drawing', group: 'conduct', isRestricted: false, label: '🥤 Ăn quà vặt trong giờ / Ghi vẽ bậy lên bàn học', points: -15, icon: 'fa-cookie-bite' },
   { key: 'viol_cleaning_trash', group: 'conduct', isRestricted: false, label: '🧹 Trực nhật bẩn / Xả rác bừa bãi', points: -10, icon: 'fa-trash-can' },
   { key: 'viol_late_docs', group: 'conduct', isRestricted: false, label: '📑 Nộp trễ giấy tờ / Không tham gia phong trào chung', points: -10, icon: 'fa-file-lines' },

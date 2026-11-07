@@ -7,11 +7,11 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v28',
+  STUDENTS: 'dashboard10a3_official_45_students_v29',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
-  SEATING: 'dashboard10a3_official_45_seating_v28'
+  SEATING: 'dashboard10a3_official_45_seating_v29'
 };
 
 
@@ -1739,7 +1739,7 @@ function getDefaultSeating() {
       pairWithTable: 1,
       title: 'Bàn 2',
       subtitle: 'Ghép Bàn 1',
-      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_15' }, // Võ Quốc Duy Khôi (Cán sự Anh - 35đ)
+      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06) (Tổ trưởng T4 - 38đ) [Đổi chỗ với Duy Khôi]
       rightSeat: { seatId: 'seat_r2_g4_t2_r', position: 'right', studentId: 'hs_10a3_45' } // Đỗ Khôi Vỹ (36đ) [Khôi Vỹ lên bàn đầu sát bục giảng, không còn làm việc riêng]
     },
     // [HÀNG 2: BÀN 3 GHÉP BÀN 4 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
@@ -1764,8 +1764,8 @@ function getDefaultSeating() {
       pairWithTable: 3,
       title: 'Bàn 4',
       subtitle: 'Ghép Bàn 3',
-      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06) (38đ)
-      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đôi bạn cùng tiến: Thanh Tuyền kèm Tường Vy]
+      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_15' }, // Võ Quốc Duy Khôi (Cán sự Anh - 35đ) [Đổi chỗ với Thanh Tuyền 14/06]
+      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đôi bạn cùng tiến]
     },
 
     // --- TỔ 5 (Bàn 5 -> 8) ---

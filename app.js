@@ -11,21 +11,26 @@ const STORAGE_KEYS = {
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
+  AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
   SEATING: 'dashboard10a3_official_45_seating_v32'
 };
 
+const DEFAULT_PINS = {
+  gvcn: '1030',   // Mã PIN GVCN: 1030 (Toàn quyền quản trị & reset điểm)
+  cadre: '10a3'   // Mã PIN Cán sự: 10a3 (Lớp trưởng & 6 Tổ trưởng được quyền chấm điểm)
+};
 
 // ==================== HỆ THỐNG PHÂN QUYỀN VAI TRÒ (RBAC) ====================
 const ROLES = {
   gvcn: { id: 'gvcn', label: '👑 GVCN Lớp 10A3', canScore: true, canLock: true, canReset: true, allowedGroups: 'all' },
-  monitor: { id: 'monitor', label: '🎖️ Lớp trưởng (Đan Mạch)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
+  monitor: { id: 'monitor', label: '🎖️ Lớp trưởng (Hồng Nhung)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
   lead_t1: { id: 'lead_t1', label: '👤 Tổ trưởng T1 (Yến Vy)', canScore: true, canLock: false, canReset: false, allowedGroups: [1] },
   lead_t2: { id: 'lead_t2', label: '👤 Tổ trưởng T2 (Gia Nguyên)', canScore: true, canLock: false, canReset: false, allowedGroups: [2] },
   lead_t3: { id: 'lead_t3', label: '👤 Tổ trưởng T3 (Phi Hoàng)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
   lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Duy Khôi)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
   lead_t5: { id: 'lead_t5', label: '👤 Tổ trưởng T5 (Ngọc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
   lead_t6: { id: 'lead_t6', label: '👤 Tổ trưởng T6 (Mỹ Ngân)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
-  member: { id: 'member', label: '👁️ Thành viên (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
+  member: { id: 'member', label: '👁️ Học sinh (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
 };
 
 const BASE_WEEKLY_SCORE = 100;
@@ -110,7 +115,8 @@ let appState = {
   starsEnabled: true,
   activeLeaderboardWeek: '9',
   lockedWeeks: [],
-  currentUserRole: 'gvcn'
+  currentUserRole: 'member',
+  pendingRoleId: null
 };
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
@@ -156,6 +162,47 @@ function initDateInputs() {
 }
 
 // ==================== LOCAL STORAGE SERVICES ====================
+function getAuthenticatedRoles() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.AUTH_ROLES);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function isRoleAuthenticated(roleId) {
+  if (!roleId || roleId === 'member') return true;
+  const list = getAuthenticatedRoles();
+  // GVCN có toàn quyền xác thực
+  if (list.includes('gvcn')) return true;
+  // Cán sự được quyền chấm điểm (Lớp trưởng & 6 Tổ trưởng)
+  if (roleId !== 'gvcn' && (list.includes('cadre') || list.includes(roleId))) return true;
+  return false;
+}
+
+function addAuthenticatedRole(roleId) {
+  try {
+    let list = getAuthenticatedRoles();
+    if (!list.includes(roleId)) list.push(roleId);
+    if (roleId === 'gvcn') {
+      list.push('cadre', 'monitor', 'lead_t1', 'lead_t2', 'lead_t3', 'lead_t4', 'lead_t5', 'lead_t6');
+    } else if (roleId === 'monitor' || roleId.startsWith('lead_t')) {
+      list.push('cadre');
+    }
+    list = Array.from(new Set(list));
+    localStorage.setItem(STORAGE_KEYS.AUTH_ROLES, JSON.stringify(list));
+  } catch (e) {
+    console.error('Lỗi khi lưu vai trò xác thực:', e);
+  }
+}
+
+function logoutAllRoles() {
+  localStorage.removeItem(STORAGE_KEYS.AUTH_ROLES);
+  executeChangeRole('member');
+  showToast('Đã đăng xuất quyền cán sự! Bạn đang ở Chế độ Học sinh (Chỉ xem).', 'info');
+}
+
 function loadDataFromStorage() {
   try {
     const rawStudents = localStorage.getItem(STORAGE_KEYS.STUDENTS);
@@ -166,7 +213,13 @@ function loadDataFromStorage() {
     appState.students = rawStudents ? JSON.parse(rawStudents) : [];
     appState.dailyLogs = rawLogs ? JSON.parse(rawLogs) : [];
     appState.lockedWeeks = rawLocked ? JSON.parse(rawLocked) : [];
-    appState.currentUserRole = rawRole || 'gvcn';
+
+    // Chỉ duy trì vai trò quản trị nếu thiết bị này đã được xác thực PIN
+    if (rawRole && rawRole !== 'member' && isRoleAuthenticated(rawRole)) {
+      appState.currentUserRole = rawRole;
+    } else {
+      appState.currentUserRole = 'member';
+    }
     appState.activeLeaderboardWeek = '9';
 
     loadSeatingData();
@@ -292,10 +345,9 @@ function switchTab(tabName) {
     renderCharts();
   } else if (tabName === 'leaderboard') {
     renderLeaderboard();
-  renderScoringPermissionsUI();
-  const hSel = document.getElementById('header-user-role-selector'); if (hSel) hSel.value = appState.currentUserRole || 'gvcn';
   } else if (tabName === 'scoring') {
     renderScoringStudentPills();
+    renderScoringPermissionsUI();
   } else if (tabName === 'students') {
     renderStudentsTable();
   } else if (tabName === 'seating') {
@@ -305,6 +357,10 @@ function switchTab(tabName) {
   } else if (tabName === 'forms') {
     initFormsTab();
   }
+
+  const hSel = document.getElementById('header-user-role-selector');
+  if (hSel) hSel.value = appState.currentUserRole || 'member';
+  updateResetButtonsVisibility();
 }
 
 // ==================== RENDERING: DASHBOARD ====================
@@ -653,6 +709,21 @@ function renderScoringStudentPills() {
 }
 
 function toggleSelectStudent(studentId) {
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để chấm điểm.', 'warning');
+    return;
+  }
+  // Nếu là Tổ trưởng, kiểm tra học sinh có thuộc tổ mình không
+  if (appState.currentUserRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
+    const stu = appState.students.find(s => s.id === studentId);
+    if (stu && Number(stu.groupNumber) !== leaderGroup) {
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được chấm điểm cho các bạn thuộc Tổ ${leaderGroup}!`, 'warning');
+      return;
+    }
+  }
+
   if (appState.selectedStudentIds.has(studentId)) {
     appState.selectedStudentIds.delete(studentId);
   } else {
@@ -662,6 +733,20 @@ function toggleSelectStudent(studentId) {
 }
 
 function selectAllVisibleStudents() {
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Không thể chọn học sinh.', 'warning');
+    return;
+  }
+  if (appState.currentUserRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
+    const groupStudents = appState.students.filter(s => Number(s.groupNumber) === leaderGroup);
+    groupStudents.forEach(s => appState.selectedStudentIds.add(s.id));
+    renderScoringStudentPills();
+    showToast(`Đã chọn toàn bộ ${groupStudents.length} học sinh Tổ ${leaderGroup}`, 'info');
+    return;
+  }
+
   const filtered = appState.students.filter(s => {
     if (appState.activeScoringGroup === 'all') return true;
     return Number(s.groupNumber) === Number(appState.activeScoringGroup);
@@ -714,7 +799,7 @@ function selectRule(type, ruleKey) {
 
 function submitScoringEntry() {
   // 1. Kiểm tra quyền hạn vai trò
-  const currentRole = appState.currentUserRole || 'gvcn';
+  const currentRole = appState.currentUserRole || 'member';
   const roleMeta = ROLES[currentRole] || ROLES.member;
   if (!roleMeta.canScore) {
     showToast('Tài khoản của bạn đang ở Chế độ Chỉ Xem! Chỉ GVCN, Lớp trưởng và 6 Tổ trưởng mới có quyền ghi nhận điểm.', 'error');
@@ -1497,6 +1582,8 @@ function refreshAllUI() {
   renderScoringStudentPills();
   renderStudentsTable();
   renderLogsTable();
+  renderScoringPermissionsUI();
+  updateResetButtonsVisibility();
 
   const countDisplay = document.getElementById('storage-count');
   if (countDisplay) {
@@ -2068,6 +2155,11 @@ function renderSeatSlot(table, seat) {
  * Bật / Tắt chế độ đổi chỗ
  */
 function toggleSwapMode(forceState) {
+  if (appState.currentUserRole === 'member') {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để sắp xếp chỗ ngồi.', 'warning');
+    return;
+  }
+
   if (typeof forceState === 'boolean') {
     appState.isSwapMode = forceState;
   } else {
@@ -2247,10 +2339,23 @@ function closeSeatActionModal() {
  * Chấm điểm nhanh từ ghế ngồi
  */
 function quickSeatScoring(ruleKey) {
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để chấm điểm.', 'warning');
+    return;
+  }
   if (!appState.activeModalSeat) return;
   const { studentId, seatId } = appState.activeModalSeat;
   const student = appState.students.find(s => s.id === studentId);
   if (!student) return;
+
+  if (appState.currentUserRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
+    if (Number(student.groupNumber) !== leaderGroup) {
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được chấm điểm cho học sinh Tổ ${leaderGroup}!`, 'warning');
+      return;
+    }
+  }
 
   let rule = BONUS_RULES.find(r => r.key === ruleKey) || VIOLATION_RULES.find(r => r.key === ruleKey);
   if (!rule) return;
@@ -4107,6 +4212,11 @@ function onDropdownRuleChange(type, ruleKey) {
 }
 
 function applyDropdownScore(type) {
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Chỉ Tổ trưởng, Lớp trưởng và GVCN mới có quyền chấm điểm.', 'error');
+    return;
+  }
   const selectEl = document.getElementById(type === 'bonus' ? 'select-bonus-rule' : 'select-violation-rule');
   const ruleKey = selectEl ? selectEl.value : '';
   if (!ruleKey) {
@@ -4114,7 +4224,7 @@ function applyDropdownScore(type) {
     return;
   }
   if (appState.selectedStudentIds.size === 0) {
-    showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên trái!', 'warning');
+    showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên dưới!', 'warning');
     return;
   }
   onDropdownRuleChange(type, ruleKey);
@@ -4123,6 +4233,23 @@ function applyDropdownScore(type) {
 
 function onQuickSelectStudentDropdown(studentId) {
   if (!studentId) return;
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để chọn học sinh.', 'warning');
+    const quickSelect = document.getElementById('quick-select-student-dropdown');
+    if (quickSelect) quickSelect.value = '';
+    return;
+  }
+  if (appState.currentUserRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
+    const stu = appState.students.find(s => s.id === studentId);
+    if (stu && Number(stu.groupNumber) !== leaderGroup) {
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được chọn học sinh Tổ ${leaderGroup}!`, 'warning');
+      const quickSelect = document.getElementById('quick-select-student-dropdown');
+      if (quickSelect) quickSelect.value = '';
+      return;
+    }
+  }
   appState.selectedStudentIds.clear();
   appState.selectedStudentIds.add(studentId);
   renderScoringStudentPills();
@@ -4279,7 +4406,129 @@ function confirmResetWeekDiscipline() {
   showToast(`Đã reset thành công điểm thi đua của ${targetDesc} về 100 điểm ban đầu!`, 'success');
 }
 
-function changeCurrentUserRole(roleId) {
+function onRoleSelectorChange(roleId) {
+  if (roleId === 'member') {
+    executeChangeRole('member');
+    showToast('Đã chuyển về Chế độ Học sinh (Chỉ xem)', 'info');
+    return;
+  }
+
+  if (isRoleAuthenticated(roleId)) {
+    executeChangeRole(roleId);
+  } else {
+    // Tạm thời trả lại giá trị cũ của dropdown
+    const sel = document.getElementById('header-user-role-selector');
+    if (sel) sel.value = appState.currentUserRole || 'member';
+    openRolePinModal(roleId);
+  }
+}
+
+function openRolePinModal(targetRoleId) {
+  appState.pendingRoleId = targetRoleId || 'gvcn';
+  const roleMeta = ROLES[appState.pendingRoleId] || ROLES.gvcn;
+  const isGVCN = appState.pendingRoleId === 'gvcn';
+
+  const titleEl = document.getElementById('modal-pin-role-title');
+  const subtitleEl = document.getElementById('modal-pin-role-subtitle');
+  const bodyEl = document.getElementById('modal-pin-instruction-body');
+  const hintEl = document.getElementById('modal-pin-hint');
+  const inputEl = document.getElementById('input-role-pin');
+  const errEl = document.getElementById('modal-pin-error');
+
+  if (titleEl) titleEl.textContent = `Xác Thực Quyền: ${roleMeta.label}`;
+  if (subtitleEl) subtitleEl.textContent = isGVCN ? 'Cần mã PIN Giáo viên chủ nhiệm để tiếp tục' : 'Cần mã PIN Cán sự (Lớp trưởng / Tổ trưởng)';
+  if (bodyEl) {
+    bodyEl.textContent = isGVCN 
+      ? 'Chỉ Giáo viên chủ nhiệm mới có toàn quyền chấm điểm, khóa sổ điểm và reset điểm thi đua.' 
+      : `Bạn đang chọn chuyển sang vai trò ${roleMeta.label} để chấm điểm thi đua. Vui lòng nhập mã PIN xác thực.`;
+  }
+  if (hintEl) {
+    hintEl.innerHTML = isGVCN 
+      ? '* Mã PIN GVCN mặc định: <strong>1030</strong>' 
+      : '* Mã PIN Cán sự mặc định: <strong>10a3</strong> (hoặc dùng PIN GVCN <strong>1030</strong>)';
+  }
+
+  if (inputEl) {
+    inputEl.value = '';
+    inputEl.classList.remove('border-rose-500');
+  }
+  if (errEl) errEl.classList.add('hidden');
+
+  const modal = document.getElementById('modal-role-pin');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => inputEl?.focus(), 150);
+  }
+}
+
+function closeRolePinModal() {
+  const modal = document.getElementById('modal-role-pin');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  appState.pendingRoleId = null;
+  const sel = document.getElementById('header-user-role-selector');
+  if (sel) sel.value = appState.currentUserRole || 'member';
+}
+
+function togglePinVisibility() {
+  const input = document.getElementById('input-role-pin');
+  const icon = document.getElementById('btn-pin-eye-icon');
+  if (!input || !icon) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'fa-solid fa-eye-slash text-sm';
+  } else {
+    input.type = 'password';
+    icon.className = 'fa-solid fa-eye text-sm';
+  }
+}
+
+function submitRolePin() {
+  const input = document.getElementById('input-role-pin');
+  const pinVal = input ? input.value.trim().toLowerCase() : '';
+  const targetRole = appState.pendingRoleId || 'gvcn';
+  const isGVCN = targetRole === 'gvcn';
+  const errEl = document.getElementById('modal-pin-error');
+  const errText = document.getElementById('modal-pin-error-text');
+
+  let isValid = false;
+  if (isGVCN) {
+    isValid = (pinVal === DEFAULT_PINS.gvcn);
+  } else {
+    isValid = (pinVal === DEFAULT_PINS.cadre || pinVal === DEFAULT_PINS.gvcn);
+  }
+
+  if (!isValid) {
+    if (errEl) errEl.classList.remove('hidden');
+    if (errText) errText.textContent = isGVCN ? 'Sai mã PIN GVCN! Vui lòng nhập đúng PIN 1030.' : 'Sai mã PIN! Vui lòng nhập đúng PIN 10a3 hoặc PIN GVCN 1030.';
+    if (input) {
+      input.classList.add('border-rose-500');
+      input.focus();
+      input.select();
+    }
+    return;
+  }
+
+  // Đúng PIN
+  const remember = document.getElementById('checkbox-remember-pin')?.checked !== false;
+  if (remember) {
+    if (pinVal === DEFAULT_PINS.gvcn) {
+      addAuthenticatedRole('gvcn');
+    } else {
+      addAuthenticatedRole(targetRole);
+    }
+  }
+
+  const roleMeta = ROLES[targetRole] || ROLES.gvcn;
+  closeRolePinModal();
+  executeChangeRole(targetRole);
+  showToast(`🎉 Xác thực thành công! Đã kích hoạt vai trò: ${roleMeta.label}`, 'success');
+}
+
+function executeChangeRole(roleId) {
   appState.currentUserRole = roleId;
   saveDataToStorage();
 
@@ -4303,6 +4552,13 @@ function changeCurrentUserRole(roleId) {
     }
   }
 
+  // Nút đăng xuất vai trò trong header
+  const logoutBtn = document.getElementById('btn-header-logout-role');
+  if (logoutBtn) {
+    if (roleId !== 'member') logoutBtn.classList.remove('hidden');
+    else logoutBtn.classList.add('hidden');
+  }
+
   // Nếu là Tổ trưởng, tự động chọn người ghi nhận và lọc đúng tổ mình
   if (roleId.startsWith('lead_t')) {
     const groupNum = parseInt(roleId.replace('lead_t', ''), 10);
@@ -4315,18 +4571,46 @@ function changeCurrentUserRole(roleId) {
     }
   } else if (roleId === 'monitor') {
     const recSelect = document.getElementById('score-recorder-select');
-    if (recSelect) recSelect.value = 'Lớp trưởng (Nguyễn Đan Mạch)';
+    if (recSelect) recSelect.value = 'Lớp trưởng (Trần Lê Hồng Nhung)';
   } else if (roleId === 'gvcn') {
     const recSelect = document.getElementById('score-recorder-select');
     if (recSelect) recSelect.value = 'GVCN Lớp 10A3';
   }
 
   refreshAllUI();
-  showToast(`Đã chuyển vai trò: ${roleMeta.label}`, 'info');
+}
+
+function changeCurrentUserRole(roleId) {
+  onRoleSelectorChange(roleId);
+}
+
+function updateResetButtonsVisibility() {
+  const isGVCN = (appState.currentUserRole === 'gvcn');
+  const headerResetBtn = document.getElementById('btn-header-reset-discipline');
+  const lbResetBtn = document.getElementById('btn-leaderboard-reset-discipline');
+  const backupResetBtn = document.getElementById('btn-backup-reset-discipline');
+  const toggleLockBtn = document.getElementById('btn-toggle-lock-leaderboard');
+
+  if (headerResetBtn) {
+    if (isGVCN) headerResetBtn.classList.remove('hidden');
+    else headerResetBtn.classList.add('hidden');
+  }
+  if (lbResetBtn) {
+    if (isGVCN) lbResetBtn.classList.remove('hidden');
+    else lbResetBtn.classList.add('hidden');
+  }
+  if (backupResetBtn) {
+    if (isGVCN) backupResetBtn.classList.remove('hidden');
+    else backupResetBtn.classList.add('hidden');
+  }
+  if (toggleLockBtn) {
+    if (isGVCN) toggleLockBtn.classList.remove('hidden');
+    else toggleLockBtn.classList.add('hidden');
+  }
 }
 
 function renderScoringPermissionsUI() {
-  const currentRole = appState.currentUserRole || 'gvcn';
+  const currentRole = appState.currentUserRole || 'member';
   const roleMeta = ROLES[currentRole] || ROLES.member;
   const currentWeek = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
   const weekLocked = isWeekLocked(currentWeek);
@@ -4336,6 +4620,9 @@ function renderScoringPermissionsUI() {
   const submitBtn = document.getElementById('btn-submit-scoring');
   const bonusSelect = document.getElementById('select-bonus-rule');
   const violSelect = document.getElementById('select-violation-rule');
+  const btnBonus = document.getElementById('btn-apply-bonus-score');
+  const btnViol = document.getElementById('btn-apply-violation-score');
+  const quickSelect = document.getElementById('quick-select-student-dropdown');
 
   // Check Role Banner
   if (roleBanner) {
@@ -4360,6 +4647,29 @@ function renderScoringPermissionsUI() {
 
   if (bonusSelect) bonusSelect.disabled = !canOperate;
   if (violSelect) violSelect.disabled = !canOperate;
+  if (quickSelect) quickSelect.disabled = !canOperate;
+
+  if (btnBonus) {
+    btnBonus.disabled = !canOperate;
+    if (!canOperate) {
+      btnBonus.classList.add('opacity-50', 'cursor-not-allowed');
+      btnBonus.title = 'Bạn không có quyền chấm điểm (Chế độ Chỉ Xem)';
+    } else {
+      btnBonus.classList.remove('opacity-50', 'cursor-not-allowed');
+      btnBonus.title = 'Ghi nhận điểm cộng cho các học sinh đã chọn';
+    }
+  }
+
+  if (btnViol) {
+    btnViol.disabled = !canOperate;
+    if (!canOperate) {
+      btnViol.classList.add('opacity-50', 'cursor-not-allowed');
+      btnViol.title = 'Bạn không có quyền chấm điểm (Chế độ Chỉ Xem)';
+    } else {
+      btnViol.classList.remove('opacity-50', 'cursor-not-allowed');
+      btnViol.title = 'Ghi nhận điểm trừ cho các học sinh đã chọn';
+    }
+  }
 
   if (submitBtn) {
     if (!roleMeta.canScore) {
@@ -4381,7 +4691,7 @@ function renderScoringPermissionsUI() {
 // ==================== CÁC HÀM XỬ LÝ RESET ĐIỂM THI ĐUA ====================
 
 function openResetDisciplineModal() {
-  const currentRole = appState.currentUserRole || 'gvcn';
+  const currentRole = appState.currentUserRole || 'member';
   if (currentRole !== 'gvcn') {
     showToast('Chỉ Giáo viên chủ nhiệm mới có quyền mở công cụ Reset điểm thi đua!', 'error');
     return;
@@ -4405,6 +4715,10 @@ function closeResetDisciplineModal() {
 }
 
 function executeResetWeekOnly(weekVal) {
+  if (appState.currentUserRole !== 'gvcn') {
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Reset điểm thi đua!', 'error');
+    return;
+  }
   const wStr = String(weekVal || appState.activeLeaderboardWeek || '9');
   const countBefore = appState.dailyLogs.length;
 
@@ -4419,6 +4733,10 @@ function executeResetWeekOnly(weekVal) {
 }
 
 function executeResetAllToBaseline() {
+  if (appState.currentUserRole !== 'gvcn') {
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Reset điểm thi đua!', 'error');
+    return;
+  }
   const countBefore = appState.dailyLogs.length;
   appState.dailyLogs = [];
   appState.lockedWeeks = [];
@@ -4431,6 +4749,10 @@ function executeResetAllToBaseline() {
 }
 
 function executeLoadSampleLogs() {
+  if (appState.currentUserRole !== 'gvcn') {
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền nạp dữ liệu mẫu!', 'error');
+    return;
+  }
   appState.dailyLogs = seedHistoricalWeeklyLogs();
   saveDataToStorage();
   refreshAllUI();

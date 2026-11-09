@@ -2650,6 +2650,23 @@ function generatePrintSeatingHTML() {
     `;
   };
 
+  const renderGroupBrace = (leftGroupNum, rightGroupNum) => `
+    <div class="col-span-2 flex items-center justify-between px-1 h-full min-h-[82px] select-none">
+      <div class="flex items-center space-x-1">
+        <svg class="h-[80px] w-3 text-slate-700 shrink-0" viewBox="0 0 16 84" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" preserveAspectRatio="none">
+          <path d="M 2,2 Q 8,2 8,18 T 8,34 Q 8,40 14,42 Q 8,44 8,50 T 8,66 Q 8,82 2,82" />
+        </svg>
+        <span class="font-extrabold text-[11px] text-slate-800 whitespace-nowrap">Tổ ${leftGroupNum}</span>
+      </div>
+      <div class="flex items-center space-x-1">
+        <span class="font-extrabold text-[11px] text-slate-800 whitespace-nowrap">Tổ ${rightGroupNum}</span>
+        <svg class="h-[80px] w-3 text-slate-700 shrink-0" viewBox="0 0 16 84" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" preserveAspectRatio="none">
+          <path d="M 14,2 Q 8,2 8,18 T 8,34 Q 8,40 2,42 Q 8,44 8,50 T 8,66 Q 8,82 14,82" />
+        </svg>
+      </div>
+    </div>
+  `;
+
   const g1 = appState.seating.filter(t => t.groupNumber === 1);
   const g2 = appState.seating.filter(t => t.groupNumber === 2);
   const g3 = appState.seating.filter(t => t.groupNumber === 3);
@@ -2675,12 +2692,7 @@ function generatePrintSeatingHTML() {
             ${renderClusterRow(g6[2], g6[3])}
             ${renderClusterRow(g6[0], g6[1])}
           </div>
-          <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
-            <span>Tổ 6</span>
-            <span class="text-lg text-slate-600 font-serif font-black">}</span>
-            <span class="text-lg text-slate-600 font-serif font-black">{</span>
-            <span>Tổ 3</span>
-          </div>
+          ${renderGroupBrace(6, 3)}
           <div class="col-span-5 space-y-1.5">
             ${renderClusterRow(g3[2], g3[3])}
             ${renderClusterRow(g3[0], g3[1])}
@@ -2693,12 +2705,7 @@ function generatePrintSeatingHTML() {
             ${renderClusterRow(g5[2], g5[3])}
             ${renderClusterRow(g5[0], g5[1])}
           </div>
-          <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
-            <span>Tổ 5</span>
-            <span class="text-lg text-slate-600 font-serif font-black">}</span>
-            <span class="text-lg text-slate-600 font-serif font-black">{</span>
-            <span>Tổ 2</span>
-          </div>
+          ${renderGroupBrace(5, 2)}
           <div class="col-span-5 space-y-1.5">
             ${renderClusterRow(g2[2], g2[3])}
             ${renderClusterRow(g2[0], g2[1])}
@@ -2711,12 +2718,7 @@ function generatePrintSeatingHTML() {
             ${renderClusterRow(g4[2], g4[3])}
             ${renderClusterRow(g4[0], g4[1])}
           </div>
-          <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
-            <span>Tổ 4</span>
-            <span class="text-lg text-slate-600 font-serif font-black">}</span>
-            <span class="text-lg text-slate-600 font-serif font-black">{</span>
-            <span>Tổ 1</span>
-          </div>
+          ${renderGroupBrace(4, 1)}
           <div class="col-span-5 space-y-1.5">
             ${renderClusterRow(g1[2], g1[3])}
             ${renderClusterRow(g1[0], g1[1])}

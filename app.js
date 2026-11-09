@@ -7,12 +7,12 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v37',
+  STUDENTS: 'dashboard10a3_official_45_students_v38',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v37'
+  SEATING: 'dashboard10a3_official_45_seating_v38'
 };
 
 const DEFAULT_PINS = {
@@ -1869,8 +1869,8 @@ function getDefaultSeating() {
       pairWithTable: 4,
       title: 'Bàn 3',
       subtitle: 'Ghép Bàn 4',
-      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ) [Đổi chỗ với Ngọc Trinh]
-      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đổi chỗ với Diễm Hằng]
+      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ)
+      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_15' } // Võ Quốc Duy Khôi (Tổ trưởng T4 & CS Anh - 35đ) [Đổi chỗ với Tường Vy]
     },
     {
       tableId: 'tbl_d2_t4',
@@ -1881,8 +1881,8 @@ function getDefaultSeating() {
       pairWithTable: 3,
       title: 'Bàn 4',
       subtitle: 'Ghép Bàn 3',
-      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_15' }, // Võ Quốc Duy Khôi (Tổ trưởng T4 & CS Anh - 35đ)
-      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_08' } // Ngô Thị Diễm Hằng (37đ) [Đổi chỗ với Tường Vy - ngồi cạnh Tổ trưởng Duy Khôi]
+      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_44' }, // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đổi chỗ với Duy Khôi - ngồi cạnh Diễm Hằng]
+      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_08' } // Ngô Thị Diễm Hằng (37đ)
     },
 
     // --- TỔ 5 (Bàn 5 -> 8) ---
@@ -2021,6 +2021,11 @@ function loadSeatingData() {
         if (t3_d2 && t3_d2.rightSeat.studentId === 'hs_10a3_08' && t4_d2 && t4_d2.rightSeat.studentId === 'hs_10a3_44') {
           t3_d2.rightSeat.studentId = 'hs_10a3_44';
           t4_d2.rightSeat.studentId = 'hs_10a3_08';
+          changed = true;
+        }
+        if (t3_d2 && t3_d2.rightSeat.studentId === 'hs_10a3_44' && t4_d2 && t4_d2.leftSeat.studentId === 'hs_10a3_15') {
+          t3_d2.rightSeat.studentId = 'hs_10a3_15';
+          t4_d2.leftSeat.studentId = 'hs_10a3_44';
           changed = true;
         }
         if (t4) {

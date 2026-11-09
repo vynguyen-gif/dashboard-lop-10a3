@@ -1,98 +1,98 @@
-﻿'use strict';
+'use strict';
 
 /**
- * DASHBOARD QUß║óN TRß╗è Lß╗ÜP Hß╗îC Tß╗░ QUß║óN 10A3
- * Kiß║┐n tr├║c: Vanilla JavaScript ES6+, Strict Mode, LocalStorage Persistence
+ * DASHBOARD QUẢN TRỊ LỚP HỌC TỰ QUẢN 10A3
+ * Kiến trúc: Vanilla JavaScript ES6+, Strict Mode, LocalStorage Persistence
  */
 
-// ==================== Hß║░NG Sß╗É & Cß║ñU H├îNH QUY CHß║╛ ====================
+// ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v41_17h',
+  STUDENTS: 'dashboard10a3_official_45_students_v42_clean',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v41_17h'
+  SEATING: 'dashboard10a3_official_45_seating_v42_clean'
 };
 
 const DEFAULT_PINS = {
-  gvcn: '1030',   // M├ú PIN GVCN: 1030 (To├án quyß╗ün quß║ún trß╗ï & reset ─æiß╗âm)
-  cadre: '10a3'   // M├ú PIN C├ín sß╗▒: 10a3 (Lß╗¢p tr╞░ß╗ƒng & 6 Tß╗ò tr╞░ß╗ƒng ─æ╞░ß╗úc quyß╗ün chß║Ñm ─æiß╗âm)
+  gvcn: '1030',   // Mã PIN GVCN: 1030 (Toàn quyền quản trị & reset điểm)
+  cadre: '10a3'   // Mã PIN Cán sự: 10a3 (Lớp trưởng & 6 Tổ trưởng được quyền chấm điểm)
 };
 
-// ==================== Hß╗å THß╗ÉNG PH├éN QUYß╗ÇN VAI TR├Æ (RBAC) ====================
+// ==================== HỆ THỐNG PHÂN QUYỀN VAI TRÒ (RBAC) ====================
 const ROLES = {
-  gvcn: { id: 'gvcn', label: '≡ƒææ GVCN Lß╗¢p 10A3', canScore: true, canLock: true, canReset: true, allowedGroups: 'all' },
-  monitor: { id: 'monitor', label: '≡ƒÄû∩╕Å Lß╗¢p tr╞░ß╗ƒng (Hß╗ông Nhung)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
-  lead_t1: { id: 'lead_t1', label: '≡ƒæñ Tß╗ò tr╞░ß╗ƒng T1 (Yß║┐n Vy)', canScore: true, canLock: false, canReset: false, allowedGroups: [1] },
-  lead_t2: { id: 'lead_t2', label: '≡ƒæñ Tß╗ò tr╞░ß╗ƒng T2 (Gia Nguy├¬n)', canScore: true, canLock: false, canReset: false, allowedGroups: [2] },
-  lead_t3: { id: 'lead_t3', label: '≡ƒæñ Tß╗ò tr╞░ß╗ƒng T3 (Kim Tr├║c)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
-  lead_t4: { id: 'lead_t4', label: '≡ƒæñ Tß╗ò tr╞░ß╗ƒng T4 (Duy Kh├┤i)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
-  lead_t5: { id: 'lead_t5', label: '≡ƒæñ Tß╗ò tr╞░ß╗ƒng T5 (Ngß╗ìc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
-  lead_t6: { id: 'lead_t6', label: '≡ƒæñ Tß╗ò tr╞░ß╗ƒng T6 (Mß╗╣ Ng├ón)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
-  member: { id: 'member', label: '≡ƒæü∩╕Å Hß╗ìc sinh (Chß╗ë xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
+  gvcn: { id: 'gvcn', label: '👑 GVCN Lớp 10A3', canScore: true, canLock: true, canReset: true, allowedGroups: 'all' },
+  monitor: { id: 'monitor', label: '🎖️ Lớp trưởng (Hồng Nhung)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
+  lead_t1: { id: 'lead_t1', label: '👤 Tổ trưởng T1 (Yến Vy)', canScore: true, canLock: false, canReset: false, allowedGroups: [1] },
+  lead_t2: { id: 'lead_t2', label: '👤 Tổ trưởng T2 (Gia Nguyên)', canScore: true, canLock: false, canReset: false, allowedGroups: [2] },
+  lead_t3: { id: 'lead_t3', label: '👤 Tổ trưởng T3 (Kim Trúc)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
+  lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Duy Khôi)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
+  lead_t5: { id: 'lead_t5', label: '👤 Tổ trưởng T5 (Ngọc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
+  lead_t6: { id: 'lead_t6', label: '👤 Tổ trưởng T6 (Mỹ Ngân)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
+  member: { id: 'member', label: '👁️ Học sinh (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
 };
 
 const BASE_WEEKLY_SCORE = 100;
 
-// Thang Xß║┐p Loß║íi Th├íng: Tß╗æt (>= 90), Kh├í (70-89), ─Éß║ít (50-69), Ch╞░a ─æß║ít (<50)
-// Thang Xß║┐p Loß║íi: Tß╗æt (>= 95), Kh├í (80-94), ─Éß║ít (60-79), Ch╞░a ─æß║ít (<60)
+// Thang Xếp Loại Tháng: Tốt (>= 90), Khá (70-89), Đạt (50-69), Chưa đạt (<50)
+// Thang Xếp Loại: Tốt (>= 95), Khá (80-94), Đạt (60-79), Chưa đạt (<60)
 const RANKING_TIERS = {
-  GOOD: { label: 'Tß╗æt', min: 95, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
-  FAIR: { label: 'Kh├í', min: 80, color: 'text-blue-700 bg-blue-50 border-blue-300' },
-  PASS: { label: '─Éß║ít', min: 60, color: 'text-amber-700 bg-amber-50 border-amber-300' },
-  FAIL: { label: 'Ch╞░a ─æß║ít', min: 0, color: 'text-rose-700 bg-rose-50 border-rose-300' },
-  RESTRICTED: { label: 'Ch╞░a ─æß║ít (Khß╗æng chß║┐ ΓÜá∩╕Å)', min: 0, color: 'text-rose-900 bg-rose-100 dark:bg-rose-950/80 border-rose-500 dark:border-rose-700 font-black' }
+  GOOD: { label: 'Tốt', min: 95, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
+  FAIR: { label: 'Khá', min: 80, color: 'text-blue-700 bg-blue-50 border-blue-300' },
+  PASS: { label: 'Đạt', min: 60, color: 'text-amber-700 bg-amber-50 border-amber-300' },
+  FAIL: { label: 'Chưa đạt', min: 0, color: 'text-rose-700 bg-rose-50 border-rose-300' },
+  RESTRICTED: { label: 'Chưa đạt (Khống chế ⚠️)', min: 0, color: 'text-rose-900 bg-rose-100 dark:bg-rose-950/80 border-rose-500 dark:border-rose-700 font-black' }
 };
 
-// THANG ─ÉIß╗éM Cß╗ÿNG
+// THANG ĐIỂM CỘNG
 const BONUS_RULES = [
-  // IV. TH╞»ß╗₧NG CHUY├èN Cß║ªN & Tß║¼P THß╗é
-  { key: 'bonus_class_attendance', group: 'attendance', label: 'Lß╗¢p / Tß╗ò ─æi hß╗ìc ─æß╗º 100% cß║ú tuß║ºn (Kh├┤ng vß║»ng, kh├┤ng trß╗à)', points: 50, icon: 'fa-trophy' },
-  { key: 'bonus_individual_attendance', group: 'attendance', label: 'HS ─æi hß╗ìc ─æß╗º cß║ú tuß║ºn (Kh├┤ng vß║»ng, kh├┤ng trß╗à, ─æ├║ng ─æß╗ông phß╗Ñc, t├│c nghi├¬m t├║c)', points: 40, icon: 'fa-medal' },
-  { key: 'bonus_full_10_lesson', group: 'lesson', label: 'Tiß║┐t hß╗ìc xß║┐p loß║íi Tß╗æt Full 10 ─æiß╗âm (Cß║ú tß╗ò/lß╗¢p)', points: 50, icon: 'fa-crown' },
-  { key: 'bonus_good_lesson', group: 'lesson', label: 'Tiß║┐t hß╗ìc xß║┐p loß║íi Tß╗æt (Cß║ú tß╗ò)', points: 25, icon: 'fa-star' },
+  // IV. THƯỞNG CHUYÊN CẦN & TẬP THỂ
+  { key: 'bonus_class_attendance', group: 'attendance', label: 'Lớp / Tổ đi học đủ 100% cả tuần (Không vắng, không trễ)', points: 50, icon: 'fa-trophy' },
+  { key: 'bonus_individual_attendance', group: 'attendance', label: 'HS đi học đủ cả tuần (Không vắng, không trễ, đúng đồng phục, tóc nghiêm túc)', points: 40, icon: 'fa-medal' },
+  { key: 'bonus_full_10_lesson', group: 'lesson', label: 'Tiết học xếp loại Tốt Full 10 điểm (Cả tổ/lớp)', points: 50, icon: 'fa-crown' },
+  { key: 'bonus_good_lesson', group: 'lesson', label: 'Tiết học xếp loại Tốt (Cả tổ)', points: 25, icon: 'fa-star' },
 
-  // II. Hß╗îC Tß║¼P & PH├üT BIß╗éU
-  { key: 'bonus_high_score', group: 'academic', label: '─Éiß╗âm 8, 9, 10 (Kiß╗âm tra miß╗çng, 15 ph├║t, l├¬n bß║úng)', points: 10, icon: 'fa-award' },
-  { key: 'bonus_speech_multiple', group: 'academic', label: 'Ph├ít biß╗âu 3 lß║ºn trong 1 tiß║┐t hß╗ìc', points: 10, icon: 'fa-hand-sparkles' },
-  { key: 'bonus_speech_single', group: 'academic', label: 'Ph├ít biß╗âu x├óy dß╗▒ng b├ái (1 lß║ºn)', points: 5, icon: 'fa-lightbulb' },
-  { key: 'bonus_board_solution', group: 'academic', label: 'Xung phong l├¬n bß║úng giß║úi b├ái ─æ├║ng', points: 10, icon: 'fa-chalkboard-user' },
+  // II. HỌC TẬP & PHÁT BIỂU
+  { key: 'bonus_high_score', group: 'academic', label: 'Điểm 8, 9, 10 (Kiểm tra miệng, 15 phút, lên bảng)', points: 10, icon: 'fa-award' },
+  { key: 'bonus_speech_multiple', group: 'academic', label: 'Phát biểu 3 lần trong 1 tiết học', points: 10, icon: 'fa-hand-sparkles' },
+  { key: 'bonus_speech_single', group: 'academic', label: 'Phát biểu xây dựng bài (1 lần)', points: 5, icon: 'fa-lightbulb' },
+  { key: 'bonus_board_solution', group: 'academic', label: 'Xung phong lên bảng giải bài đúng', points: 10, icon: 'fa-chalkboard-user' },
 
-  // TIß║╛N Bß╗ÿ & PHONG TR├ÇO
-  { key: 'bonus_duty_excellent', group: 'duty', label: 'C├ín sß╗▒ lß╗¢p / Tß╗ò tr╞░ß╗ƒng ho├án th├ánh xuß║Ñt sß║»c nhiß╗çm vß╗Ñ', points: 20, icon: 'fa-user-check' },
-  { key: 'bonus_paired_progress', group: 'progress', label: '─É├┤i bß║ín c├╣ng tiß║┐n: C├╣ng tiß║┐n bß╗Ö / K├¿m bß║ín ─æß║ít kß║┐t quß║ú tß╗æt (+15 cho cß║ú hai)', points: 15, icon: 'fa-handshake-angle' },
-  { key: 'bonus_baby_steps', group: 'progress', label: 'Nß╗ù lß╗▒c vi m├┤ (Baby Steps): Ho├án th├ánh cam kß║┐t giao ╞░ß╗¢c tuß║ºn', points: 10, icon: 'fa-stairs' },
-  { key: 'bonus_effort_support', group: 'progress', label: 'Hß╗ìc sinh diß╗çn hß╗ù trß╗ú c├│ nß╗ù lß╗▒c l├ám b├ái', points: 10, icon: 'fa-heart-circle-bolt' },
-  { key: 'bonus_group_homework', group: 'academic', label: 'Cß║ú tß╗ò 100% l├ám b├ái tß║¡p vß╗ü nh├á (+10/ng╞░ß╗¥i)', points: 10, icon: 'fa-users' },
-  { key: 'bonus_logical_consequence', group: 'progress', label: 'Tß╗▒ gi├íc khß║»c phß╗Ñc hß╗ç quß║ú (Trß╗▒c nhß║¡t b├╣, l├ám b├ái b├╣, lao ─æß╗Öng t├¡ch cß╗▒c)', points: 10, icon: 'fa-broom' }
+  // TIẾN BỘ & PHONG TRÀO
+  { key: 'bonus_duty_excellent', group: 'duty', label: 'Cán sự lớp / Tổ trưởng hoàn thành xuất sắc nhiệm vụ', points: 20, icon: 'fa-user-check' },
+  { key: 'bonus_paired_progress', group: 'progress', label: 'Đôi bạn cùng tiến: Cùng tiến bộ / Kèm bạn đạt kết quả tốt (+15 cho cả hai)', points: 15, icon: 'fa-handshake-angle' },
+  { key: 'bonus_baby_steps', group: 'progress', label: 'Nỗ lực vi mô (Baby Steps): Hoàn thành cam kết giao ước tuần', points: 10, icon: 'fa-stairs' },
+  { key: 'bonus_effort_support', group: 'progress', label: 'Học sinh diện hỗ trợ có nỗ lực làm bài', points: 10, icon: 'fa-heart-circle-bolt' },
+  { key: 'bonus_group_homework', group: 'academic', label: 'Cả tổ 100% làm bài tập về nhà (+10/người)', points: 10, icon: 'fa-users' },
+  { key: 'bonus_logical_consequence', group: 'progress', label: 'Tự giác khắc phục hệ quả (Trực nhật bù, làm bài bù, lao động tích cực)', points: 10, icon: 'fa-broom' }
 ];
 
-// THANG ─ÉIß╗éM TRß╗¬
+// THANG ĐIỂM TRỪ
 const VIOLATION_RULES = [
-  // I. Lß╗ûI KHß╗ÉNG CHß║╛ (Hß║á Bß║¼C / CH╞»A ─Éß║áT NGAY - ─Éß╗ÇU TRß╗¬ 50 ─ÉIß╗éM)
-  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: 'ΓÜá∩╕Å [Lß╗ûI KHß╗ÉNG CHß║╛] Gian lß║¡n thi cß╗¡ / Ch├⌐p b├ái kiß╗âm tra', points: -50, icon: 'fa-file-circle-xmark' },
-  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '≡ƒÜ½ [Lß╗ûI KHß╗ÉNG CHß║╛] ─É├ính nhau / G├óy gß╗ò mß║Ñt ─æo├án kß║┐t', points: -50, icon: 'fa-hand-fist' },
-  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '≡ƒô▒ [Lß╗ûI KHß╗ÉNG CHß║╛] Sß╗¡ dß╗Ñng ─æiß╗çn thoß║íi trong giß╗¥ hß╗ìc kh├┤ng xin ph├⌐p', points: -50, icon: 'fa-mobile-screen-button' },
-  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '≡ƒÅâ [Lß╗ûI KHß╗ÉNG CHß║╛] Trß╗æn tiß║┐t / Vß║»ng hß╗ìc kh├┤ng ph├⌐p', points: -50, icon: 'fa-user-xmark' },
-  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: 'ΓÜí [Lß╗ûI KHß╗ÉNG CHß║╛] N├│i tß╗Ñc, chß╗¡i thß╗ü / V├┤ lß╗à vß╗¢i thß║ºy c├┤', points: -50, icon: 'fa-triangle-exclamation' },
+  // I. LỖI KHỐNG CHẾ (HẠ BẬC / CHƯA ĐẠT NGAY - ĐỀU TRỪ 50 ĐIỂM)
+  { key: 'viol_cheating', group: 'restricted', isRestricted: true, label: '⚠️ [LỖI KHỐNG CHẾ] Gian lận thi cử / Chép bài kiểm tra', points: -50, icon: 'fa-file-circle-xmark' },
+  { key: 'viol_fighting', group: 'restricted', isRestricted: true, label: '🚫 [LỖI KHỐNG CHẾ] Đánh nhau / Gây gổ mất đoàn kết', points: -50, icon: 'fa-hand-fist' },
+  { key: 'viol_phone', group: 'restricted', isRestricted: true, label: '📱 [LỖI KHỐNG CHẾ] Sử dụng điện thoại trong giờ học không xin phép', points: -50, icon: 'fa-mobile-screen-button' },
+  { key: 'viol_truancy', group: 'restricted', isRestricted: true, label: '🏃 [LỖI KHỐNG CHẾ] Trốn tiết / Vắng học không phép', points: -50, icon: 'fa-user-xmark' },
+  { key: 'viol_disrespect', group: 'restricted', isRestricted: true, label: '⚡ [LỖI KHỐNG CHẾ] Nói tục, chửi thề / Vô lễ với thầy cô', points: -50, icon: 'fa-triangle-exclamation' },
 
-  // II. Hß╗îC Tß║¼P & Kß╗╢ LUß║¼T TIß║╛T Hß╗îC
-  { key: 'viol_no_homework', group: 'academic', isRestricted: false, label: '≡ƒôÜ Kh├┤ng soß║ín b├ái / Kh├┤ng l├ám b├ái tß║¡p vß╗ü nh├á (1 lß║ºn)', points: -15, icon: 'fa-book-skull' },
-  { key: 'viol_inattentive', group: 'academic', isRestricted: false, label: '≡ƒÆñ Kh├┤ng nghi├¬m t├║c, l├ám viß╗çc ri├¬ng, ngß╗º gß╗Ñc, n├│i chuyß╗çn', points: -15, icon: 'fa-bed' },
-  { key: 'viol_low_score', group: 'academic', isRestricted: false, label: '≡ƒôë ─Éiß╗âm d╞░ß╗¢i 5 (Miß╗çng / 15 ph├║t / Giß╗»a kß╗│)', points: -15, icon: 'fa-chart-line-down' },
-  { key: 'viol_seat_change', group: 'academic', isRestricted: false, label: '≡ƒöä Tß╗▒ ├╜ ─æß╗òi chß╗ù ngß╗ôi kh├┤ng xin ph├⌐p', points: -20, icon: 'fa-arrows-split-up-and-left' },
+  // II. HỌC TẬP & KỶ LUẬT TIẾT HỌC
+  { key: 'viol_no_homework', group: 'academic', isRestricted: false, label: '📚 Không soạn bài / Không làm bài tập về nhà (1 lần)', points: -15, icon: 'fa-book-skull' },
+  { key: 'viol_inattentive', group: 'academic', isRestricted: false, label: '💤 Không nghiêm túc, làm việc riêng, ngủ gục, nói chuyện', points: -15, icon: 'fa-bed' },
+  { key: 'viol_low_score', group: 'academic', isRestricted: false, label: '📉 Điểm dưới 5 (Miệng / 15 phút / Giữa kỳ)', points: -15, icon: 'fa-chart-line-down' },
+  { key: 'viol_seat_change', group: 'academic', isRestricted: false, label: '🔄 Tự ý đổi chỗ ngồi không xin phép', points: -20, icon: 'fa-arrows-split-up-and-left' },
 
-  // III. CHUY├èN Cß║ªN & Nß╗Ç Nß║╛P
-  { key: 'viol_late', group: 'conduct', isRestricted: false, label: 'ΓÅ░ ─Éi hß╗ìc trß╗à (muß╗Ön giß╗¥)', points: -15, icon: 'fa-clock' },
-  { key: 'viol_uniform', group: 'conduct', isRestricted: false, label: '≡ƒæö Vi phß║ím t├íc phong: T├│c d├ái, nhuß╗Öm t├│c, ─æß║íp quai hß║¡u, sai ─æß╗ông phß╗Ñc', points: -20, icon: 'fa-shirt' },
-  { key: 'viol_eating_drawing', group: 'conduct', isRestricted: false, label: '≡ƒÑñ ─én qu├á vß║╖t trong giß╗¥ / Ghi vß║╜ bß║¡y l├¬n b├án hß╗ìc', points: -15, icon: 'fa-cookie-bite' },
-  { key: 'viol_cleaning_trash', group: 'conduct', isRestricted: false, label: '≡ƒº╣ Trß╗▒c nhß║¡t bß║⌐n / Xß║ú r├íc bß╗½a b├úi', points: -10, icon: 'fa-trash-can' },
-  { key: 'viol_late_docs', group: 'conduct', isRestricted: false, label: '≡ƒôæ Nß╗Öp trß╗à giß║Ñy tß╗¥ / Kh├┤ng tham gia phong tr├áo chung', points: -10, icon: 'fa-file-lines' },
-  { key: 'viol_excused_absence', group: 'conduct', isRestricted: false, label: '≡ƒô¥ Vß║»ng c├│ ph├⌐p', points: -5, icon: 'fa-envelope-open-text' }
+  // III. CHUYÊN CẦN & NỀ NẾP
+  { key: 'viol_late', group: 'conduct', isRestricted: false, label: '⏰ Đi học trễ (muộn giờ)', points: -15, icon: 'fa-clock' },
+  { key: 'viol_uniform', group: 'conduct', isRestricted: false, label: '👔 Vi phạm tác phong: Tóc dài, nhuộm tóc, đạp quai hậu, sai đồng phục', points: -20, icon: 'fa-shirt' },
+  { key: 'viol_eating_drawing', group: 'conduct', isRestricted: false, label: '🥤 Ăn quà vặt trong giờ / Ghi vẽ bậy lên bàn học', points: -15, icon: 'fa-cookie-bite' },
+  { key: 'viol_cleaning_trash', group: 'conduct', isRestricted: false, label: '🧹 Trực nhật bẩn / Xả rác bừa bãi', points: -10, icon: 'fa-trash-can' },
+  { key: 'viol_late_docs', group: 'conduct', isRestricted: false, label: '📑 Nộp trễ giấy tờ / Không tham gia phong trào chung', points: -10, icon: 'fa-file-lines' },
+  { key: 'viol_excused_absence', group: 'conduct', isRestricted: false, label: '📝 Vắng có phép', points: -5, icon: 'fa-envelope-open-text' }
 ];
 
-// ==================== STATE Hß╗å THß╗ÉNG ====================
+// ==================== STATE HỆ THỐNG ====================
 let appState = {
   students: [],
   dailyLogs: [],
@@ -119,28 +119,28 @@ let appState = {
   pendingRoleId: null
 };
 
-// ==================== KHß╗₧I Tß║áO Hß╗å THß╗ÉNG ====================
+// ==================== KHỞI TẠO HỆ THỐNG ====================
 document.addEventListener('DOMContentLoaded', () => {
   initThemeAndStarfield();
   initDateInputs();
   renderRuleButtons();
   loadDataFromStorage();
 
-  // ─Éß║úm bß║úo lu├┤n sß╗¡ dß╗Ñng ─æ├║ng danh s├ích 45 hß╗ìc sinh ch├¡nh thß╗⌐c theo ß║únh sß╗ò lß╗¢p
+  // Đảm bảo luôn sử dụng đúng danh sách 45 học sinh chính thức theo ảnh sổ lớp
   const hasBalancedRoster = appState.students.length === 45 && 
-                            appState.students.some(s => s.fullName === 'Nguyß╗àn Ho├áng Gia Nguy├¬n' && s.role === 'Tß╗ò tr╞░ß╗ƒng') &&
-                            appState.students.some(s => s.id === 'hs_10a3_36' && s.role === 'Tß╗ò tr╞░ß╗ƒng' && s.groupNumber === 3) &&
-                            appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Th├ánh vi├¬n' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.fullName === 'Nguyễn Hoàng Gia Nguyên' && s.role === 'Tổ trưởng') &&
+                            appState.students.some(s => s.id === 'hs_10a3_36' && s.role === 'Tổ trưởng' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Thành viên' && s.groupNumber === 3) &&
                             appState.students.some(s => s.id === 'hs_10a3_14' && s.groupNumber === 1) &&
                             appState.students.some(s => s.id === 'hs_10a3_07' && s.groupNumber === 4) &&
                             appState.students.some(s => s.id === 'hs_10a3_37' && s.groupNumber === 3) &&
                             appState.students.some(s => s.id === 'hs_10a3_19' && s.groupNumber === 6) &&
-                            appState.students.some(s => s.fullName === 'Ng├┤ Thß╗ï Diß╗àm Hß║▒ng' && s.groupNumber === 4);
+                            appState.students.some(s => s.fullName === 'Ngô Thị Diễm Hằng' && s.groupNumber === 4);
   if (!hasBalancedRoster) {
     injectOfficial45Students(false);
   }
 
-  // Kiß╗âm tra URL hash (vd: #scoring, #students, #forms, #duties) ─æß╗â mß╗ƒ tab t╞░╞íng ß╗⌐ng
+  // Kiểm tra URL hash (vd: #scoring, #students, #forms, #duties) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
   if (initialHash && ['dashboard', 'leaderboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup', 'duties'].includes(initialHash)) {
     switchTab(initialHash);
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Cß║¡p nhß║¡t ng├áy th├íng h├┤m nay
+// Cập nhật ngày tháng hôm nay
 function initDateInputs() {
   const today = new Date().toISOString().split('T')[0];
   const dateInput = document.getElementById('score-input-date');
@@ -178,9 +178,9 @@ function getAuthenticatedRoles() {
 function isRoleAuthenticated(roleId) {
   if (!roleId || roleId === 'member') return true;
   const list = getAuthenticatedRoles();
-  // GVCN c├│ to├án quyß╗ün x├íc thß╗▒c
+  // GVCN có toàn quyền xác thực
   if (list.includes('gvcn')) return true;
-  // C├ín sß╗▒ ─æ╞░ß╗úc quyß╗ün chß║Ñm ─æiß╗âm (Lß╗¢p tr╞░ß╗ƒng & 6 Tß╗ò tr╞░ß╗ƒng)
+  // Cán sự được quyền chấm điểm (Lớp trưởng & 6 Tổ trưởng)
   if (roleId !== 'gvcn' && (list.includes('cadre') || list.includes(roleId))) return true;
   return false;
 }
@@ -197,14 +197,14 @@ function addAuthenticatedRole(roleId) {
     list = Array.from(new Set(list));
     localStorage.setItem(STORAGE_KEYS.AUTH_ROLES, JSON.stringify(list));
   } catch (e) {
-    console.error('Lß╗ùi khi l╞░u vai tr├▓ x├íc thß╗▒c:', e);
+    console.error('Lỗi khi lưu vai trò xác thực:', e);
   }
 }
 
 function logoutAllRoles() {
   localStorage.removeItem(STORAGE_KEYS.AUTH_ROLES);
   executeChangeRole('member');
-  showToast('─É├ú ─æ─âng xuß║Ñt quyß╗ün c├ín sß╗▒! Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Hß╗ìc sinh (Chß╗ë xem).', 'info');
+  showToast('Đã đăng xuất quyền cán sự! Bạn đang ở Chế độ Học sinh (Chỉ xem).', 'info');
 }
 
 function loadDataFromStorage() {
@@ -218,7 +218,7 @@ function loadDataFromStorage() {
     appState.dailyLogs = rawLogs ? JSON.parse(rawLogs) : [];
     appState.lockedWeeks = rawLocked ? JSON.parse(rawLocked) : [];
 
-    // Chß╗ë duy tr├¼ vai tr├▓ quß║ún trß╗ï nß║┐u thiß║┐t bß╗ï n├áy ─æ├ú ─æ╞░ß╗úc x├íc thß╗▒c PIN
+    // Chỉ duy trì vai trò quản trị nếu thiết bị này đã được xác thực PIN
     if (rawRole && rawRole !== 'member' && isRoleAuthenticated(rawRole)) {
       appState.currentUserRole = rawRole;
     } else {
@@ -226,7 +226,7 @@ function loadDataFromStorage() {
     }
     appState.activeLeaderboardWeek = '9';
 
-    // ─Éß╗ông bß╗Ö nh├│m v├á vai tr├▓ khi ─æß╗òi vß╗ï tr├¡ hß╗ìc sinh
+    // Đồng bộ nhóm và vai trò khi đổi vị trí học sinh
     if (appState.students && appState.students.length === 45) {
       const vk = appState.students.find(s => s.id === 'hs_10a3_14');
       const ng = appState.students.find(s => s.id === 'hs_10a3_07');
@@ -237,8 +237,8 @@ function loadDataFromStorage() {
       let changed = false;
       if (vk && vk.groupNumber !== 1) { vk.groupNumber = 1; changed = true; }
       if (ng && ng.groupNumber !== 4) { ng.groupNumber = 4; changed = true; }
-      if (ph && ph.role === 'Tß╗ò tr╞░ß╗ƒng') { ph.role = 'Th├ánh vi├¬n'; changed = true; }
-      if (kt && kt.role !== 'Tß╗ò tr╞░ß╗ƒng') { kt.role = 'Tß╗ò tr╞░ß╗ƒng'; changed = true; }
+      if (ph && ph.role === 'Tổ trưởng') { ph.role = 'Thành viên'; changed = true; }
+      if (kt && kt.role !== 'Tổ trưởng') { kt.role = 'Tổ trưởng'; changed = true; }
       if (hl && hl.groupNumber !== 6) { hl.groupNumber = 6; changed = true; }
       if (bt && bt.groupNumber !== 3) { bt.groupNumber = 3; changed = true; }
       if (changed) saveDataToStorage();
@@ -246,8 +246,8 @@ function loadDataFromStorage() {
 
     loadSeatingData();
   } catch (err) {
-    console.error('Lß╗ùi khi ─æß╗ìc LocalStorage:', err);
-    showToast('Lß╗ùi khi tß║úi dß╗» liß╗çu tß╗½ bß╗Ö nhß╗¢ tr├¼nh duyß╗çt!', 'error');
+    console.error('Lỗi khi đọc LocalStorage:', err);
+    showToast('Lỗi khi tải dữ liệu từ bộ nhớ trình duyệt!', 'error');
   }
 }
 
@@ -263,12 +263,12 @@ function saveDataToStorage() {
       countDisplay.textContent = `${appState.dailyLogs.length} logs`;
     }
   } catch (err) {
-    console.error('Lß╗ùi khi ghi LocalStorage:', err);
-    showToast('Kh├┤ng thß╗â l╞░u dß╗» liß╗çu! H├úy kiß╗âm tra dung l╞░ß╗úng tr├¼nh duyß╗çt.', 'error');
+    console.error('Lỗi khi ghi LocalStorage:', err);
+    showToast('Không thể lưu dữ liệu! Hãy kiểm tra dung lượng trình duyệt.', 'error');
   }
 }
 
-// ==================== T├ìNH TO├üN ─ÉIß╗éM Sß╗É & Xß║╛P LOß║áI ====================
+// ==================== TÍNH TOÁN ĐIỂM SỐ & XẾP LOẠI ====================
 function calculateStudentScore(studentId) {
   let score = BASE_WEEKLY_SCORE;
   const logs = appState.dailyLogs.filter(log => log.studentId === studentId);
@@ -307,7 +307,7 @@ function getGroupStats() {
   return groups;
 }
 
-// ==================== GIAO DIß╗åN & ─ÉIß╗ÇU H╞»ß╗ÜNG TAB ====================
+// ==================== GIAO DIỆN & ĐIỀU HƯỚNG TAB ====================
 function switchTab(tabName) {
   const sections = {
     dashboard: document.getElementById('section-dashboard'),
@@ -334,15 +334,15 @@ function switchTab(tabName) {
   };
 
   const titles = {
-    dashboard: 'Bß║úng ─Éiß╗üu Khiß╗ân Tß╗òng Quan Thi ─Éua Lß╗¢p 10A3',
-    leaderboard: 'Bß║úng Xß║┐p Hß║íng Thi ─Éua Hß╗ìc Sinh & Tß╗ò Xuß║Ñt Sß║»c Theo Tuß║ºn',
-    scoring: 'Phiß║┐u Ghi Nhß║¡n ─Éiß╗âm Thi ─Éua Tß╗▒ Quß║ún (Ban C├ín Sß╗▒ / Sao ─Éß╗Å)',
-    students: 'Danh S├ích & Quß║ún Trß╗ï Hß╗ìc Sinh Lß╗¢p 10A3',
-    seating: 'S╞í ─Éß╗ô Chß╗ù Ngß╗ôi Lß╗¢p Hß╗ìc 10A3 (2 D├úy ΓÇó 6 Tß╗ò ΓÇó 24 B├án)',
-    logs: 'Sß╗ò Tra Cß╗⌐u & Nhß║¡t K├╜ Ghi Nhß║¡n ─Éiß╗âm',
-    forms: 'Trung T├óm Biß╗âu Mß║½u S╞░ Phß║ím & Kß║┐ Hoß║ích Tiß║┐n Bß╗Ö (GDPT 2018)',
-    backup: 'Trung T├óm Dß╗» Liß╗çu, C├ái ─Éß║╖t & Sao L╞░u',
-    duties: 'Bß║úng Ph├ón C├┤ng Nhiß╗çm Vß╗Ñ Ban C├ín Sß╗▒ & Tß╗▒ Quß║ún Lß╗¢p 10A3'
+    dashboard: 'Bảng Điều Khiển Tổng Quan Thi Đua Lớp 10A3',
+    leaderboard: 'Bảng Xếp Hạng Thi Đua Học Sinh & Tổ Xuất Sắc Theo Tuần',
+    scoring: 'Phiếu Ghi Nhận Điểm Thi Đua Tự Quản (Ban Cán Sự / Sao Đỏ)',
+    students: 'Danh Sách & Quản Trị Học Sinh Lớp 10A3',
+    seating: 'Sơ Đồ Chỗ Ngồi Lớp Học 10A3 (2 Dãy • 6 Tổ • 24 Bàn)',
+    logs: 'Sổ Tra Cứu & Nhật Ký Ghi Nhận Điểm',
+    forms: 'Trung Tâm Biểu Mẫu Sư Phạm & Kế Hoạch Tiến Bộ (GDPT 2018)',
+    backup: 'Trung Tâm Dữ Liệu, Cài Đặt & Sao Lưu',
+    duties: 'Bảng Phân Công Nhiệm Vụ Ban Cán Sự & Tự Quản Lớp 10A3'
   };
 
   // Hide all sections, remove active class
@@ -396,7 +396,7 @@ function renderDashboardStats() {
   document.getElementById('kpi-total-students').textContent = totalStudents;
   document.getElementById('badge-total-students').textContent = totalStudents;
 
-  // ─Éiß╗âm trung b├¼nh cß║ú lß╗¢p
+  // Điểm trung bình cả lớp
   let totalScoreAll = 0;
   let totalBonusPoints = 0;
   let totalViolationPoints = 0;
@@ -413,7 +413,7 @@ function renderDashboardStats() {
   document.getElementById('kpi-avg-score').textContent = avgScore;
   document.getElementById('kpi-special-count').textContent = specialCount;
 
-  // Tß╗òng ─æiß╗âm cß╗Öng & trß╗½ trong nhß║¡t k├╜
+  // Tổng điểm cộng & trừ trong nhật ký
   appState.dailyLogs.forEach(l => {
     const pts = Number(l.pointsChanged) || 0;
     if (pts > 0) totalBonusPoints += pts;
@@ -423,13 +423,13 @@ function renderDashboardStats() {
   document.getElementById('kpi-total-bonus').textContent = `+${totalBonusPoints}`;
   document.getElementById('kpi-total-violation').textContent = `${totalViolationPoints}`;
 
-  // Ph├ón bß╗ò xß║┐p loß║íi
+  // Phân bổ xếp loại
   let counts = { good: 0, fair: 0, pass: 0, fail: 0 };
   studentScoreMap.forEach(s => {
     const tier = getRankingTier(s.currentScore);
-    if (tier.label === 'Tß╗æt') counts.good++;
-    else if (tier.label === 'Kh├í') counts.fair++;
-    else if (tier.label === '─Éß║ít') counts.pass++;
+    if (tier.label === 'Tốt') counts.good++;
+    else if (tier.label === 'Khá') counts.fair++;
+    else if (tier.label === 'Đạt') counts.pass++;
     else counts.fail++;
   });
 
@@ -438,13 +438,13 @@ function renderDashboardStats() {
   document.getElementById('stat-count-pass').textContent = counts.pass;
   document.getElementById('stat-count-fail').textContent = counts.fail;
 
-  // Render Top 5 Xuß║Ñt Sß║»c
+  // Render Top 5 Xuất Sắc
   const sortedDesc = [...studentScoreMap].sort((a, b) => b.currentScore - a.currentScore);
   const topContainer = document.getElementById('top-students-list');
   topContainer.innerHTML = '';
 
   if (sortedDesc.length === 0) {
-    topContainer.innerHTML = '<p class="text-xs text-slate-400 p-4 text-center">Ch╞░a c├│ dß╗» liß╗çu hß╗ìc sinh</p>';
+    topContainer.innerHTML = '<p class="text-xs text-slate-400 p-4 text-center">Chưa có dữ liệu học sinh</p>';
   } else {
     sortedDesc.slice(0, 5).forEach((stu, idx) => {
       const rankBadgeClass = idx === 0 ? 'rank-1 font-black' : idx === 1 ? 'rank-2 font-bold' : idx === 2 ? 'rank-3 font-bold' : 'bg-slate-100 text-slate-600 font-semibold';
@@ -458,25 +458,25 @@ function renderDashboardStats() {
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-800 text-sm hover:text-blue-600 transition">${escapeHtml(stu.fullName)}</span>
               ${getRoleBadgeHtml(stu.role)}
-              ${stu.isSpecialSupport ? '<span class="text-[10px] px-1.5 py-0.2 bg-amber-100 text-amber-800 font-bold rounded">╞»u ti├¬n k├¿m</span>' : ''}
+              ${stu.isSpecialSupport ? '<span class="text-[10px] px-1.5 py-0.2 bg-amber-100 text-amber-800 font-bold rounded">Ưu tiên kèm</span>' : ''}
             </div>
-            <p class="text-[11px] text-slate-400">Tß╗ò ${stu.groupNumber} ΓÇó Quß╗╣ chuß║⌐n 100─æ</p>
+            <p class="text-[11px] text-slate-400">Tổ ${stu.groupNumber} • Quỹ chuẩn 100đ</p>
           </div>
         </div>
         <div class="text-right">
-          <span class="text-base font-black text-emerald-600">${stu.currentScore} ─æ</span>
-          <span class="block text-[10px] text-emerald-700 font-bold uppercase">Hß║íng ${getRankingTier(stu.currentScore).label}</span>
+          <span class="text-base font-black text-emerald-600">${stu.currentScore} đ</span>
+          <span class="block text-[10px] text-emerald-700 font-bold uppercase">Hạng ${getRankingTier(stu.currentScore).label}</span>
         </div>
       `;
       topContainer.appendChild(item);
     });
   }
 
-  // Render Cß║únh B├ío Vi Phß║ím & Cß║ºn Hß╗ù Trß╗ú
+  // Render Cảnh Báo Vi Phạm & Cần Hỗ Trợ
   const warningContainer = document.getElementById('warning-students-list');
   warningContainer.innerHTML = '';
 
-  // Lß╗ìc hß╗ìc sinh c├│ ─æiß╗âm < 90 hoß║╖c c├│ ─æiß╗âm trß╗½ hoß║╖c hß╗ìc sinh yß║┐u cß║ºn k├¿m
+  // Lọc học sinh có điểm < 90 hoặc có điểm trừ hoặc học sinh yếu cần kèm
   const needAttention = studentScoreMap
     .filter(s => s.currentScore < 90 || s.isSpecialSupport)
     .sort((a, b) => a.currentScore - b.currentScore)
@@ -486,7 +486,7 @@ function renderDashboardStats() {
     warningContainer.innerHTML = `
       <div class="p-6 text-center text-slate-400">
         <i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-1"></i>
-        <p class="text-xs font-semibold text-slate-600">Tuyß╗çt vß╗¥i! Kh├┤ng c├│ hß╗ìc sinh n├áo bß╗ï cß║únh b├ío hoß║╖c tß╗Ñt ─æiß╗âm s├óu.</p>
+        <p class="text-xs font-semibold text-slate-600">Tuyệt vời! Không có học sinh nào bị cảnh báo hoặc tụt điểm sâu.</p>
       </div>
     `;
   } else {
@@ -504,13 +504,13 @@ function renderDashboardStats() {
           <div>
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-800 text-sm hover:text-blue-600 transition">${escapeHtml(stu.fullName)}</span>
-              ${stu.isSpecialSupport ? '<span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded border border-amber-300">Cß║ºn theo d├╡i ─æß║╖c biß╗çt</span>' : ''}
+              ${stu.isSpecialSupport ? '<span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded border border-amber-300">Cần theo dõi đặc biệt</span>' : ''}
             </div>
-            <p class="text-[11px] text-slate-400">Tß╗ò ${stu.groupNumber} ΓÇó ${isDeducted ? `Bß╗ï trß╗½ ${100 - stu.currentScore} ─æiß╗âm` : '─Éang duy tr├¼ ß╗òn ─æß╗ïnh'}</p>
+            <p class="text-[11px] text-slate-400">Tổ ${stu.groupNumber} • ${isDeducted ? `Bị trừ ${100 - stu.currentScore} điểm` : 'Đang duy trì ổn định'}</p>
           </div>
         </div>
         <div class="text-right">
-          <span class="text-base font-black ${stu.currentScore < 70 ? 'text-rose-600' : 'text-amber-600'}">${stu.currentScore} ─æ</span>
+          <span class="text-base font-black ${stu.currentScore < 70 ? 'text-rose-600' : 'text-amber-600'}">${stu.currentScore} đ</span>
           <span class="block text-[10px] font-bold ${tier.color} px-1.5 py-0.5 rounded border text-center">${tier.label}</span>
         </div>
       `;
@@ -523,10 +523,10 @@ function renderDashboardStats() {
 function renderCharts() {
   const groupStats = getGroupStats();
 
-  // 1. Biß╗âu ─æß╗ô cß╗Öt thi ─æua 6 Tß╗ò
+  // 1. Biểu đồ cột thi đua 6 Tổ
   const ctxGroup = document.getElementById('groupsChart');
   if (ctxGroup) {
-    const labels = groupStats.map(g => `Tß╗ò ${g.groupNumber}`);
+    const labels = groupStats.map(g => `Tổ ${g.groupNumber}`);
     const dataValues = groupStats.map(g => g.avgScore);
 
     if (appState.charts.groupsChart) {
@@ -538,7 +538,7 @@ function renderCharts() {
       data: {
         labels: labels,
         datasets: [{
-          label: '─Éiß╗âm Trung B├¼nh Tß╗ò',
+          label: 'Điểm Trung Bình Tổ',
           data: dataValues,
           backgroundColor: [
             'rgba(37, 99, 235, 0.85)',   // Blue
@@ -563,7 +563,7 @@ function renderCharts() {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (item) => `─Éiß╗âm TB: ${item.raw} ─æiß╗âm`
+              label: (item) => `Điểm TB: ${item.raw} điểm`
             }
           }
         },
@@ -587,7 +587,7 @@ function renderCharts() {
     });
   }
 
-  // 2. Biß╗âu ─æß╗ô Doughnut Xß║┐p Loß║íi Th├íng
+  // 2. Biểu đồ Doughnut Xếp Loại Tháng
   const ctxRating = document.getElementById('ratingsChart');
   if (ctxRating) {
     let counts = { good: 0, fair: 0, pass: 0, fail: 0 };
@@ -595,9 +595,9 @@ function renderCharts() {
       const score = calculateStudentScore(s.id);
       const hasRestricted = violList.some(v => { const r = VIOLATION_RULES.find(vr => vr.key === v.ruleKey); return r && r.isRestricted; });
     const tier = getRankingTier(score, hasRestricted);
-      if (tier.label === 'Tß╗æt') counts.good++;
-      else if (tier.label === 'Kh├í') counts.fair++;
-      else if (tier.label === '─Éß║ít') counts.pass++;
+      if (tier.label === 'Tốt') counts.good++;
+      else if (tier.label === 'Khá') counts.fair++;
+      else if (tier.label === 'Đạt') counts.pass++;
       else counts.fail++;
     });
 
@@ -608,14 +608,14 @@ function renderCharts() {
     appState.charts.ratingsChart = new Chart(ctxRating, {
       type: 'doughnut',
       data: {
-        labels: ['Tß╗æt (ΓëÑ90)', 'Kh├í (70-89)', '─Éß║ít (50-69)', 'Ch╞░a ─æß║ít (<50)'],
+        labels: ['Tốt (≥90)', 'Khá (70-89)', 'Đạt (50-69)', 'Chưa đạt (<50)'],
         datasets: [{
           data: [counts.good, counts.fair, counts.pass, counts.fail],
           backgroundColor: [
-            '#10b981', // Tß╗æt: Emerald
-            '#3b82f6', // Kh├í: Blue
-            '#f59e0b', // ─Éß║ít: Amber
-            '#ef4444'  // Ch╞░a ─æß║ít: Red
+            '#10b981', // Tốt: Emerald
+            '#3b82f6', // Khá: Blue
+            '#f59e0b', // Đạt: Amber
+            '#ef4444'  // Chưa đạt: Red
           ],
           borderWidth: 2,
           borderColor: '#ffffff'
@@ -633,7 +633,7 @@ function renderCharts() {
   }
 }
 
-// ==================== RENDERING: FORM CHß║ñM ─ÉIß╗éM (TAB 2) ====================
+// ==================== RENDERING: FORM CHẤM ĐIỂM (TAB 2) ====================
 function renderRuleButtons() {
   // Bonus buttons
   const bonusList = document.getElementById('bonus-buttons-list');
@@ -695,21 +695,21 @@ function renderScoringStudentPills() {
   const quickSelect = document.getElementById('quick-select-student-dropdown');
   if (quickSelect) {
     const currentVal = quickSelect.value;
-    quickSelect.innerHTML = '<option value="">-- Chß╗ìn nhanh 1 hß╗ìc sinh theo t├¬n --</option>';
+    quickSelect.innerHTML = '<option value="">-- Chọn nhanh 1 học sinh theo tên --</option>';
     const studentsForSelect = appState.activeScoringGroup === 'all' 
       ? appState.students 
       : filtered;
     studentsForSelect.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.id;
-      opt.textContent = `T${s.groupNumber} ΓÇó ${s.fullName} (${s.role || 'Th├ánh vi├¬n'})`;
+      opt.textContent = `T${s.groupNumber} • ${s.fullName} (${s.role || 'Thành viên'})`;
       quickSelect.appendChild(opt);
     });
     quickSelect.value = currentVal;
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = '<p class="col-span-full text-center text-xs text-slate-400 py-4">Ch╞░a c├│ hß╗ìc sinh n├áo trong tß╗ò n├áy</p>';
+    container.innerHTML = '<p class="col-span-full text-center text-xs text-slate-400 py-4">Chưa có học sinh nào trong tổ này</p>';
     return;
   }
 
@@ -725,8 +725,8 @@ function renderScoringStudentPills() {
       </div>
       <p class="font-bold text-slate-800 dark:text-slate-100 truncate my-1">${escapeHtml(stu.fullName)}</p>
       <div class="flex items-center justify-between text-[10px]">
-        <span class="text-slate-500 dark:text-slate-400 truncate">${escapeHtml(stu.role || 'Th├ánh vi├¬n')}</span>
-        <span class="font-bold text-slate-700 dark:text-slate-300">${calculateStudentScore(stu.id)}─æ</span>
+        <span class="text-slate-500 dark:text-slate-400 truncate">${escapeHtml(stu.role || 'Thành viên')}</span>
+        <span class="font-bold text-slate-700 dark:text-slate-300">${calculateStudentScore(stu.id)}đ</span>
       </div>
     `;
     container.appendChild(pill);
@@ -738,15 +738,15 @@ function renderScoringStudentPills() {
 function toggleSelectStudent(studentId) {
   const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Vui l├▓ng ─æ─âng nhß║¡p C├ín sß╗▒ hoß║╖c GVCN ─æß╗â chß║Ñm ─æiß╗âm.', 'warning');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để chấm điểm.', 'warning');
     return;
   }
-  // Nß║┐u l├á Tß╗ò tr╞░ß╗ƒng, kiß╗âm tra hß╗ìc sinh c├│ thuß╗Öc tß╗ò m├¼nh kh├┤ng
+  // Nếu là Tổ trưởng, kiểm tra học sinh có thuộc tổ mình không
   if (appState.currentUserRole.startsWith('lead_t')) {
     const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
     const stu = appState.students.find(s => s.id === studentId);
     if (stu && Number(stu.groupNumber) !== leaderGroup) {
-      showToast(`Bß║ín l├á Tß╗ò tr╞░ß╗ƒng Tß╗ò ${leaderGroup}, chß╗ë ─æ╞░ß╗úc chß║Ñm ─æiß╗âm cho c├íc bß║ín thuß╗Öc Tß╗ò ${leaderGroup}!`, 'warning');
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được chấm điểm cho các bạn thuộc Tổ ${leaderGroup}!`, 'warning');
       return;
     }
   }
@@ -762,7 +762,7 @@ function toggleSelectStudent(studentId) {
 function selectAllVisibleStudents() {
   const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Kh├┤ng thß╗â chß╗ìn hß╗ìc sinh.', 'warning');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Không thể chọn học sinh.', 'warning');
     return;
   }
   if (appState.currentUserRole.startsWith('lead_t')) {
@@ -770,7 +770,7 @@ function selectAllVisibleStudents() {
     const groupStudents = appState.students.filter(s => Number(s.groupNumber) === leaderGroup);
     groupStudents.forEach(s => appState.selectedStudentIds.add(s.id));
     renderScoringStudentPills();
-    showToast(`─É├ú chß╗ìn to├án bß╗Ö ${groupStudents.length} hß╗ìc sinh Tß╗ò ${leaderGroup}`, 'info');
+    showToast(`Đã chọn toàn bộ ${groupStudents.length} học sinh Tổ ${leaderGroup}`, 'info');
     return;
   }
 
@@ -780,7 +780,7 @@ function selectAllVisibleStudents() {
   });
   filtered.forEach(s => appState.selectedStudentIds.add(s.id));
   renderScoringStudentPills();
-  showToast(`─É├ú chß╗ìn to├án bß╗Ö ${filtered.length} hß╗ìc sinh ─æang hiß╗ân thß╗ï`, 'info');
+  showToast(`Đã chọn toàn bộ ${filtered.length} học sinh đang hiển thị`, 'info');
 }
 
 function clearSelectedStudents() {
@@ -791,10 +791,10 @@ function clearSelectedStudents() {
 function updateSelectedCountUI() {
   const count = appState.selectedStudentIds.size;
   const countText = document.getElementById('selected-students-count-text');
-  if (countText) countText.textContent = `─É├ú chß╗ìn: ${count} hß╗ìc sinh`;
+  if (countText) countText.textContent = `Đã chọn: ${count} học sinh`;
 
   const badge = document.getElementById('preview-students-badge');
-  if (badge) badge.textContent = `${count} hß╗ìc sinh ─æ╞░ß╗úc chß╗ìn`;
+  if (badge) badge.textContent = `${count} học sinh được chọn`;
 }
 
 function selectRule(type, ruleKey) {
@@ -817,51 +817,51 @@ function selectRule(type, ruleKey) {
   const ruleText = document.getElementById('preview-rule-text');
   const pointsBadge = document.getElementById('preview-points-badge');
 
-  if (ruleText) ruleText.textContent = `[${type === 'bonus' ? '─ÉIß╗éM Cß╗ÿNG' : '─ÉIß╗éM TRß╗¬'}] ${rule.label}`;
+  if (ruleText) ruleText.textContent = `[${type === 'bonus' ? 'ĐIỂM CỘNG' : 'ĐIỂM TRỪ'}] ${rule.label}`;
   if (pointsBadge) {
-    pointsBadge.textContent = type === 'bonus' ? `+${rule.points} ─æiß╗âm` : `${rule.points} ─æiß╗âm`;
+    pointsBadge.textContent = type === 'bonus' ? `+${rule.points} điểm` : `${rule.points} điểm`;
     pointsBadge.className = type === 'bonus' ? 'text-xl font-black text-emerald-400' : 'text-xl font-black text-rose-400';
   }
 }
 
 function submitScoringEntry() {
-  // 1. Kiß╗âm tra quyß╗ün hß║ín vai tr├▓
+  // 1. Kiểm tra quyền hạn vai trò
   const currentRole = appState.currentUserRole || 'member';
   const roleMeta = ROLES[currentRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('T├ái khoß║ún cß╗ºa bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Chß╗ë GVCN, Lß╗¢p tr╞░ß╗ƒng v├á 6 Tß╗ò tr╞░ß╗ƒng mß╗¢i c├│ quyß╗ün ghi nhß║¡n ─æiß╗âm.', 'error');
+    showToast('Tài khoản của bạn đang ở Chế độ Chỉ Xem! Chỉ GVCN, Lớp trưởng và 6 Tổ trưởng mới có quyền ghi nhận điểm.', 'error');
     return;
   }
 
-  // 2. Kiß╗âm tra tuß║ºn c├│ bß╗ï kh├│a kh├┤ng
+  // 2. Kiểm tra tuần có bị khóa không
   const currentWeek = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
   if (isWeekLocked(currentWeek)) {
-    showToast(`Tuß║ºn ${currentWeek} ─æ├ú chß╗æt sß╗ò v├á kh├│a ─æiß╗âm! Vui l├▓ng chß╗ìn tuß║ºn ─æang mß╗ƒ hoß║╖c li├¬n hß╗ç GVCN mß╗ƒ kh├│a.`, 'error');
+    showToast(`Tuần ${currentWeek} đã chốt sổ và khóa điểm! Vui lòng chọn tuần đang mở hoặc liên hệ GVCN mở khóa.`, 'error');
     return;
   }
 
-  // 3. Nß║┐u l├á Tß╗ò tr╞░ß╗ƒng, chß╗ë ─æ╞░ß╗úc chß║Ñm ─æiß╗âm th├ánh vi├¬n trong tß╗ò m├¼nh
+  // 3. Nếu là Tổ trưởng, chỉ được chấm điểm thành viên trong tổ mình
   if (currentRole.startsWith('lead_t')) {
     const leaderGroup = parseInt(currentRole.replace('lead_t', ''), 10);
     const selectedStudents = appState.students.filter(s => appState.selectedStudentIds.has(s.id));
     const foreignStudents = selectedStudents.filter(s => Number(s.groupNumber) !== leaderGroup);
     if (foreignStudents.length > 0) {
-      showToast(`Bß║ín l├á Tß╗ò tr╞░ß╗ƒng Tß╗ò ${leaderGroup}, chß╗ë ─æ╞░ß╗úc quyß╗ün chß║Ñm ─æiß╗âm cho c├íc bß║ín thuß╗Öc Tß╗ò ${leaderGroup}!`, 'warning');
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được quyền chấm điểm cho các bạn thuộc Tổ ${leaderGroup}!`, 'warning');
       return;
     }
   }
 
   if (appState.selectedStudentIds.size === 0) {
-    showToast('Vui l├▓ng click chß╗ìn ├¡t nhß║Ñt 1 hß╗ìc sinh ß╗ƒ Danh s├ích b├¬n tr├íi!', 'warning');
+    showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên trái!', 'warning');
     return;
   }
   if (!appState.activeRule) {
-    showToast('Vui l├▓ng chß╗ìn 1 ti├¬u ch├¡ ─æiß╗âm cß╗Öng hoß║╖c ─æiß╗âm trß╗½ tß╗½ danh s├ích xß╗ò xuß╗æng!', 'warning');
+    showToast('Vui lòng chọn 1 tiêu chí điểm cộng hoặc điểm trừ từ danh sách xổ xuống!', 'warning');
     return;
   }
 
   const dateVal = document.getElementById('score-input-date')?.value || new Date().toISOString().split('T')[0];
-  const recorderVal = document.getElementById('score-input-recorder')?.value.trim() || 'Sao ─æß╗Å trß╗▒c nhß║¡t';
+  const recorderVal = document.getElementById('score-input-recorder')?.value.trim() || 'Sao đỏ trực nhật';
   const weekVal = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
   const noteVal = document.getElementById('score-note')?.value.trim() || '';
 
@@ -909,21 +909,21 @@ function submitScoringEntry() {
   if (quickSelect) quickSelect.value = '';
 
   const ruleText = document.getElementById('preview-rule-text');
-  if (ruleText) ruleText.textContent = 'H├úy chß╗ìn hß╗ìc sinh b├¬n tr├íi v├á chß╗ìn 1 ti├¬u ch├¡ tß╗½ menu xß╗ò xuß╗æng ─Éiß╗âm cß╗Öng hoß║╖c ─Éiß╗âm trß╗½.';
+  if (ruleText) ruleText.textContent = 'Hãy chọn học sinh bên trái và chọn 1 tiêu chí từ menu xổ xuống Điểm cộng hoặc Điểm trừ.';
   
   const pointsBadge = document.getElementById('preview-points-badge');
   if (pointsBadge) {
-    pointsBadge.textContent = '0 ─æiß╗âm';
+    pointsBadge.textContent = '0 điểm';
     pointsBadge.className = 'font-black text-base text-white px-2 py-0.5 rounded bg-slate-800';
   }
 
   renderScoringStudentPills();
   refreshAllUI();
 
-  showToast(`─É├ú ghi nhß║¡n th├ánh c├┤ng cho ${newLogs.length} hß╗ìc sinh (Tuß║ºn ${weekVal})!`, 'success');
+  showToast(`Đã ghi nhận thành công cho ${newLogs.length} học sinh (Tuần ${weekVal})!`, 'success');
 }
 
-// ==================== RENDERING: QUß║óN L├¥ DANH S├üCH Hß╗îC SINH (TAB 3) ====================
+// ==================== RENDERING: QUẢN LÝ DANH SÁCH HỌC SINH (TAB 3) ====================
 function renderStudentsTable() {
   const tbody = document.getElementById('students-table-body');
   if (!tbody) return;
@@ -947,15 +947,15 @@ function renderStudentsTable() {
   tbody.innerHTML = '';
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400 text-xs">Kh├┤ng t├¼m thß║Ñy hß╗ìc sinh n├áo ph├╣ hß╗úp</td></tr>';
-    document.getElementById('students-table-summary').textContent = 'Hiß╗ân thß╗ï 0 hß╗ìc sinh';
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp</td></tr>';
+    document.getElementById('students-table-summary').textContent = 'Hiển thị 0 học sinh';
     return;
   }
 
   filtered.forEach((stu, index) => {
     const score = calculateStudentScore(stu.id);
 
-    // T├¡nh ─æiß╗âm cß╗Öng v├á ─æiß╗âm trß╗½ cß╗ºa hß╗ìc sinh tß╗½ dailyLogs
+    // Tính điểm cộng và điểm trừ của học sinh từ dailyLogs
     const stuLogs = appState.dailyLogs.filter(log => log.studentId === stu.id);
     let bonusPts = 0;
     let violPts = 0;
@@ -985,31 +985,31 @@ function renderStudentsTable() {
 
     const bonusHtml = bonusPts > 0 
       ? `
-        <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bß║Ñm ─æß╗â xem lß╗ïch sß╗¡ ─æiß╗âm cß╗Öng chi tiß║┐t">
+        <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bấm để xem lịch sử điểm cộng chi tiết">
           <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:border-emerald-400 transition shadow-2xs">
             <i class="fa-solid fa-plus text-[10px]"></i>
-            <span>${bonusPts} ─æ</span>
+            <span>${bonusPts} đ</span>
           </span>
           <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 max-w-[170px] mx-auto text-left space-y-0.5">
             ${bonusList.slice(0, 2).map(b => `
-              <div class="truncate text-emerald-600 dark:text-emerald-400 font-semibold" title="${escapeHtml(b.ruleLabel)} (+${b.pointsChanged}─æ${b.week ? `, Tuß║ºn ${b.week}` : ''})">
-                ΓÇó +${b.pointsChanged}─æ ${escapeHtml(b.ruleLabel)}
+              <div class="truncate text-emerald-600 dark:text-emerald-400 font-semibold" title="${escapeHtml(b.ruleLabel)} (+${b.pointsChanged}đ${b.week ? `, Tuần ${b.week}` : ''})">
+                • +${b.pointsChanged}đ ${escapeHtml(b.ruleLabel)}
               </div>
             `).join('')}
-            ${bonusList.length > 2 ? `<div class="text-[9px] text-emerald-600 dark:text-emerald-400 italic text-center hover:underline">+${bonusList.length - 2} khen th╞░ß╗ƒng kh├íc...</div>` : ''}
+            ${bonusList.length > 2 ? `<div class="text-[9px] text-emerald-600 dark:text-emerald-400 italic text-center hover:underline">+${bonusList.length - 2} khen thưởng khác...</div>` : ''}
           </div>
         </div>
       `
-      : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 ─æ</span>';
+      : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 đ</span>';
 
     const hasViolEntries = violPts < 0 || hasRestricted || violList.length > 0;
     const violBadgeText = hasRestricted 
-      ? (violPts < 0 ? `ΓÜá∩╕Å Khß╗æng chß║┐ (${violPts}─æ)` : 'ΓÜá∩╕Å Khß╗æng chß║┐ (0─æ)')
-      : `${Math.abs(violPts)} ─æ`;
+      ? (violPts < 0 ? `⚠️ Khống chế (${violPts}đ)` : '⚠️ Khống chế (0đ)')
+      : `${Math.abs(violPts)} đ`;
 
     const violHtml = hasViolEntries 
       ? `
-        <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bß║Ñm ─æß╗â xem chi tiß║┐t vi phß║ím">
+        <div class="text-center cursor-pointer" onclick="openStudentDetailModal('${stu.id}')" title="Bấm để xem chi tiết vi phạm">
           <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 hover:border-rose-400 transition shadow-2xs">
             <i class="fa-solid fa-minus text-[10px]"></i>
             <span>${violBadgeText}</span>
@@ -1018,17 +1018,17 @@ function renderStudentsTable() {
             ${violList.slice(0, 2).map(v => {
               const r = VIOLATION_RULES.find(vr => vr.key === v.ruleKey);
               const isRestrictedRule = r && r.isRestricted;
-              const ptsLabel = isRestrictedRule ? 'ΓÜá∩╕Å' : `${v.pointsChanged}─æ`;
+              const ptsLabel = isRestrictedRule ? '⚠️' : `${v.pointsChanged}đ`;
               return `
-              <div class="truncate text-rose-600 dark:text-rose-400 font-semibold" title="${escapeHtml(v.ruleLabel)} (${ptsLabel}${v.week ? `, Tuß║ºn ${v.week}` : ''})">
-                ΓÇó ${ptsLabel} ${escapeHtml(v.ruleLabel)}
+              <div class="truncate text-rose-600 dark:text-rose-400 font-semibold" title="${escapeHtml(v.ruleLabel)} (${ptsLabel}${v.week ? `, Tuần ${v.week}` : ''})">
+                • ${ptsLabel} ${escapeHtml(v.ruleLabel)}
               </div>`;
             }).join('')}
-            ${violList.length > 2 ? `<div class="text-[9px] text-rose-600 dark:text-rose-400 italic text-center hover:underline">+${violList.length - 2} vi phß║ím kh├íc...</div>` : ''}
+            ${violList.length > 2 ? `<div class="text-[9px] text-rose-600 dark:text-rose-400 italic text-center hover:underline">+${violList.length - 2} vi phạm khác...</div>` : ''}
           </div>
         </div>
       `
-      : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 ─æ</span>';
+      : '<span class="text-slate-300 dark:text-slate-600 text-xs font-semibold">0 đ</span>';
 
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/60 transition border-b border-slate-100 dark:border-slate-800';
@@ -1038,14 +1038,14 @@ function renderStudentsTable() {
       <td class="py-3 px-4 cursor-pointer" onclick="openStudentDetailModal('${stu.id}')">
         <span class="font-bold text-slate-800 dark:text-slate-100 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition block">${escapeHtml(stu.fullName)}</span>
         <span class="text-[11px] text-slate-400 font-mono flex items-center space-x-2 mt-0.5">
-          <span><i class="fa-regular fa-id-card text-[10px] mr-1"></i>${stu.code || 'Ch╞░a c├│ m├ú'}</span>
-          ${stu.dob ? `<span>ΓÇó <i class="fa-regular fa-calendar text-[10px] mr-1"></i>${stu.dob}</span>` : ''}
-          ${stu.academicScore ? `<span class="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold rounded text-[10px]"><i class="fa-solid fa-graduation-cap text-[9px] mr-1"></i>${stu.academicScore}─æ</span>` : ''}
+          <span><i class="fa-regular fa-id-card text-[10px] mr-1"></i>${stu.code || 'Chưa có mã'}</span>
+          ${stu.dob ? `<span>• <i class="fa-regular fa-calendar text-[10px] mr-1"></i>${stu.dob}</span>` : ''}
+          ${stu.academicScore ? `<span class="px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold rounded text-[10px]"><i class="fa-solid fa-graduation-cap text-[9px] mr-1"></i>${stu.academicScore}đ</span>` : ''}
         </span>
       </td>
       <td class="py-3 px-4 text-center">
         <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-          Tß╗ò ${stu.groupNumber}
+          Tổ ${stu.groupNumber}
         </span>
       </td>
       <td class="py-3 px-4">
@@ -1053,8 +1053,8 @@ function renderStudentsTable() {
       </td>
       <td class="py-3 px-4 text-center">
         ${stu.isSpecialSupport 
-          ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"><i class="fa-solid fa-shield-heart text-amber-600 dark:text-amber-400"></i><span>Cß║ºn theo d├╡i</span></span>' 
-          : '<span class="text-slate-300 dark:text-slate-600 text-xs">ΓÇö</span>'}
+          ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"><i class="fa-solid fa-shield-heart text-amber-600 dark:text-amber-400"></i><span>Cần theo dõi</span></span>' 
+          : '<span class="text-slate-300 dark:text-slate-600 text-xs">—</span>'}
       </td>
       <td class="py-3 px-3 text-center">
         ${bonusHtml}
@@ -1063,7 +1063,7 @@ function renderStudentsTable() {
         ${violHtml}
       </td>
       <td class="py-3 px-4 text-right">
-        <span class="font-black text-sm ${score >= 90 ? 'text-emerald-600 dark:text-emerald-400' : score >= 70 ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'}">${score} ─æ</span>
+        <span class="font-black text-sm ${score >= 90 ? 'text-emerald-600 dark:text-emerald-400' : score >= 70 ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'}">${score} đ</span>
       </td>
       <td class="py-3 px-4 text-center">
         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-bold border ${tier.color}">
@@ -1072,75 +1072,75 @@ function renderStudentsTable() {
       </td>
       <td class="py-3 px-4 text-center space-x-1">
         ${appState.currentUserRole === "member" 
-          ? '<span class="text-xs text-slate-400 italic">Chß╗ë xem</span>' 
-          : `<button onclick="quickScoreSingle('${stu.id}')" title="Chß║Ñm ─æiß╗âm em n├áy" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition"><i class="fa-solid fa-star"></i></button>
-             <button onclick="openEditStudentModal('${stu.id}')" title="Sß╗¡a th├┤ng tin" class="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
-             <button onclick="deleteStudent('${stu.id}')" title="X├│a hß╗ìc sinh" class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>`}
+          ? '<span class="text-xs text-slate-400 italic">Chỉ xem</span>' 
+          : `<button onclick="quickScoreSingle('${stu.id}')" title="Chấm điểm em này" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition"><i class="fa-solid fa-star"></i></button>
+             <button onclick="openEditStudentModal('${stu.id}')" title="Sửa thông tin" class="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
+             <button onclick="deleteStudent('${stu.id}')" title="Xóa học sinh" class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>`}
       </td>
     `;
     tbody.appendChild(tr);
   });
 
-  document.getElementById('students-table-summary').textContent = `Hiß╗ân thß╗ï ${filtered.length} / ${appState.students.length} hß╗ìc sinh`;
+  document.getElementById('students-table-summary').textContent = `Hiển thị ${filtered.length} / ${appState.students.length} học sinh`;
 }
 
 function getRoleBadgeHtml(role) {
-  if (!role || role === 'Th├ánh vi├¬n') {
-    return `<span class="text-xs text-slate-500">Th├ánh vi├¬n</span>`;
+  if (!role || role === 'Thành viên') {
+    return `<span class="text-xs text-slate-500">Thành viên</span>`;
   }
 
-  // Hß╗ù trß╗ú c├ín sß╗▒ ki├¬m nhiß╗çm nhiß╗üu chß╗⌐c danh (nß╗æi bß║▒ng '&')
+  // Hỗ trợ cán sự kiêm nhiệm nhiều chức danh (nối bằng '&')
   const parts = role.split('&').map(p => p.trim());
   return parts.map(part => {
     switch (part) {
-      case 'Lß╗¢p tr╞░ß╗ƒng':
-        return `<span class="badge-role-lead px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-crown mr-1"></i>Lß╗¢p tr╞░ß╗ƒng</span>`;
-      case 'Lß╗¢p ph├│':
-      case 'Lß╗¢p ph├│ Hß╗ìc tß║¡p':
-        return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-user-graduate mr-1"></i>Lß╗¢p ph├│</span>`;
-      case 'Lß╗¢p ph├│ Lao ─æß╗Öng':
-        return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-broom mr-1"></i>Lß╗¢p ph├│ L─É</span>`;
-      case 'B├¡ th╞░':
-        return `<span class="badge-role-sec px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-flag mr-1"></i>B├¡ th╞░</span>`;
-      case 'Tß╗ò tr╞░ß╗ƒng':
-        return `<span class="badge-role-group px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-sitemap mr-1"></i>Tß╗ò tr╞░ß╗ƒng</span>`;
-      case 'C├ín sß╗▒ To├ín':
-      case 'CS To├ín':
-        return `<span class="badge-role-math px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-calculator mr-1"></i>CS To├ín</span>`;
-      case 'C├ín sß╗▒ L├╜':
-      case 'CS L├╜':
-        return `<span class="badge-role-phys px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-atom mr-1"></i>CS L├╜</span>`;
-      case 'C├ín sß╗▒ H├│a':
-      case 'CS H├│a':
-        return `<span class="badge-role-chem px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-flask mr-1"></i>CS H├│a</span>`;
-      case 'C├ín sß╗▒ Anh':
+      case 'Lớp trưởng':
+        return `<span class="badge-role-lead px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-crown mr-1"></i>Lớp trưởng</span>`;
+      case 'Lớp phó':
+      case 'Lớp phó Học tập':
+        return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-user-graduate mr-1"></i>Lớp phó</span>`;
+      case 'Lớp phó Lao động':
+        return `<span class="badge-role-deputy px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-broom mr-1"></i>Lớp phó LĐ</span>`;
+      case 'Bí thư':
+        return `<span class="badge-role-sec px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-flag mr-1"></i>Bí thư</span>`;
+      case 'Tổ trưởng':
+        return `<span class="badge-role-group px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-sitemap mr-1"></i>Tổ trưởng</span>`;
+      case 'Cán sự Toán':
+      case 'CS Toán':
+        return `<span class="badge-role-math px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-calculator mr-1"></i>CS Toán</span>`;
+      case 'Cán sự Lý':
+      case 'CS Lý':
+        return `<span class="badge-role-phys px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-atom mr-1"></i>CS Lý</span>`;
+      case 'Cán sự Hóa':
+      case 'CS Hóa':
+        return `<span class="badge-role-chem px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-flask mr-1"></i>CS Hóa</span>`;
+      case 'Cán sự Anh':
       case 'CS Anh':
-      case 'C├ín sß╗▒ Tiß║┐ng Anh':
+      case 'Cán sự Tiếng Anh':
         return `<span class="badge-role-eng px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-language mr-1"></i>CS Anh</span>`;
-      case 'C├ín sß╗▒ Sinh':
+      case 'Cán sự Sinh':
       case 'CS Sinh':
         return `<span class="badge-role-bio px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-dna mr-1"></i>CS Sinh</span>`;
-      case 'C├ín sß╗▒ V─ân':
-      case 'CS V─ân':
-        return `<span class="badge-role-lit px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-book-open mr-1"></i>CS V─ân</span>`;
-      case 'Sao ─æß╗Å':
-        return `<span class="badge-role-redstar px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-star mr-1"></i>Sao ─æß╗Å</span>`;
+      case 'Cán sự Văn':
+      case 'CS Văn':
+        return `<span class="badge-role-lit px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-book-open mr-1"></i>CS Văn</span>`;
+      case 'Sao đỏ':
+        return `<span class="badge-role-redstar px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center"><i class="fa-solid fa-star mr-1"></i>Sao đỏ</span>`;
       default:
         return `<span class="text-xs text-slate-500">${escapeHtml(part)}</span>`;
     }
   }).join(' ');
 }
 
-// ==================== MODAL TH├èM / Sß╗¼A Hß╗îC SINH ====================
+// ==================== MODAL THÊM / SỬA HỌC SINH ====================
 function openAddStudentModal() {
-  document.getElementById('modal-student-title').textContent = 'Th├¬m Hß╗ìc Sinh Mß╗¢i';
+  document.getElementById('modal-student-title').textContent = 'Thêm Học Sinh Mới';
   document.getElementById('student-form-id').value = '';
   document.getElementById('student-form-name').value = '';
   document.getElementById('student-form-code').value = '';
   document.getElementById('student-form-dob').value = '';
   document.getElementById('student-form-academic').value = '';
   document.getElementById('student-form-group').value = '1';
-  document.getElementById('student-form-role').value = 'Th├ánh vi├¬n';
+  document.getElementById('student-form-role').value = 'Thành viên';
   document.getElementById('student-form-special').checked = false;
 
   const modal = document.getElementById('modal-student');
@@ -1152,7 +1152,7 @@ function openEditStudentModal(id) {
   const stu = appState.students.find(s => s.id === id);
   if (!stu) return;
 
-  document.getElementById('modal-student-title').textContent = 'Chß╗ënh Sß╗¡a Th├┤ng Tin Hß╗ìc Sinh';
+  document.getElementById('modal-student-title').textContent = 'Chỉnh Sửa Thông Tin Học Sinh';
   document.getElementById('student-form-id').value = stu.id;
   document.getElementById('student-form-name').value = stu.fullName;
   document.getElementById('student-form-code').value = stu.code || '';
@@ -1186,12 +1186,12 @@ function saveStudentForm(e) {
   const isSpecialSupport = document.getElementById('student-form-special').checked;
 
   if (!fullName) {
-    showToast('Hß╗ì v├á t├¬n hß╗ìc sinh kh├┤ng ─æ╞░ß╗úc ─æß╗â trß╗æng!', 'warning');
+    showToast('Họ và tên học sinh không được để trống!', 'warning');
     return;
   }
 
   if (id) {
-    // Sß╗¡a hß╗ìc sinh hiß╗çn c├│
+    // Sửa học sinh hiện có
     const index = appState.students.findIndex(s => s.id === id);
     if (index !== -1) {
       appState.students[index] = {
@@ -1204,10 +1204,10 @@ function saveStudentForm(e) {
         role,
         isSpecialSupport
       };
-      showToast('Cß║¡p nhß║¡t th├┤ng tin hß╗ìc sinh th├ánh c├┤ng!', 'success');
+      showToast('Cập nhật thông tin học sinh thành công!', 'success');
     }
   } else {
-    // Th├¬m mß╗¢i
+    // Thêm mới
     const newStudent = {
       id: generateUUID(),
       code,
@@ -1220,7 +1220,7 @@ function saveStudentForm(e) {
       createdDate: new Date().toISOString()
     };
     appState.students.push(newStudent);
-    showToast(`─É├ú th├¬m hß╗ìc sinh ${fullName} v├áo Tß╗ò ${groupNumber}!`, 'success');
+    showToast(`Đã thêm học sinh ${fullName} vào Tổ ${groupNumber}!`, 'success');
   }
 
   saveDataToStorage();
@@ -1232,13 +1232,13 @@ function deleteStudent(id) {
   const stu = appState.students.find(s => s.id === id);
   if (!stu) return;
 
-  if (confirm(`Bß║ín c├│ chß║»c chß║»n muß╗æn x├│a hß╗ìc sinh "${stu.fullName}" khß╗Åi danh s├ích lß╗¢p 10A3 kh├┤ng? C├íc nhß║¡t k├╜ li├¬n quan c┼⌐ng sß║╜ ─æ╞░ß╗úc x├│a.`)) {
+  if (confirm(`Bạn có chắc chắn muốn xóa học sinh "${stu.fullName}" khỏi danh sách lớp 10A3 không? Các nhật ký liên quan cũng sẽ được xóa.`)) {
     appState.students = appState.students.filter(s => s.id !== id);
     appState.dailyLogs = appState.dailyLogs.filter(l => l.studentId !== id);
     appState.selectedStudentIds.delete(id);
     saveDataToStorage();
     refreshAllUI();
-    showToast(`─É├ú x├│a hß╗ìc sinh "${stu.fullName}".`, 'info');
+    showToast(`Đã xóa học sinh "${stu.fullName}".`, 'info');
   }
 }
 
@@ -1246,10 +1246,10 @@ function quickScoreSingle(studentId) {
   appState.selectedStudentIds.clear();
   appState.selectedStudentIds.add(studentId);
   switchTab('scoring');
-  showToast('─É├ú chß╗ìn hß╗ìc sinh v├áo phiß║┐u chß║Ñm ─æiß╗âm', 'info');
+  showToast('Đã chọn học sinh vào phiếu chấm điểm', 'info');
 }
 
-// ==================== RENDERING: Sß╗ö NHß║¼T K├¥ THI ─ÉUA (TAB 4) ====================
+// ==================== RENDERING: SỔ NHẬT KÝ THI ĐUA (TAB 4) ====================
 function renderLogsTable() {
   const tbody = document.getElementById('logs-table-body');
   if (!tbody) return;
@@ -1267,15 +1267,15 @@ function renderLogsTable() {
   });
 
   tbody.innerHTML = '';
-  document.getElementById('logs-count-display').textContent = `${filteredLogs.length} bß║ún ghi nhß║¡t k├╜`;
+  document.getElementById('logs-count-display').textContent = `${filteredLogs.length} bản ghi nhật ký`;
 
   if (filteredLogs.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 text-xs">Kh├┤ng c├│ bß║ún ghi nhß║¡t k├╜ n├áo ph├╣ hß╗úp</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 text-xs">Không có bản ghi nhật ký nào phù hợp</td></tr>`;
     return;
   }
 
   filteredLogs.forEach(log => {
-    const student = appState.students.find(s => s.id === log.studentId) || { fullName: 'Hß╗ìc sinh ─æ├ú x├│a', groupNumber: '?' };
+    const student = appState.students.find(s => s.id === log.studentId) || { fullName: 'Học sinh đã xóa', groupNumber: '?' };
     const isBonus = Number(log.pointsChanged) > 0;
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 text-xs';
@@ -1284,7 +1284,7 @@ function renderLogsTable() {
       <td class="py-2.5 px-4 font-mono text-slate-500 whitespace-nowrap">${log.date}</td>
       <td class="py-2.5 px-4 font-bold text-slate-800">${escapeHtml(student.fullName)}</td>
       <td class="py-2.5 px-4 text-center">
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Tß╗ò ${student.groupNumber}</span>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Tổ ${student.groupNumber}</span>
       </td>
       <td class="py-2.5 px-4">
         <span class="inline-flex items-center space-x-1.5 font-medium ${isBonus ? 'text-emerald-800' : 'text-rose-800'}">
@@ -1293,12 +1293,12 @@ function renderLogsTable() {
         </span>
       </td>
       <td class="py-2.5 px-4 text-right font-black ${isBonus ? 'text-emerald-600' : 'text-rose-600'} whitespace-nowrap">
-        ${isBonus ? `+${log.pointsChanged}` : log.pointsChanged} ─æ
+        ${isBonus ? `+${log.pointsChanged}` : log.pointsChanged} đ
       </td>
-      <td class="py-2.5 px-4 text-slate-500">${escapeHtml(log.recordedBy || 'C├ín sß╗▒')}</td>
-      <td class="py-2.5 px-4 text-slate-400 italic">${escapeHtml(log.note || 'ΓÇö')}</td>
+      <td class="py-2.5 px-4 text-slate-500">${escapeHtml(log.recordedBy || 'Cán sự')}</td>
+      <td class="py-2.5 px-4 text-slate-400 italic">${escapeHtml(log.note || '—')}</td>
       <td class="py-2.5 px-4 text-center">
-        <button onclick="deleteLogEntry('${log.id}')" title="X├│a bß║ún ghi n├áy (ho├án lß║íi ─æiß╗âm)" class="p-1 text-slate-400 hover:text-rose-600 transition">
+        <button onclick="deleteLogEntry('${log.id}')" title="Xóa bản ghi này (hoàn lại điểm)" class="p-1 text-slate-400 hover:text-rose-600 transition">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </td>
@@ -1308,15 +1308,15 @@ function renderLogsTable() {
 }
 
 function deleteLogEntry(logId) {
-  if (confirm('Bß║ín c├│ chß║»c chß║»n muß╗æn x├│a l╞░ß╗út ghi nhß║¡n ─æiß╗âm n├áy kh├┤ng? ─Éiß╗âm sß╗æ cß╗ºa hß╗ìc sinh sß║╜ tß╗▒ ─æß╗Öng ─æ╞░ß╗úc ho├án lß║íi.')) {
+  if (confirm('Bạn có chắc chắn muốn xóa lượt ghi nhận điểm này không? Điểm số của học sinh sẽ tự động được hoàn lại.')) {
     appState.dailyLogs = appState.dailyLogs.filter(l => l.id !== logId);
     saveDataToStorage();
     refreshAllUI();
-    showToast('─É├ú x├│a bß║ún ghi nhß║¡t k├╜ v├á ho├án lß║íi ─æiß╗âm cho hß╗ìc sinh.', 'info');
+    showToast('Đã xóa bản ghi nhật ký và hoàn lại điểm cho học sinh.', 'info');
   }
 }
 
-// ==================== MODAL CHI TIß║╛T Hß╗Æ S╞á 1 Hß╗îC SINH ====================
+// ==================== MODAL CHI TIẾT HỒ SƠ 1 HỌC SINH ====================
 function openStudentDetailModal(studentId) {
   const stu = appState.students.find(s => s.id === studentId);
   if (!stu) return;
@@ -1326,8 +1326,8 @@ function openStudentDetailModal(studentId) {
   const stuLogs = appState.dailyLogs.filter(l => l.studentId === studentId);
 
   document.getElementById('detail-student-name').textContent = stu.fullName;
-  document.getElementById('detail-student-meta').textContent = `Tß╗ò ${stu.groupNumber} ΓÇó ${stu.role}${stu.code ? ` ΓÇó M├ú: ${stu.code}` : ''}${stu.dob ? ` ΓÇó NS: ${stu.dob}` : ''}${stu.academicScore ? ` ΓÇó ─Éiß╗âm ─æß║ºu v├áo: ${stu.academicScore}─æ` : ''}${stu.isSpecialSupport ? ' ΓÇó [Cß║ºn hß╗ù trß╗ú ─æß║╖c biß╗çt]' : ''}`;
-  document.getElementById('detail-student-score').textContent = `${score} ─æ`;
+  document.getElementById('detail-student-meta').textContent = `Tổ ${stu.groupNumber} • ${stu.role}${stu.code ? ` • Mã: ${stu.code}` : ''}${stu.dob ? ` • NS: ${stu.dob}` : ''}${stu.academicScore ? ` • Điểm đầu vào: ${stu.academicScore}đ` : ''}${stu.isSpecialSupport ? ' • [Cần hỗ trợ đặc biệt]' : ''}`;
+  document.getElementById('detail-student-score').textContent = `${score} đ`;
   document.getElementById('detail-student-rank').textContent = tier.label;
   document.getElementById('detail-student-rank').className = `text-sm font-bold ${tier.color} px-2 py-0.5 rounded border inline-block`;
 
@@ -1337,13 +1337,13 @@ function openStudentDetailModal(studentId) {
     if (Number(l.pointsChanged) > 0) bonusCount++;
     else violCount++;
   });
-  document.getElementById('detail-student-counts').textContent = `-${violCount} vi phß║ím / +${bonusCount} khen th╞░ß╗ƒng`;
+  document.getElementById('detail-student-counts').textContent = `-${violCount} vi phạm / +${bonusCount} khen thưởng`;
 
   const logsContainer = document.getElementById('detail-student-logs');
   logsContainer.innerHTML = '';
 
   if (stuLogs.length === 0) {
-    logsContainer.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">Ch╞░a c├│ bß║ún ghi ─æiß╗âm th╞░ß╗ƒng hoß║╖c phß║ít n├áo.</p>';
+    logsContainer.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">Chưa có bản ghi điểm thưởng hoặc phạt nào.</p>';
   } else {
     stuLogs.forEach(log => {
       const isBonus = Number(log.pointsChanged) > 0;
@@ -1355,10 +1355,10 @@ function openStudentDetailModal(studentId) {
             <span class="font-bold text-slate-800">${escapeHtml(log.ruleLabel)}</span>
             <span class="text-[10px] text-slate-400 font-mono">${log.date}</span>
           </div>
-          <p class="text-[11px] text-slate-500 mt-0.5">${log.recordedBy ? `Ghi bß╗ƒi: ${escapeHtml(log.recordedBy)}` : ''} ${log.note ? `ΓÇó Ghi ch├║: ${escapeHtml(log.note)}` : ''}</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">${log.recordedBy ? `Ghi bởi: ${escapeHtml(log.recordedBy)}` : ''} ${log.note ? `• Ghi chú: ${escapeHtml(log.note)}` : ''}</p>
         </div>
         <span class="font-black text-sm ${isBonus ? 'text-emerald-700' : 'text-rose-700'} shrink-0 ml-3">
-          ${isBonus ? `+${log.pointsChanged}` : log.pointsChanged} ─æ
+          ${isBonus ? `+${log.pointsChanged}` : log.pointsChanged} đ
         </span>
       `;
       logsContainer.appendChild(div);
@@ -1376,41 +1376,41 @@ function closeDetailModal() {
   modal.classList.remove('flex');
 }
 
-// ==================== Dß╗« LIß╗åU Mß║¬U & SAO L╞»U ====================
+// ==================== DỮ LIỆU MẪU & SAO LƯU ====================
 
-// Protocol Phase 3: Nß║íp 10 hß╗ìc sinh mß║½u (c├│ ─æß╗º c├íc chß╗⌐c vß╗Ñ v├á ─æiß╗âm sß╗æ giß║ú lß║¡p)
+// Protocol Phase 3: Nạp 10 học sinh mẫu (có đủ các chức vụ và điểm số giả lập)
 function inject10SampleStudents(notify = true) {
   const sampleStudents = [
-    { id: 'hs_01', fullName: 'Trß║ºn Minh Khang', groupNumber: 1, role: 'Lß╗¢p tr╞░ß╗ƒng', isSpecialSupport: false },
-    { id: 'hs_02', fullName: 'L├¬ Nguyß╗àn Quß╗│nh Anh', groupNumber: 1, role: 'B├¡ th╞░', isSpecialSupport: false },
-    { id: 'hs_03', fullName: 'Nguyß╗àn Ho├áng Long', groupNumber: 2, role: 'Lß╗¢p ph├│ Hß╗ìc tß║¡p', isSpecialSupport: false },
-    { id: 'hs_04', fullName: 'Phß║ím ─Éß╗⌐c Trß╗ìng', groupNumber: 2, role: 'Tß╗ò tr╞░ß╗ƒng', isSpecialSupport: false },
-    { id: 'hs_05', fullName: '─Éß║╖ng Tuß║Ñn Kiß╗çt', groupNumber: 3, role: 'Sao ─æß╗Å', isSpecialSupport: false },
-    { id: 'hs_06', fullName: 'V┼⌐ Hß║úi ─É─âng', groupNumber: 3, role: 'Th├ánh vi├¬n', isSpecialSupport: true }, // Cß║ºn theo d├╡i
-    { id: 'hs_07', fullName: 'Ho├áng Quß╗æc Bß║úo', groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: true }, // Cß║ºn theo d├╡i
-    { id: 'hs_08', fullName: 'Ng├┤ Thß║úo Nguy├¬n', groupNumber: 4, role: 'Tß╗ò tr╞░ß╗ƒng', isSpecialSupport: false },
-    { id: 'hs_09', fullName: 'B├╣i Gia Huy', groupNumber: 5, role: 'Th├ánh vi├¬n', isSpecialSupport: true }, // Cß║ºn theo d├╡i
-    { id: 'hs_10', fullName: '─Éß╗ù Th├╣y Linh', groupNumber: 6, role: 'Tß╗ò tr╞░ß╗ƒng', isSpecialSupport: false }
+    { id: 'hs_01', fullName: 'Trần Minh Khang', groupNumber: 1, role: 'Lớp trưởng', isSpecialSupport: false },
+    { id: 'hs_02', fullName: 'Lê Nguyễn Quỳnh Anh', groupNumber: 1, role: 'Bí thư', isSpecialSupport: false },
+    { id: 'hs_03', fullName: 'Nguyễn Hoàng Long', groupNumber: 2, role: 'Lớp phó Học tập', isSpecialSupport: false },
+    { id: 'hs_04', fullName: 'Phạm Đức Trọng', groupNumber: 2, role: 'Tổ trưởng', isSpecialSupport: false },
+    { id: 'hs_05', fullName: 'Đặng Tuấn Kiệt', groupNumber: 3, role: 'Sao đỏ', isSpecialSupport: false },
+    { id: 'hs_06', fullName: 'Vũ Hải Đăng', groupNumber: 3, role: 'Thành viên', isSpecialSupport: true }, // Cần theo dõi
+    { id: 'hs_07', fullName: 'Hoàng Quốc Bảo', groupNumber: 4, role: 'Thành viên', isSpecialSupport: true }, // Cần theo dõi
+    { id: 'hs_08', fullName: 'Ngô Thảo Nguyên', groupNumber: 4, role: 'Tổ trưởng', isSpecialSupport: false },
+    { id: 'hs_09', fullName: 'Bùi Gia Huy', groupNumber: 5, role: 'Thành viên', isSpecialSupport: true }, // Cần theo dõi
+    { id: 'hs_10', fullName: 'Đỗ Thùy Linh', groupNumber: 6, role: 'Tổ trưởng', isSpecialSupport: false }
   ];
 
   const today = new Date().toISOString().split('T')[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
   const sampleLogs = [
-    // Lß╗¢p tr╞░ß╗ƒng ho├án th├ánh xuß║Ñt sß║»c
-    { id: 'log_01', date: today, studentId: 'hs_01', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ l├ám tß╗æt nhiß╗çm vß╗Ñ th├íng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Quß║ún l├╜ 15 ph├║t ─æß║ºu giß╗¥ nghi├¬m t├║c', timestamp: Date.now() - 1000 },
-    // B├¡ th╞░ k├¿m bß║ín yß║┐u To├ín
-    { id: 'log_02', date: today, studentId: 'hs_02', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'K├¿m bß║ín yß║┐u To├ín/L├╜ (+10 cho cß║ú hai)', pointsChanged: 10, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'K├¿m bß║ín V┼⌐ Hß║úi ─É─âng giß║úi b├ái tß║¡p ─Éß║íi sß╗æ', timestamp: Date.now() - 2000 },
-    // V┼⌐ Hß║úi ─É─âng (diß╗çn hß╗ù trß╗ú) ─æ╞░ß╗úc cß╗Öng ─æiß╗âm k├¿m v├á nß╗ù lß╗▒c
-    { id: 'log_03', date: today, studentId: 'hs_06', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'K├¿m bß║ín yß║┐u To├ín/L├╜ (+10 cho cß║ú hai)', pointsChanged: 10, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'C├╣ng bß║ín Quß╗│nh Anh hß╗ìc nh├│m', timestamp: Date.now() - 3000 },
-    { id: 'log_04', date: yesterday, studentId: 'hs_06', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Hß╗ìc sinh yß║┐u c├│ nß╗ù lß╗▒c l├ám b├ái', pointsChanged: 10, recordedBy: 'GV Bß╗Ö m├┤n To├ín', note: 'Chß╗º ─æß╗Öng l├¬n chß╗»a b├ái tß║¡p vß╗ü nh├á', timestamp: Date.now() - 4000 },
-    // Nguyß╗àn Ho├áng Long xung phong l├¬n bß║úng
-    { id: 'log_05', date: today, studentId: 'hs_03', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong l├¬n bß║úng ─æ├║ng', pointsChanged: 10, recordedBy: 'Sao ─æß╗Å Tß╗ò 2', note: 'Tiß║┐t H├│a hß╗ìc', timestamp: Date.now() - 5000 },
-    // Ho├áng Quß╗æc Bß║úo (diß╗çn hß╗ù trß╗ú) vi phß║ím n├│i chuyß╗çn & kh├┤ng l├ám b├ái
-    { id: 'log_06', date: yesterday, studentId: 'hs_07', type: 'violation', ruleKey: 'viol_no_homework', ruleLabel: 'Kh├┤ng l├ám b├ái / kh├┤ng hß╗ìc b├ái', pointsChanged: -10, recordedBy: 'Sao ─æß╗Å Tß╗ò 4', note: 'Thiß║┐u b├ái tß║¡p Tiß║┐ng Anh', timestamp: Date.now() - 6000 },
-    { id: 'log_07', date: today, studentId: 'hs_07', type: 'violation', ruleKey: 'viol_distraction_phone', ruleLabel: 'L├ám viß╗çc ri├¬ng / sß╗¡ dß╗Ñng ─ÉT / tß╗▒ ├╜ ─æß╗òi chß╗ù', pointsChanged: -10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 4', note: 'D├╣ng ─æiß╗çn thoß║íi trong giß╗¥ Sinh hß╗ìc', timestamp: Date.now() - 7000 },
-    // B├╣i Gia Huy ─æi muß╗Ön
-    { id: 'log_08', date: today, studentId: 'hs_09', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: '─Éi muß╗Ön / sai ─æß╗ông phß╗Ñc', pointsChanged: -5, recordedBy: 'Sao ─æß╗Å trß╗▒c cß╗òng', note: 'Muß╗Ön 10 ph├║t tiß║┐t 1', timestamp: Date.now() - 8000 }
+    // Lớp trưởng hoàn thành xuất sắc
+    { id: 'log_01', date: today, studentId: 'hs_01', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự làm tốt nhiệm vụ tháng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Quản lý 15 phút đầu giờ nghiêm túc', timestamp: Date.now() - 1000 },
+    // Bí thư kèm bạn yếu Toán
+    { id: 'log_02', date: today, studentId: 'hs_02', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'Kèm bạn yếu Toán/Lý (+10 cho cả hai)', pointsChanged: 10, recordedBy: 'Lớp trưởng', note: 'Kèm bạn Vũ Hải Đăng giải bài tập Đại số', timestamp: Date.now() - 2000 },
+    // Vũ Hải Đăng (diện hỗ trợ) được cộng điểm kèm và nỗ lực
+    { id: 'log_03', date: today, studentId: 'hs_06', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'Kèm bạn yếu Toán/Lý (+10 cho cả hai)', pointsChanged: 10, recordedBy: 'Lớp trưởng', note: 'Cùng bạn Quỳnh Anh học nhóm', timestamp: Date.now() - 3000 },
+    { id: 'log_04', date: yesterday, studentId: 'hs_06', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh yếu có nỗ lực làm bài', pointsChanged: 10, recordedBy: 'GV Bộ môn Toán', note: 'Chủ động lên chữa bài tập về nhà', timestamp: Date.now() - 4000 },
+    // Nguyễn Hoàng Long xung phong lên bảng
+    { id: 'log_05', date: today, studentId: 'hs_03', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ Tổ 2', note: 'Tiết Hóa học', timestamp: Date.now() - 5000 },
+    // Hoàng Quốc Bảo (diện hỗ trợ) vi phạm nói chuyện & không làm bài
+    { id: 'log_06', date: yesterday, studentId: 'hs_07', type: 'violation', ruleKey: 'viol_no_homework', ruleLabel: 'Không làm bài / không học bài', pointsChanged: -10, recordedBy: 'Sao đỏ Tổ 4', note: 'Thiếu bài tập Tiếng Anh', timestamp: Date.now() - 6000 },
+    { id: 'log_07', date: today, studentId: 'hs_07', type: 'violation', ruleKey: 'viol_distraction_phone', ruleLabel: 'Làm việc riêng / sử dụng ĐT / tự ý đổi chỗ', pointsChanged: -10, recordedBy: 'Tổ trưởng Tổ 4', note: 'Dùng điện thoại trong giờ Sinh học', timestamp: Date.now() - 7000 },
+    // Bùi Gia Huy đi muộn
+    { id: 'log_08', date: today, studentId: 'hs_09', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: 'Đi muộn / sai đồng phục', pointsChanged: -5, recordedBy: 'Sao đỏ trực cổng', note: 'Muộn 10 phút tiết 1', timestamp: Date.now() - 8000 }
   ];
 
   appState.students = sampleStudents;
@@ -1419,82 +1419,82 @@ function inject10SampleStudents(notify = true) {
   refreshAllUI();
 
   if (notify) {
-    showToast('─É├ú nß║íp th├ánh c├┤ng 10 hß╗ìc sinh mß║½u v├á nhß║¡t k├╜ thi ─æua thß╗▒c tß║┐!', 'success');
+    showToast('Đã nạp thành công 10 học sinh mẫu và nhật ký thi đua thực tế!', 'success');
   }
 }
 
-// ==================== Dß╗« LIß╗åU CH├ìNH THß╗¿C 45 Hß╗îC SINH 10A3 ====================
-// Tr╞░ß╗¥ng THPT B├╣i Thß╗ï Xu├ón - M┼⌐i N├⌐ (Sß╗ƒ GD&─ÉT L├óm ─Éß╗ông)
-// Danh s├ích chuß║⌐n x├íc 100% theo ß║únh chß╗Ñp sß╗ò ─æiß╗âm lß╗¢p 10A3 (STT 1 ─æß║┐n 45)
-// Ph├ón bß╗æ ─æß╗üu 6 tß╗ò theo ─æiß╗âm lß╗▒c hß╗ìc ─æß║ºu v├áo, ─æ├ú loß║íi c├íc hß╗ìc sinh chuyß╗ân lß╗¢p/nghß╗ë hß╗ìc
+// ==================== DỮ LIỆU CHÍNH THỨC 45 HỌC SINH 10A3 ====================
+// Trường THPT Bùi Thị Xuân - Mũi Né (Sở GD&ĐT Lâm Đồng)
+// Danh sách chuẩn xác 100% theo ảnh chụp sổ điểm lớp 10A3 (STT 1 đến 45)
+// Phân bố đều 6 tổ theo điểm lực học đầu vào, đã loại các học sinh chuyển lớp/nghỉ học
 const OFFICIAL_10A3_STUDENTS = [
-  // ===== Tß╗ö 1 (8 hß╗ìc sinh ΓÇó ─Éiß╗âm TB Lß╗▒c Hß╗ìc: 34.75) =====
-  { id: 'hs_10a3_43', code: '1704246671', fullName: 'D╞░╞íng Lß╗Ñc Yß║┐n Vy', dob: '24/09/2011', academicScore: 34, groupNumber: 1, role: 'Tß╗ò tr╞░ß╗ƒng', isSpecialSupport: false },
-  { id: 'hs_10a3_41', code: '1701472685', fullName: 'L├¬ Gia V┼⌐', dob: '08/03/2011', academicScore: 35, groupNumber: 1, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_26', code: '1703554579', fullName: 'Cao Ngß╗ìc An Nhi├¬n', dob: '14/12/2011', academicScore: 39, groupNumber: 1, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_30', code: '1701941035', fullName: 'Trß║ºn Thß╗ï Ngß╗ìc Ph├║c', dob: '09/09/2011', academicScore: 36, groupNumber: 1, role: 'Sao ─æß╗Å', isSpecialSupport: false },
-  { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyß╗àn Vinh Khang', dob: '16/10/2011', academicScore: 28, groupNumber: 1, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_25', code: '1702780397', fullName: 'V├╡ Thß╗ï Yß║┐n Nhi', dob: '16/04/2011', academicScore: 34, groupNumber: 1, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_32', code: '1704379981', fullName: 'L├¬ Tuß║Ñn Ph├ít T├ái', dob: '17/07/2011', academicScore: 34, groupNumber: 1, role: 'C├ín sß╗▒ To├ín', isSpecialSupport: false },
-  { id: 'hs_10a3_28', code: '1805586438', fullName: 'V├╡ Th├ánh Ph├ít', dob: '14/11/2011', academicScore: 36, groupNumber: 1, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
+  // ===== TỔ 1 (8 học sinh • Điểm TB Lực Học: 34.75) =====
+  { id: 'hs_10a3_43', code: '1704246671', fullName: 'Dương Lục Yến Vy', dob: '24/09/2011', academicScore: 34, groupNumber: 1, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_41', code: '1701472685', fullName: 'Lê Gia Vũ', dob: '08/03/2011', academicScore: 35, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_26', code: '1703554579', fullName: 'Cao Ngọc An Nhiên', dob: '14/12/2011', academicScore: 39, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_30', code: '1701941035', fullName: 'Trần Thị Ngọc Phúc', dob: '09/09/2011', academicScore: 36, groupNumber: 1, role: 'Sao đỏ', isSpecialSupport: false },
+  { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 28, groupNumber: 1, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_25', code: '1702780397', fullName: 'Võ Thị Yến Nhi', dob: '16/04/2011', academicScore: 34, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_32', code: '1704379981', fullName: 'Lê Tuấn Phát Tài', dob: '17/07/2011', academicScore: 34, groupNumber: 1, role: 'Cán sự Toán', isSpecialSupport: false },
+  { id: 'hs_10a3_28', code: '1805586438', fullName: 'Võ Thành Phát', dob: '14/11/2011', academicScore: 36, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
 
-  // ===== Tß╗ö 2 (8 hß╗ìc sinh ΓÇó ─Éiß╗âm TB Lß╗▒c Hß╗ìc: 33.56) =====
-  { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyß╗àn Ho├áng Gia Nguy├¬n', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Tß╗ò tr╞░ß╗ƒng & CS H├│a', isSpecialSupport: false },
-  { id: 'hs_10a3_33', code: '1703412028', fullName: '─Éß╗ù Quß╗æc Th├ánh', dob: '19/08/2011', academicScore: 35, groupNumber: 2, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_34', code: '1704831627', fullName: 'Nguyß╗àn Ngß╗ìc Anh Th╞░', dob: '24/10/2011', academicScore: 29, groupNumber: 2, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyß╗àn Thß╗ï Thanh Tuyß╗ün (12/01)', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_06', code: '1702759605', fullName: 'Tr╞░╞íng Nguyß╗àn Tr╞░ß╗¥ng Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyß╗àn Thß╗ï Kim B╞í', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'C├ín sß╗▒ V─ân', isSpecialSupport: false },
-  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Tß╗½ Diß╗çu Y├¬n Diß╗àm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thß╗º quß╗╣ & CS Sß╗¡', isSpecialSupport: false },
-  { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyß╗àn Tß║Ñn Kß╗│', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
+  // ===== TỔ 2 (8 học sinh • Điểm TB Lực Học: 33.56) =====
+  { id: 'hs_10a3_24', code: '1805586434', fullName: 'Nguyễn Hoàng Gia Nguyên', dob: '06/01/2011', academicScore: 38, groupNumber: 2, role: 'Tổ trưởng & CS Hóa', isSpecialSupport: false },
+  { id: 'hs_10a3_33', code: '1703412028', fullName: 'Đỗ Quốc Thành', dob: '19/08/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_34', code: '1704831627', fullName: 'Nguyễn Ngọc Anh Thư', dob: '24/10/2011', academicScore: 29, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_38', code: '1704784854', fullName: 'Nguyễn Thị Thanh Tuyền (12/01)', dob: '12/01/2011', academicScore: 31, groupNumber: 2, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_06', code: '1702759605', fullName: 'Trương Nguyễn Trường Giang', dob: '01/05/2011', academicScore: 35, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_02', code: '1704683664', fullName: 'Nguyễn Thị Kim Bơ', dob: '10/08/2011', academicScore: 33, groupNumber: 2, role: 'Cán sự Văn', isSpecialSupport: false },
+  { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thủ quỹ & CS Sử', isSpecialSupport: false },
+  { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
-  // ===== Tß╗ö 3 (8 hß╗ìc sinh ΓÇó ─Éiß╗âm TB Lß╗▒c Hß╗ìc: 34.00) =====
-  { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trß║ºn Bß║úo Phi Ho├áng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thß╗ï Ngß╗ìc ß║¿n', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyß╗àn Bß║úo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 3, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trß║ºn Hß╗»u ─Éß╗ông', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_04', code: '1703398860', fullName: 'V├╡ Ngß╗ìc Mß╗╣ Duy├¬n', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_36', code: '1701981797', fullName: 'L├¬ Thß╗ï Kim Tr├║c', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Tß╗ò tr╞░ß╗ƒng', isSpecialSupport: false },
-  { id: 'hs_10a3_37', code: '1701981799', fullName: 'V├╡ B├ích T├╣ng', dob: '19/08/2011', academicScore: 34, groupNumber: 3, role: 'Sao ─æß╗Å', isSpecialSupport: false },
+  // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.00) =====
+  { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_37', code: '1701981799', fullName: 'Võ Bách Tùng', dob: '19/08/2011', academicScore: 34, groupNumber: 3, role: 'Sao đỏ', isSpecialSupport: false },
 
-  // ===== Tß╗ö 4 (8 hß╗ìc sinh ΓÇó ─Éiß╗âm TB Lß╗▒c Hß╗ìc: 35.31) =====
-  { id: 'hs_10a3_15', code: '1704121058', fullName: 'V├╡ Quß╗æc Duy Kh├┤i', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Tß╗ò tr╞░ß╗ƒng & CS Anh', isSpecialSupport: false },
-  { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tß║í Thanh Ngß╗ìc Gi├áu', dob: '13/02/2011', academicScore: 26, groupNumber: 4, role: 'B├¡ th╞░', isSpecialSupport: true },
-  { id: 'hs_10a3_45', code: '1703509575', fullName: '─Éß╗ù Kh├┤i Vß╗╣', dob: '08/12/2011', academicScore: 36, groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phß║ím Ngß╗ìc T╞░ß╗¥ng Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyß╗àn Thß╗ï Thanh Tuyß╗ün (14/06)', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_22', code: '1701941028', fullName: 'Nguyß╗àn Hß╗»u ─Éan Mß║ích', dob: '01/01/2011', academicScore: 39, groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_08', code: '1702997106', fullName: 'Ng├┤ Thß╗ï Diß╗àm Hß║▒ng', dob: '18/11/2011', academicScore: 37, groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_09', code: '1701980221', fullName: 'Nguyß╗àn Vinh Hoa', dob: '15/07/2011', academicScore: 37, groupNumber: 4, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
+  // ===== TỔ 4 (8 học sinh • Điểm TB Lực Học: 35.31) =====
+  { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Tổ trưởng & CS Anh', isSpecialSupport: false },
+  { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tạ Thanh Ngọc Giàu', dob: '13/02/2011', academicScore: 26, groupNumber: 4, role: 'Bí thư', isSpecialSupport: true },
+  { id: 'hs_10a3_45', code: '1703509575', fullName: 'Đỗ Khôi Vỹ', dob: '08/12/2011', academicScore: 36, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phạm Ngọc Tường Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyễn Thị Thanh Tuyền (14/06)', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_22', code: '1701941028', fullName: 'Nguyễn Hữu Đan Mạch', dob: '01/01/2011', academicScore: 39, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_08', code: '1702997106', fullName: 'Ngô Thị Diễm Hằng', dob: '18/11/2011', academicScore: 37, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_09', code: '1701980221', fullName: 'Nguyễn Vinh Hoa', dob: '15/07/2011', academicScore: 37, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
 
-  // ===== Tß╗ö 5 (7 hß╗ìc sinh ΓÇó ─Éiß╗âm TB Lß╗▒c Hß╗ìc: 33.43) =====
-  { id: 'hs_10a3_35', code: '1703919858', fullName: 'Nguyß╗àn Ngß╗ìc Trinh', dob: '18/04/2011', academicScore: 29, groupNumber: 5, role: 'Tß╗ò tr╞░ß╗ƒng', isSpecialSupport: false },
-  { id: 'hs_10a3_27', code: '1702997079', fullName: 'Trß║ºn L├¬ Hß╗ông Nhung', dob: '20/10/2011', academicScore: 36, groupNumber: 5, role: 'Lß╗¢p tr╞░ß╗ƒng', isSpecialSupport: false },
-  { id: 'hs_10a3_42', code: '1702780409', fullName: 'L├¬ V─ân V┼⌐', dob: '03/01/2011', academicScore: 39, groupNumber: 5, role: 'Lß╗¢p ph├│ Hß╗ìc tß║¡p & CS L├╜', isSpecialSupport: false },
-  { id: 'hs_10a3_18', code: '1702780393', fullName: 'Nguyß╗àn ─Éß╗ù Kim Yß║┐n Linh', dob: '19/06/2011', academicScore: 37, groupNumber: 5, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_31', code: '1704684848', fullName: 'Ho├áng Thß║┐ T├ái', dob: '04/10/2011', academicScore: 35, groupNumber: 5, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_12', code: '1701384874', fullName: '─Éß╗ù Tuß║Ñn H╞░ng', dob: '17/06/2011', academicScore: 29, groupNumber: 5, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_40', code: '1803521194', fullName: 'Trß║ºn Ph├║c Vinh', dob: '06/09/2011', academicScore: 29, groupNumber: 5, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
+  // ===== TỔ 5 (7 học sinh • Điểm TB Lực Học: 33.43) =====
+  { id: 'hs_10a3_35', code: '1703919858', fullName: 'Nguyễn Ngọc Trinh', dob: '18/04/2011', academicScore: 29, groupNumber: 5, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_27', code: '1702997079', fullName: 'Trần Lê Hồng Nhung', dob: '20/10/2011', academicScore: 36, groupNumber: 5, role: 'Lớp trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_42', code: '1702780409', fullName: 'Lê Văn Vũ', dob: '03/01/2011', academicScore: 39, groupNumber: 5, role: 'Lớp phó Học tập & CS Lý', isSpecialSupport: false },
+  { id: 'hs_10a3_18', code: '1702780393', fullName: 'Nguyễn Đỗ Kim Yến Linh', dob: '19/06/2011', academicScore: 37, groupNumber: 5, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_31', code: '1704684848', fullName: 'Hoàng Thế Tài', dob: '04/10/2011', academicScore: 35, groupNumber: 5, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_12', code: '1701384874', fullName: 'Đỗ Tuấn Hưng', dob: '17/06/2011', academicScore: 29, groupNumber: 5, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_40', code: '1803521194', fullName: 'Trần Phúc Vinh', dob: '06/09/2011', academicScore: 29, groupNumber: 5, role: 'Thành viên', isSpecialSupport: true },
 
-  // ===== Tß╗ö 6 (7 hß╗ìc sinh ΓÇó ─Éiß╗âm TB Lß╗▒c Hß╗ìc: 35.43) =====
-  { id: 'hs_10a3_23', code: '1704684195', fullName: 'Tr╞░╞íng Thß╗ï Mß╗╣ Ng├ón', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tß╗ò tr╞░ß╗ƒng & CS Sinh', isSpecialSupport: false },
-  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trß║ºn Minh Lu├ón', dob: '25/12/2011', academicScore: 25, groupNumber: 6, role: 'Th├ánh vi├¬n', isSpecialSupport: true },
-  { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyß╗àn Xu├ón Ph├║c', dob: '23/11/2011', academicScore: 38, groupNumber: 6, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_17', code: '1702780666', fullName: 'L├¬ Thß╗ï Mß╗╣ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_13', code: '1701502384', fullName: 'L├¬ Minh Khß║úi', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_19', code: '1704303580', fullName: 'B├╣i Nguyß╗àn Ho├áng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 6, role: 'Th├ánh vi├¬n', isSpecialSupport: false },
-  { id: 'hs_10a3_11', code: '1701470035', fullName: 'Nguyß╗àn Quß╗æc Huy', dob: '19/09/2011', academicScore: 23, groupNumber: 6, role: 'Lß╗¢p ph├│ Lao ─æß╗Öng', isSpecialSupport: true }
+  // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 35.43) =====
+  { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng & CS Sinh', isSpecialSupport: false },
+  { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 25, groupNumber: 6, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_11', code: '1701470035', fullName: 'Nguyễn Quốc Huy', dob: '19/09/2011', academicScore: 23, groupNumber: 6, role: 'Lớp phó Lao động', isSpecialSupport: true }
 ];
 
-// Khß╗ƒi tß║ío to├án bß╗Ö 45 hß╗ìc sinh lß╗¢p 10A3 chuß║⌐n c├ón bß║▒ng 6 tß╗ò
+// Khởi tạo toàn bộ 45 học sinh lớp 10A3 chuẩn cân bằng 6 tổ
 function injectFull45StudentsPrompt() {
-  if (confirm('Thao t├íc n├áy sß║╜ tß║úi danh s├ích 45 hß╗ìc sinh ch├¡nh thß╗⌐c Lß╗¢p 10A3 ph├ón bß╗ò c├ón bß║▒ng 6 tß╗ò theo ─æiß╗âm lß╗▒c hß╗ìc (Trß║ºn L├¬ Hß╗ông Nhung l├ám Lß╗¢p tr╞░ß╗ƒng, Tß╗½ Diß╗çu Y├¬n Diß╗àm l├ám Lß╗¢p ph├│). Tiß║┐p tß╗Ñc?')) {
+  if (confirm('Thao tác này sẽ tải danh sách 45 học sinh chính thức Lớp 10A3 phân bổ cân bằng 6 tổ theo điểm lực học (Trần Lê Hồng Nhung làm Lớp trưởng, Từ Diệu Yên Diễm làm Lớp phó). Tiếp tục?')) {
     injectOfficial45Students(true);
   }
 }
 
 function injectOfficial45Students(notify = true) {
-  // Tß╗▒ ─æß╗Öng dß╗ìn dß║╣p c├íc kh├│a l╞░u trß╗» c┼⌐ nß║┐u c├│
+  // Tự động dọn dẹp các khóa lưu trữ cũ nếu có
   try {
     localStorage.removeItem('dashboard10a3_students');
     localStorage.removeItem('dashboard10a3_logs');
@@ -1512,44 +1512,44 @@ function injectOfficial45Students(notify = true) {
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
   const sampleLogs = [
-    // Lß╗¢p tr╞░ß╗ƒng Trß║ºn L├¬ Hß╗ông Nhung ho├án th├ánh xuß║Ñt sß║»c
-    { id: 'log_01', date: today, studentId: 'hs_10a3_27', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ l├ám tß╗æt nhiß╗çm vß╗Ñ th├íng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Quß║ún l├╜ nß╗ün nß║┐p tß╗▒ quß║ún lß╗¢p 10A3 rß║Ñt nghi├¬m t├║c', timestamp: Date.now() - 1000 },
-    // Lß╗¢p ph├│ Tß╗½ Diß╗çu Y├¬n Diß╗àm k├¿m bß║ín hß╗ìc
-    { id: 'log_02', date: today, studentId: 'hs_10a3_03', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'K├¿m bß║ín yß║┐u To├ín/L├╜ (+10 cho cß║ú hai)', pointsChanged: 10, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'K├¿m bß║ín Nguyß╗àn Thß╗ï Kim B╞í ├┤n tß║¡p', timestamp: Date.now() - 2000 },
-    { id: 'log_03', date: today, studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'K├¿m bß║ín yß║┐u To├ín/L├╜ (+10 cho cß║ú hai)', pointsChanged: 10, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'C├│ tiß║┐n bß╗Ö r├╡ rß╗çt trong giß╗¥ To├ín', timestamp: Date.now() - 3000 },
-    // C├ín sß╗▒ To├ín Nguyß╗àn Hß╗»u ─Éan Mß║ích l├¬n bß║úng giß║úi b├ái
-    { id: 'log_04', date: yesterday, studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong l├¬n bß║úng ─æ├║ng', pointsChanged: 10, recordedBy: 'Sao ─æß╗Å Tß╗ò 1', note: 'Giß║úi b├ái tß║¡p n├óng cao ─Éß║íi sß╗æ', timestamp: Date.now() - 4000 },
-    // Tß╗ò tr╞░ß╗ƒng Tß╗ò 1 D╞░╞íng Lß╗Ñc Yß║┐n Vy l├ám tß╗æt nhiß╗çm vß╗Ñ
-    { id: 'log_05', date: today, studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ l├ám tß╗æt nhiß╗çm vß╗Ñ th├íng', pointsChanged: 20, recordedBy: 'GVCN', note: '─É├┤n ─æß╗æc Tß╗ò 1 ho├án th├ánh 100% b├ái tß║¡p', timestamp: Date.now() - 5000 },
-    // Tß╗ò tr╞░ß╗ƒng Tß╗ò 4 Nguyß╗àn Ngß╗ìc Trinh nß╗ù lß╗▒c
-    { id: 'log_06', date: today, studentId: 'hs_10a3_35', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Hß╗ìc sinh yß║┐u c├│ nß╗ù lß╗▒c l├ám b├ái', pointsChanged: 10, recordedBy: 'GV Bß╗Ö m├┤n', note: 'Ho├án th├ánh tß╗æt nhiß╗çm vß╗Ñ tß╗ò tr╞░ß╗ƒng', timestamp: Date.now() - 6000 },
-    // Tß╗ò tr╞░ß╗ƒng Tß╗ò 6 Tr╞░╞íng Thß╗ï Mß╗╣ Ng├ón
-    { id: 'log_07', date: today, studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ l├ám tß╗æt nhiß╗çm vß╗Ñ th├íng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Tß╗ò 6 xß║┐p hß║íng nhß║Ñt tuß║ºn', timestamp: Date.now() - 7000 },
-    // Nguyß╗àn Quß╗æc Huy nß╗ù lß╗▒c
-    { id: 'log_08', date: today, studentId: 'hs_10a3_11', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Hß╗ìc sinh yß║┐u c├│ nß╗ù lß╗▒c l├ám b├ái', pointsChanged: 10, recordedBy: 'GVCN', note: 'Tiß║┐n bß╗Ö r├╡ rß╗çt', timestamp: Date.now() - 8000 }
+    // Lớp trưởng Trần Lê Hồng Nhung hoàn thành xuất sắc
+    { id: 'log_01', date: today, studentId: 'hs_10a3_27', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự làm tốt nhiệm vụ tháng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Quản lý nền nếp tự quản lớp 10A3 rất nghiêm túc', timestamp: Date.now() - 1000 },
+    // Lớp phó Từ Diệu Yên Diễm kèm bạn học
+    { id: 'log_02', date: today, studentId: 'hs_10a3_03', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'Kèm bạn yếu Toán/Lý (+10 cho cả hai)', pointsChanged: 10, recordedBy: 'Lớp trưởng', note: 'Kèm bạn Nguyễn Thị Kim Bơ ôn tập', timestamp: Date.now() - 2000 },
+    { id: 'log_03', date: today, studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'Kèm bạn yếu Toán/Lý (+10 cho cả hai)', pointsChanged: 10, recordedBy: 'Lớp trưởng', note: 'Có tiến bộ rõ rệt trong giờ Toán', timestamp: Date.now() - 3000 },
+    // Cán sự Toán Nguyễn Hữu Đan Mạch lên bảng giải bài
+    { id: 'log_04', date: yesterday, studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ Tổ 1', note: 'Giải bài tập nâng cao Đại số', timestamp: Date.now() - 4000 },
+    // Tổ trưởng Tổ 1 Dương Lục Yến Vy làm tốt nhiệm vụ
+    { id: 'log_05', date: today, studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự làm tốt nhiệm vụ tháng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Đôn đốc Tổ 1 hoàn thành 100% bài tập', timestamp: Date.now() - 5000 },
+    // Tổ trưởng Tổ 4 Nguyễn Ngọc Trinh nỗ lực
+    { id: 'log_06', date: today, studentId: 'hs_10a3_35', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh yếu có nỗ lực làm bài', pointsChanged: 10, recordedBy: 'GV Bộ môn', note: 'Hoàn thành tốt nhiệm vụ tổ trưởng', timestamp: Date.now() - 6000 },
+    // Tổ trưởng Tổ 6 Trương Thị Mỹ Ngân
+    { id: 'log_07', date: today, studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự làm tốt nhiệm vụ tháng', pointsChanged: 20, recordedBy: 'GVCN', note: 'Tổ 6 xếp hạng nhất tuần', timestamp: Date.now() - 7000 },
+    // Nguyễn Quốc Huy nỗ lực
+    { id: 'log_08', date: today, studentId: 'hs_10a3_11', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh yếu có nỗ lực làm bài', pointsChanged: 10, recordedBy: 'GVCN', note: 'Tiến bộ rõ rệt', timestamp: Date.now() - 8000 }
   ];
 
-  // Nh├ón bß║ún dß╗» liß╗çu ─æß╗â tr├ính xung ─æß╗Öt
+  // Nhân bản dữ liệu để tránh xung đột
   appState.students = JSON.parse(JSON.stringify(OFFICIAL_10A3_STUDENTS));
   appState.dailyLogs = sampleLogs;
   saveDataToStorage();
   refreshAllUI();
 
   if (notify) {
-    showToast('─É├ú nß║íp danh s├ích 45 hß╗ìc sinh ch├¡nh thß╗⌐c ph├ón bß╗ò c├ón bß║▒ng lß╗▒c hß╗ìc 6 tß╗ò!', 'success');
+    showToast('Đã nạp danh sách 45 học sinh chính thức phân bổ cân bằng lực học 6 tổ!', 'success');
   }
 }
 
-// Reset to├án bß╗Ö vß╗ü trß║»ng
+// Reset toàn bộ về trắng
 function resetAllData() {
-  if (confirm('Cß║óNH B├üO: Bß║ín c├│ chß║»c chß║»n muß╗æn x├│a TO├ÇN Bß╗ÿ dß╗» liß╗çu hß╗ìc sinh v├á nhß║¡t k├╜ thi ─æua kh├┤ng?')) {
+  if (confirm('CẢNH BÁO: Bạn có chắc chắn muốn xóa TOÀN BỘ dữ liệu học sinh và nhật ký thi đua không?')) {
     localStorage.removeItem(STORAGE_KEYS.STUDENTS);
     localStorage.removeItem(STORAGE_KEYS.LOGS);
     appState.students = [];
     appState.dailyLogs = [];
     appState.selectedStudentIds.clear();
     refreshAllUI();
-    showToast('─É├ú ─æß║╖t lß║íi to├án bß╗Ö hß╗ç thß╗æng vß╗ü trß║íng th├íi ban ─æß║ºu.', 'info');
+    showToast('Đã đặt lại toàn bộ hệ thống về trạng thái ban đầu.', 'info');
   }
 }
 
@@ -1572,7 +1572,7 @@ function exportDataJSON() {
   downloadAnchor.click();
   downloadAnchor.remove();
 
-  showToast('─É├ú xuß║Ñt file dß╗▒ ph├▓ng JSON th├ánh c├┤ng!', 'success');
+  showToast('Đã xuất file dự phòng JSON thành công!', 'success');
 }
 
 // Import JSON
@@ -1589,19 +1589,19 @@ function importDataJSON(event) {
         appState.dailyLogs = Array.isArray(parsed.dailyLogs) ? parsed.dailyLogs : [];
         saveDataToStorage();
         refreshAllUI();
-        showToast(`─É├ú phß╗Ñc hß╗ôi th├ánh c├┤ng ${appState.students.length} hß╗ìc sinh v├á ${appState.dailyLogs.length} nhß║¡t k├╜!`, 'success');
+        showToast(`Đã phục hồi thành công ${appState.students.length} học sinh và ${appState.dailyLogs.length} nhật ký!`, 'success');
       } else {
-        showToast('File JSON kh├┤ng ─æ├║ng ─æß╗ïnh dß║íng dß╗» liß╗çu Lß╗¢p 10A3!', 'error');
+        showToast('File JSON không đúng định dạng dữ liệu Lớp 10A3!', 'error');
       }
     } catch (err) {
       console.error(err);
-      showToast('Lß╗ùi khi ─æß╗ìc file JSON!', 'error');
+      showToast('Lỗi khi đọc file JSON!', 'error');
     }
   };
   reader.readAsText(file);
 }
 
-// ==================== TIß╗åN ├ìCH Hß╗å THß╗ÉNG ====================
+// ==================== TIỆN ÍCH HỆ THỐNG ====================
 function refreshAllUI() {
   renderDashboardStats();
   renderCharts();
@@ -1665,19 +1665,19 @@ function escapeHtml(string) {
 
 
 // ==========================================================================
-// ==================== CHß╗¿C N─éNG S╞á ─Éß╗Æ Lß╗ÜP Hß╗îC (SEATING PLAN) ====================
-// ==================== 2 D├âY ΓÇó 6 Tß╗ö ΓÇó 24 B├ÇN ─É├öI ΓÇó 48 Vß╗è TR├ì NGß╗ÆI ====================
+// ==================== CHỨC NĂNG SƠ ĐỒ LỚP HỌC (SEATING PLAN) ====================
+// ==================== 2 DÃY • 6 TỔ • 24 BÀN ĐÔI • 48 VỊ TRÍ NGỒI ====================
 // ==========================================================================
 
 /**
- * Tß║ío danh s├ích s╞í ─æß╗ô chß╗ù ngß╗ôi chuß║⌐n ban ─æß║ºu
- * Ph├ón bß╗ò ─æ├┤i bß║ín c├╣ng tiß║┐n (10 HS diß╗çn hß╗ù trß╗ú ngß╗ôi cß║ính Lß╗¢p tr╞░ß╗ƒng, Tß╗ò tr╞░ß╗ƒng, Sao ─æß╗Å, C├ín sß╗▒)
+ * Tạo danh sách sơ đồ chỗ ngồi chuẩn ban đầu
+ * Phân bổ đôi bạn cùng tiến (10 HS diện hỗ trợ ngồi cạnh Lớp trưởng, Tổ trưởng, Sao đỏ, Cán sự)
  */
 function getDefaultSeating() {
   return [
-    // ==================== D├âY 1 (Ph├¡a Cß╗¡a Sß╗ò) - 12 B├ÇN (Tß╗ö 1, 2, 3) ====================
-    // --- Tß╗ö 1 (B├án 1 -> 4) ---
-    // [H├ÇNG 1: B├ÇN 1 GH├ëP B├ÇN 2 - B├ÇN ─Éß║ªU TI├èN S├üT Bß╗ñC GIß║óNG]
+    // ==================== DÃY 1 (Phía Cửa Sổ) - 12 BÀN (TỔ 1, 2, 3) ====================
+    // --- TỔ 1 (Bàn 1 -> 4) ---
+    // [HÀNG 1: BÀN 1 GHÉP BÀN 2 - BÀN ĐẦU TIÊN SÁT BỤC GIẢNG]
     {
       tableId: 'tbl_d1_t1',
       row: 1,
@@ -1685,10 +1685,10 @@ function getDefaultSeating() {
       tableInGroup: 1,
       globalTable: 1,
       pairWithTable: 2,
-      title: 'B├án 1',
-      subtitle: 'Gh├⌐p B├án 2',
-      leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_41' }, // L├¬ Gia V┼⌐ (35─æ)
-      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_25' } // V├╡ Thß╗ï Yß║┐n Nhi (34─æ) [─Éß╗òi chß╗ù vß╗¢i Vinh Khang - B├án 1 D├úy 1 s├ít bß╗Ñc giß║úng]
+      title: 'Bàn 1',
+      subtitle: 'Ghép Bàn 2',
+      leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_41' }, // Lê Gia Vũ (35đ)
+      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_25' } // Võ Thị Yến Nhi (34đ) [Đổi chỗ với Vinh Khang - Bàn 1 Dãy 1 sát bục giảng]
     },
     {
       tableId: 'tbl_d1_t2',
@@ -1697,12 +1697,12 @@ function getDefaultSeating() {
       tableInGroup: 2,
       globalTable: 2,
       pairWithTable: 1,
-      title: 'B├án 2',
-      subtitle: 'Gh├⌐p B├án 1',
-      leftSeat: { seatId: 'seat_r1_g1_t2_l', position: 'left', studentId: 'hs_10a3_26' }, // Cao Ngß╗ìc An Nhi├¬n (39─æ, hß╗ìc rß║Ñt giß╗Åi, g╞░╞íng mß║½u)
-      rightSeat: { seatId: 'seat_r1_g1_t2_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyß╗àn Vinh Khang (Hß╗ù trß╗ú - 28─æ) [─Éß╗òi chß╗ù vß╗¢i Yß║┐n Nhi - An Nhi├¬n k├¿m Vinh Khang]
+      title: 'Bàn 2',
+      subtitle: 'Ghép Bàn 1',
+      leftSeat: { seatId: 'seat_r1_g1_t2_l', position: 'left', studentId: 'hs_10a3_26' }, // Cao Ngọc An Nhiên (39đ, học rất giỏi, gương mẫu)
+      rightSeat: { seatId: 'seat_r1_g1_t2_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (Hỗ trợ - 28đ) [Đổi chỗ với Yến Nhi - An Nhiên kèm Vinh Khang]
     },
-    // [H├ÇNG 2: B├ÇN 3 GH├ëP B├ÇN 4 - Tß╗ö TR╞»ß╗₧NG NGß╗ÆI H├ÇNG SAU ─Éß╗é BAO QU├üT Tß╗ö]
+    // [HÀNG 2: BÀN 3 GHÉP BÀN 4 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
       tableId: 'tbl_d1_t3',
       row: 1,
@@ -1710,10 +1710,10 @@ function getDefaultSeating() {
       tableInGroup: 3,
       globalTable: 3,
       pairWithTable: 4,
-      title: 'B├án 3',
-      subtitle: 'Gh├⌐p B├án 4',
-      leftSeat: { seatId: 'seat_r1_g1_t3_l', position: 'left', studentId: 'hs_10a3_30' }, // Trß║ºn Thß╗ï Ngß╗ìc Ph├║c (Sao ─æß╗Å - 36─æ) [─Éß╗òi chß╗ù vß╗¢i Yß║┐n Vy]
-      rightSeat: { seatId: 'seat_r1_g1_t3_r', position: 'right', studentId: 'hs_10a3_32' } // L├¬ Tuß║Ñn Ph├ít T├ái (C├ín sß╗▒ To├ín - 34─æ)
+      title: 'Bàn 3',
+      subtitle: 'Ghép Bàn 4',
+      leftSeat: { seatId: 'seat_r1_g1_t3_l', position: 'left', studentId: 'hs_10a3_30' }, // Trần Thị Ngọc Phúc (Sao đỏ - 36đ) [Đổi chỗ với Yến Vy]
+      rightSeat: { seatId: 'seat_r1_g1_t3_r', position: 'right', studentId: 'hs_10a3_32' } // Lê Tuấn Phát Tài (Cán sự Toán - 34đ)
     },
     {
       tableId: 'tbl_d1_t4',
@@ -1722,14 +1722,14 @@ function getDefaultSeating() {
       tableInGroup: 4,
       globalTable: 4,
       pairWithTable: 3,
-      title: 'B├án 4',
-      subtitle: 'Gh├⌐p B├án 3',
-      leftSeat: { seatId: 'seat_r1_g1_t4_l', position: 'left', studentId: 'hs_10a3_43' }, // D╞░╞íng Lß╗Ñc Yß║┐n Vy (Tß╗ö TR╞»ß╗₧NG Tß╗ö 1 - 34─æ) [─Éß╗òi chß╗ù vß╗¢i Ngß╗ìc Ph├║c]
-      rightSeat: { seatId: 'seat_r1_g1_t4_r', position: 'right', studentId: 'hs_10a3_28' } // V├╡ Th├ánh Ph├ít (36─æ)
+      title: 'Bàn 4',
+      subtitle: 'Ghép Bàn 3',
+      leftSeat: { seatId: 'seat_r1_g1_t4_l', position: 'left', studentId: 'hs_10a3_43' }, // Dương Lục Yến Vy (TỔ TRƯỞNG TỔ 1 - 34đ) [Đổi chỗ với Ngọc Phúc]
+      rightSeat: { seatId: 'seat_r1_g1_t4_r', position: 'right', studentId: 'hs_10a3_28' } // Võ Thành Phát (36đ)
     },
 
-    // --- Tß╗ö 2 (B├án 5 -> 8) ---
-    // [H├ÇNG 3: B├ÇN 5 GH├ëP B├ÇN 6]
+    // --- TỔ 2 (Bàn 5 -> 8) ---
+    // [HÀNG 3: BÀN 5 GHÉP BÀN 6]
     {
       tableId: 'tbl_d1_t5',
       row: 1,
@@ -1737,10 +1737,10 @@ function getDefaultSeating() {
       tableInGroup: 1,
       globalTable: 5,
       pairWithTable: 6,
-      title: 'B├án 5',
-      subtitle: 'Gh├⌐p B├án 6',
-      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Tß╗½ Diß╗çu Y├¬n Diß╗àm (33─æ)
-      rightSeat: { seatId: 'seat_r1_g2_t1_r', position: 'right', studentId: 'hs_10a3_42' } // L├¬ V─ân V┼⌐ (Lß╗¢p ph├│ Hß╗ìc tß║¡p & CS L├╜ - 39─æ) [─Éß╗òi chß╗ù vß╗¢i Thanh Tuyß╗ün 12/01]
+      title: 'Bàn 5',
+      subtitle: 'Ghép Bàn 6',
+      leftSeat: { seatId: 'seat_r1_g2_t1_l', position: 'left', studentId: 'hs_10a3_03' }, // Từ Diệu Yên Diễm (33đ)
+      rightSeat: { seatId: 'seat_r1_g2_t1_r', position: 'right', studentId: 'hs_10a3_42' } // Lê Văn Vũ (Lớp phó Học tập & CS Lý - 39đ) [Đổi chỗ với Thanh Tuyền 12/01]
     },
     {
       tableId: 'tbl_d1_t6',
@@ -1749,12 +1749,12 @@ function getDefaultSeating() {
       tableInGroup: 2,
       globalTable: 6,
       pairWithTable: 5,
-      title: 'B├án 6',
-      subtitle: 'Gh├⌐p B├án 5',
-      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_33' }, // ─Éß╗ù Quß╗æc Th├ánh (35─æ) [─Éß╗òi chß╗ù vß╗¢i Ngß╗ìc Trinh]
-      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_06' } // Tr╞░╞íng Nguyß╗àn Tr╞░ß╗¥ng Giang (35─æ)
+      title: 'Bàn 6',
+      subtitle: 'Ghép Bàn 5',
+      leftSeat: { seatId: 'seat_r1_g2_t2_l', position: 'left', studentId: 'hs_10a3_33' }, // Đỗ Quốc Thành (35đ) [Đổi chỗ với Ngọc Trinh]
+      rightSeat: { seatId: 'seat_r1_g2_t2_r', position: 'right', studentId: 'hs_10a3_06' } // Trương Nguyễn Trường Giang (35đ)
     },
-    // [H├ÇNG 4: B├ÇN 7 GH├ëP B├ÇN 8 - T├üCH GIA NGUY├èN & GIA V┼¿ Vß╗Ç 2 PH├ìA NGO├ÇI C├ÖNG]
+    // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TÁCH GIA NGUYÊN & GIA VŨ VỀ 2 PHÍA NGOÀI CÙNG]
     {
       tableId: 'tbl_d1_t7',
       row: 1,
@@ -1762,10 +1762,10 @@ function getDefaultSeating() {
       tableInGroup: 3,
       globalTable: 7,
       pairWithTable: 8,
-      title: 'B├án 7',
-      subtitle: 'Gh├⌐p B├án 8',
-      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_38' }, // Nguyß╗àn Thß╗ï Thanh Tuyß╗ün (12/01) (Hß╗ù trß╗ú - 31─æ) [─Éß╗òi chß╗ù vß╗¢i V─ân V┼⌐]
-      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_35' } // Nguyß╗àn Ngß╗ìc Trinh (Tß╗ò tr╞░ß╗ƒng T5 - 29─æ) [─Éß╗òi chß╗ù vß╗¢i Quß╗æc Th├ánh]
+      title: 'Bàn 7',
+      subtitle: 'Ghép Bàn 8',
+      leftSeat: { seatId: 'seat_r1_g2_t3_l', position: 'left', studentId: 'hs_10a3_38' }, // Nguyễn Thị Thanh Tuyền (12/01) (Hỗ trợ - 31đ) [Đổi chỗ với Văn Vũ]
+      rightSeat: { seatId: 'seat_r1_g2_t3_r', position: 'right', studentId: 'hs_10a3_35' } // Nguyễn Ngọc Trinh (Tổ trưởng T5 - 29đ) [Đổi chỗ với Quốc Thành]
     },
     {
       tableId: 'tbl_d1_t8',
@@ -1774,14 +1774,14 @@ function getDefaultSeating() {
       tableInGroup: 4,
       globalTable: 8,
       pairWithTable: 7,
-      title: 'B├án 8',
-      subtitle: 'Gh├⌐p B├án 7',
-      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_02' }, // Nguyß╗àn Thß╗ï Kim B╞í (C├ín sß╗▒ V─ân - 33─æ) [Hß╗ìc tß╗æt]
-      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_16' } // Nguyß╗àn Tß║Ñn Kß╗│ (37─æ)
+      title: 'Bàn 8',
+      subtitle: 'Ghép Bàn 7',
+      leftSeat: { seatId: 'seat_r1_g2_t4_l', position: 'left', studentId: 'hs_10a3_02' }, // Nguyễn Thị Kim Bơ (Cán sự Văn - 33đ) [Học tốt]
+      rightSeat: { seatId: 'seat_r1_g2_t4_r', position: 'right', studentId: 'hs_10a3_16' } // Nguyễn Tấn Kỳ (37đ)
     },
 
-    // --- Tß╗ö 3 (B├án 9 -> 12) ---
-    // [H├ÇNG 5: B├ÇN 9 GH├ëP B├ÇN 10]
+    // --- TỔ 3 (Bàn 9 -> 12) ---
+    // [HÀNG 5: BÀN 9 GHÉP BÀN 10]
     {
       tableId: 'tbl_d1_t9',
       row: 1,
@@ -1789,10 +1789,10 @@ function getDefaultSeating() {
       tableInGroup: 1,
       globalTable: 9,
       pairWithTable: 10,
-      title: 'B├án 9',
-      subtitle: 'Gh├⌐p B├án 10',
-      leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_37' }, // V├╡ B├ích T├╣ng (Sao ─æß╗Å - 34─æ) [─Éß╗òi chß╗ù vß╗¢i Ho├áng Long]
-      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyß╗àn Bß║úo Long (38─æ) [B├án 9 Tß╗ò 3: B├ích T├╣ng & Bß║úo Long]
+      title: 'Bàn 9',
+      subtitle: 'Ghép Bàn 10',
+      leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_37' }, // Võ Bách Tùng (Sao đỏ - 34đ) [Đổi chỗ với Hoàng Long]
+      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (38đ) [Bàn 9 Tổ 3: Bách Tùng & Bảo Long]
     },
     {
       tableId: 'tbl_d1_t10',
@@ -1801,12 +1801,12 @@ function getDefaultSeating() {
       tableInGroup: 2,
       globalTable: 10,
       pairWithTable: 9,
-      title: 'B├án 10',
-      subtitle: 'Gh├⌐p B├án 9',
-      leftSeat: { seatId: 'seat_r1_g3_t2_l', position: 'left', studentId: 'hs_10a3_01' }, // Phan Thß╗ï Ngß╗ìc ß║¿n (35─æ)
-      rightSeat: { seatId: 'seat_r1_g3_t2_r', position: 'right', studentId: 'hs_10a3_05' } // Trß║ºn Hß╗»u ─Éß╗ông (Hß╗ù trß╗ú - 33─æ) [─É├┤i bß║ín c├╣ng tiß║┐n]
+      title: 'Bàn 10',
+      subtitle: 'Ghép Bàn 9',
+      leftSeat: { seatId: 'seat_r1_g3_t2_l', position: 'left', studentId: 'hs_10a3_01' }, // Phan Thị Ngọc Ẩn (35đ)
+      rightSeat: { seatId: 'seat_r1_g3_t2_r', position: 'right', studentId: 'hs_10a3_05' } // Trần Hữu Đồng (Hỗ trợ - 33đ) [Đôi bạn cùng tiến]
     },
-    // [H├ÇNG 6: B├ÇN 11 GH├ëP B├ÇN 12 - Tß╗ö TR╞»ß╗₧NG NGß╗ÆI H├ÇNG SAU ─Éß╗é BAO QU├üT Tß╗ö]
+    // [HÀNG 6: BÀN 11 GHÉP BÀN 12 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
       tableId: 'tbl_d1_t11',
       row: 1,
@@ -1814,10 +1814,10 @@ function getDefaultSeating() {
       tableInGroup: 3,
       globalTable: 11,
       pairWithTable: 12,
-      title: 'B├án 11',
-      subtitle: 'Gh├⌐p B├án 12',
-      leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: null }, // Ghß║┐ trß╗æng dß╗▒ ph├▓ng
-      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_10' } // Trß║ºn Bß║úo Phi Ho├áng (39─æ) [Ngß╗ôi b├án gh├⌐p s├ít ph├¡a tr├¬n Kim Tr├║c]
+      title: 'Bàn 11',
+      subtitle: 'Ghép Bàn 12',
+      leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: null }, // Ghế trống dự phòng
+      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_10' } // Trần Bảo Phi Hoàng (39đ) [Ngồi bàn ghép sát phía trên Kim Trúc]
     },
     {
       tableId: 'tbl_d1_t12',
@@ -1826,15 +1826,15 @@ function getDefaultSeating() {
       tableInGroup: 4,
       globalTable: 12,
       pairWithTable: 11,
-      title: 'B├án 12',
-      subtitle: 'Gh├⌐p B├án 11',
-      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_04' }, // V├╡ Ngß╗ìc Mß╗╣ Duy├¬n (37─æ) [Ngß╗ôi s├ít cß║ính Kim Tr├║c]
-      rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // L├¬ Thß╗ï Kim Tr├║c (Tß╗ò tr╞░ß╗ƒng T3 - 34─æ)
+      title: 'Bàn 12',
+      subtitle: 'Ghép Bàn 11',
+      leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_04' }, // Võ Ngọc Mỹ Duyên (37đ) [Ngồi sát cạnh Kim Trúc]
+      rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (Tổ trưởng T3 - 34đ)
     },
 
-    // ==================== D├âY 2 (Ph├¡a Cß╗¡a Ra V├áo) - 12 B├ÇN (Tß╗ö 4, 5, 6) ====================
-    // --- Tß╗ö 4 (B├án 1 -> 4) ---
-    // [H├ÇNG 1: B├ÇN 1 GH├ëP B├ÇN 2 - B├ÇN ─Éß║ªU TI├èN S├üT Bß╗ñC GIß║óNG]
+    // ==================== DÃY 2 (Phía Cửa Ra Vào) - 12 BÀN (TỔ 4, 5, 6) ====================
+    // --- TỔ 4 (Bàn 1 -> 4) ---
+    // [HÀNG 1: BÀN 1 GHÉP BÀN 2 - BÀN ĐẦU TIÊN SÁT BỤC GIẢNG]
     {
       tableId: 'tbl_d2_t1',
       row: 2,
@@ -1842,10 +1842,10 @@ function getDefaultSeating() {
       tableInGroup: 1,
       globalTable: 1,
       pairWithTable: 2,
-      title: 'B├án 1',
-      subtitle: 'Gh├⌐p B├án 2',
-      leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_07' }, // Tß║í Thanh Ngß╗ìc Gi├áu (B├¡ th╞░ - 26─æ, nhß╗Å con) [─Éß╗òi chß╗ù vß╗¢i ─Éan Mß║ích - B├án 1 D├úy 2 ghß║┐ tr├íi]
-      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_22' } // Nguyß╗àn Hß╗»u ─Éan Mß║ích (39─æ, hß╗ìc giß╗Åi, nghi├¬m t├║c) [─Éß╗òi chß╗ù vß╗¢i Ngß╗ìc Gi├áu - B├án 1 D├úy 2 ghß║┐ phß║úi]
+      title: 'Bàn 1',
+      subtitle: 'Ghép Bàn 2',
+      leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_07' }, // Tạ Thanh Ngọc Giàu (Bí thư - 26đ, nhỏ con) [Đổi chỗ với Đan Mạch - Bàn 1 Dãy 2 ghế trái]
+      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_22' } // Nguyễn Hữu Đan Mạch (39đ, học giỏi, nghiêm túc) [Đổi chỗ với Ngọc Giàu - Bàn 1 Dãy 2 ghế phải]
     },
     {
       tableId: 'tbl_d2_t2',
@@ -1854,12 +1854,12 @@ function getDefaultSeating() {
       tableInGroup: 2,
       globalTable: 2,
       pairWithTable: 1,
-      title: 'B├án 2',
-      subtitle: 'Gh├⌐p B├án 1',
-      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyß╗àn Thß╗ï Thanh Tuyß╗ün (14/06) (38─æ)
-      rightSeat: { seatId: 'seat_r2_g4_t2_r', position: 'right', studentId: 'hs_10a3_45' } // ─Éß╗ù Kh├┤i Vß╗╣ (36─æ) [Kh├┤i Vß╗╣ l├¬n b├án ─æß║ºu s├ít bß╗Ñc giß║úng, kh├┤ng c├▓n l├ám viß╗çc ri├¬ng]
+      title: 'Bàn 2',
+      subtitle: 'Ghép Bàn 1',
+      leftSeat: { seatId: 'seat_r2_g4_t2_l', position: 'left', studentId: 'hs_10a3_39' }, // Nguyễn Thị Thanh Tuyền (14/06) (38đ)
+      rightSeat: { seatId: 'seat_r2_g4_t2_r', position: 'right', studentId: 'hs_10a3_45' } // Đỗ Khôi Vỹ (36đ) [Khôi Vỹ lên bàn đầu sát bục giảng, không còn làm việc riêng]
     },
-    // [H├ÇNG 2: B├ÇN 3 GH├ëP B├ÇN 4 - Tß╗ö TR╞»ß╗₧NG NGß╗ÆI H├ÇNG SAU ─Éß╗é BAO QU├üT Tß╗ö]
+    // [HÀNG 2: BÀN 3 GHÉP BÀN 4 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
       tableId: 'tbl_d2_t3',
       row: 2,
@@ -1867,10 +1867,10 @@ function getDefaultSeating() {
       tableInGroup: 3,
       globalTable: 3,
       pairWithTable: 4,
-      title: 'B├án 3',
-      subtitle: 'Gh├⌐p B├án 4',
-      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyß╗àn Ngß╗ìc Anh Th╞░ (Hß╗ù trß╗ú - 29─æ)
-      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_15' } // V├╡ Quß╗æc Duy Kh├┤i (Tß╗ò tr╞░ß╗ƒng T4 & CS Anh - 35─æ) [─Éß╗òi chß╗ù vß╗¢i T╞░ß╗¥ng Vy]
+      title: 'Bàn 3',
+      subtitle: 'Ghép Bàn 4',
+      leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ)
+      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_15' } // Võ Quốc Duy Khôi (Tổ trưởng T4 & CS Anh - 35đ) [Đổi chỗ với Tường Vy]
     },
     {
       tableId: 'tbl_d2_t4',
@@ -1879,14 +1879,14 @@ function getDefaultSeating() {
       tableInGroup: 4,
       globalTable: 4,
       pairWithTable: 3,
-      title: 'B├án 4',
-      subtitle: 'Gh├⌐p B├án 3',
-      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_44' }, // Phß║ím Ngß╗ìc T╞░ß╗¥ng Vy (34.5─æ, Hß╗ù trß╗ú) [─Éß╗òi chß╗ù vß╗¢i Duy Kh├┤i - ngß╗ôi cß║ính Diß╗àm Hß║▒ng]
-      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_08' } // Ng├┤ Thß╗ï Diß╗àm Hß║▒ng (37─æ)
+      title: 'Bàn 4',
+      subtitle: 'Ghép Bàn 3',
+      leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_44' }, // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đổi chỗ với Duy Khôi - ngồi cạnh Diễm Hằng]
+      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_08' } // Ngô Thị Diễm Hằng (37đ)
     },
 
-    // --- Tß╗ö 5 (B├án 5 -> 8) ---
-    // [H├ÇNG 3: B├ÇN 5 GH├ëP B├ÇN 6]
+    // --- TỔ 5 (Bàn 5 -> 8) ---
+    // [HÀNG 3: BÀN 5 GHÉP BÀN 6]
     {
       tableId: 'tbl_d2_t5',
       row: 2,
@@ -1894,10 +1894,10 @@ function getDefaultSeating() {
       tableInGroup: 1,
       globalTable: 5,
       pairWithTable: 6,
-      title: 'B├án 5',
-      subtitle: 'Gh├⌐p B├án 6',
-      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_18' }, // Nguyß╗àn ─Éß╗ù Kim Yß║┐n Linh (37─æ)
-      rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_40' } // Trß║ºn Ph├║c Vinh (Hß╗ù trß╗ú - 29─æ) [─É├┤i bß║ín c├╣ng tiß║┐n: Yß║┐n Linh k├¿m Ph├║c Vinh]
+      title: 'Bàn 5',
+      subtitle: 'Ghép Bàn 6',
+      leftSeat: { seatId: 'seat_r2_g5_t1_l', position: 'left', studentId: 'hs_10a3_18' }, // Nguyễn Đỗ Kim Yến Linh (37đ)
+      rightSeat: { seatId: 'seat_r2_g5_t1_r', position: 'right', studentId: 'hs_10a3_40' } // Trần Phúc Vinh (Hỗ trợ - 29đ) [Đôi bạn cùng tiến: Yến Linh kèm Phúc Vinh]
     },
     {
       tableId: 'tbl_d2_t6',
@@ -1906,12 +1906,12 @@ function getDefaultSeating() {
       tableInGroup: 2,
       globalTable: 6,
       pairWithTable: 5,
-      title: 'B├án 6',
-      subtitle: 'Gh├⌐p B├án 5',
-      leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_31' }, // Ho├áng Thß║┐ T├ái (35─æ)
-      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: null } // Ghß║┐ trß╗æng dß╗▒ ph├▓ng
+      title: 'Bàn 6',
+      subtitle: 'Ghép Bàn 5',
+      leftSeat: { seatId: 'seat_r2_g5_t2_l', position: 'left', studentId: 'hs_10a3_31' }, // Hoàng Thế Tài (35đ)
+      rightSeat: { seatId: 'seat_r2_g5_t2_r', position: 'right', studentId: null } // Ghế trống dự phòng
     },
-    // [H├ÇNG 4: B├ÇN 7 GH├ëP B├ÇN 8 - Tß╗ö TR╞»ß╗₧NG & Lß╗ÜP TR╞»ß╗₧NG NGß╗ÆI H├ÇNG SAU BAO QU├üT Tß╗ö]
+    // [HÀNG 4: BÀN 7 GHÉP BÀN 8 - TỔ TRƯỞNG & LỚP TRƯỞNG NGỒI HÀNG SAU BAO QUÁT TỔ]
     {
       tableId: 'tbl_d2_t7',
       row: 2,
@@ -1919,10 +1919,10 @@ function getDefaultSeating() {
       tableInGroup: 3,
       globalTable: 7,
       pairWithTable: 8,
-      title: 'B├án 7',
-      subtitle: 'Gh├⌐p B├án 8',
-      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_27' }, // Trß║ºn L├¬ Hß╗ông Nhung (Lß╗¢p tr╞░ß╗ƒng - 36─æ)
-      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_12' } // ─Éß╗ù Tuß║Ñn H╞░ng (Hß╗ù trß╗ú - 29─æ) [─É├┤i bß║ín c├╣ng tiß║┐n: Hß╗ông Nhung k├¿m Tuß║Ñn H╞░ng]
+      title: 'Bàn 7',
+      subtitle: 'Ghép Bàn 8',
+      leftSeat: { seatId: 'seat_r2_g5_t3_l', position: 'left', studentId: 'hs_10a3_27' }, // Trần Lê Hồng Nhung (Lớp trưởng - 36đ)
+      rightSeat: { seatId: 'seat_r2_g5_t3_r', position: 'right', studentId: 'hs_10a3_12' } // Đỗ Tuấn Hưng (Hỗ trợ - 29đ) [Đôi bạn cùng tiến: Hồng Nhung kèm Tuấn Hưng]
     },
     {
       tableId: 'tbl_d2_t8',
@@ -1931,14 +1931,14 @@ function getDefaultSeating() {
       tableInGroup: 4,
       globalTable: 8,
       pairWithTable: 7,
-      title: 'B├án 8',
-      subtitle: 'Gh├⌐p B├án 7',
-      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyß╗àn Vinh Hoa (37─æ)
-      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: 'hs_10a3_24' } // Nguyß╗àn Ho├áng Gia Nguy├¬n (38─æ) [─Éß╗òi chß╗ù vß╗¢i Vinh Hoa]
+      title: 'Bàn 8',
+      subtitle: 'Ghép Bàn 7',
+      leftSeat: { seatId: 'seat_r2_g5_t4_l', position: 'left', studentId: 'hs_10a3_09' }, // Nguyễn Vinh Hoa (37đ)
+      rightSeat: { seatId: 'seat_r2_g5_t4_r', position: 'right', studentId: 'hs_10a3_24' } // Nguyễn Hoàng Gia Nguyên (38đ) [Đổi chỗ với Vinh Hoa]
     },
 
-    // --- Tß╗ö 6 (B├án 9 -> 12) ---
-    // [H├ÇNG 5: B├ÇN 9 GH├ëP B├ÇN 10]
+    // --- TỔ 6 (Bàn 9 -> 12) ---
+    // [HÀNG 5: BÀN 9 GHÉP BÀN 10]
     {
       tableId: 'tbl_d2_t9',
       row: 2,
@@ -1946,10 +1946,10 @@ function getDefaultSeating() {
       tableInGroup: 1,
       globalTable: 9,
       pairWithTable: 10,
-      title: 'B├án 9',
-      subtitle: 'Gh├⌐p B├án 10',
-      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_21' }, // Trß║ºn Minh Lu├ón (Hß╗ù trß╗ú - 25─æ) [B├án ─æß║ºu Tß╗ò 6]
-      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyß╗àn Quß╗æc Huy (Lß╗¢p ph├│ Lao ─æß╗Öng - 23─æ) [─É├┤i bß║ín c├╣ng tiß║┐n: Bß║úo Long k├¿m Quß╗æc Huy]
+      title: 'Bàn 9',
+      subtitle: 'Ghép Bàn 10',
+      leftSeat: { seatId: 'seat_r2_g6_t1_l', position: 'left', studentId: 'hs_10a3_21' }, // Trần Minh Luân (Hỗ trợ - 25đ) [Bàn đầu Tổ 6]
+      rightSeat: { seatId: 'seat_r2_g6_t1_r', position: 'right', studentId: 'hs_10a3_11' } // Nguyễn Quốc Huy (Lớp phó Lao động - 23đ) [Đôi bạn cùng tiến: Bảo Long kèm Quốc Huy]
     },
     {
       tableId: 'tbl_d2_t10',
@@ -1958,12 +1958,12 @@ function getDefaultSeating() {
       tableInGroup: 2,
       globalTable: 10,
       pairWithTable: 9,
-      title: 'B├án 10',
-      subtitle: 'Gh├⌐p B├án 9',
-      leftSeat: { seatId: 'seat_r2_g6_t2_l', position: 'left', studentId: 'hs_10a3_17' }, // L├¬ Thß╗ï Mß╗╣ Linh (36─æ)
-      rightSeat: { seatId: 'seat_r2_g6_t2_r', position: 'right', studentId: 'hs_10a3_19' } // B├╣i Nguyß╗àn Ho├áng Long (38─æ) [─Éß╗òi chß╗ù vß╗¢i B├ích T├╣ng]
+      title: 'Bàn 10',
+      subtitle: 'Ghép Bàn 9',
+      leftSeat: { seatId: 'seat_r2_g6_t2_l', position: 'left', studentId: 'hs_10a3_17' }, // Lê Thị Mỹ Linh (36đ)
+      rightSeat: { seatId: 'seat_r2_g6_t2_r', position: 'right', studentId: 'hs_10a3_19' } // Bùi Nguyễn Hoàng Long (38đ) [Đổi chỗ với Bách Tùng]
     },
-    // [H├ÇNG 6: B├ÇN 11 GH├ëP B├ÇN 12 - Tß╗ö TR╞»ß╗₧NG NGß╗ÆI H├ÇNG SAU ─Éß╗é BAO QU├üT Tß╗ö]
+    // [HÀNG 6: BÀN 11 GHÉP BÀN 12 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
       tableId: 'tbl_d2_t11',
       row: 2,
@@ -1971,10 +1971,10 @@ function getDefaultSeating() {
       tableInGroup: 3,
       globalTable: 11,
       pairWithTable: 12,
-      title: 'B├án 11',
-      subtitle: 'Gh├⌐p B├án 12',
-      leftSeat: { seatId: 'seat_r2_g6_t3_l', position: 'left', studentId: 'hs_10a3_23' }, // Tr╞░╞íng Thß╗ï Mß╗╣ Ng├ón (Tß╗ö TR╞»ß╗₧NG Tß╗ö 6 & CS Sinh - 38─æ)
-      rightSeat: { seatId: 'seat_r2_g6_t3_r', position: 'right', studentId: 'hs_10a3_29' } // Nguyß╗àn Xu├ón Ph├║c (38─æ) [─É├┤i bß║ín hß╗ìc tß╗æt 38─æ ß╗ƒ h├áng sau]
+      title: 'Bàn 11',
+      subtitle: 'Ghép Bàn 12',
+      leftSeat: { seatId: 'seat_r2_g6_t3_l', position: 'left', studentId: 'hs_10a3_23' }, // Trương Thị Mỹ Ngân (TỔ TRƯỞNG TỔ 6 & CS Sinh - 38đ)
+      rightSeat: { seatId: 'seat_r2_g6_t3_r', position: 'right', studentId: 'hs_10a3_29' } // Nguyễn Xuân Phúc (38đ) [Đôi bạn học tốt 38đ ở hàng sau]
     },
     {
       tableId: 'tbl_d2_t12',
@@ -1983,23 +1983,23 @@ function getDefaultSeating() {
       tableInGroup: 4,
       globalTable: 12,
       pairWithTable: 11,
-      title: 'B├án 12',
-      subtitle: 'Gh├⌐p B├án 11',
-      leftSeat: { seatId: 'seat_r2_g6_t4_l', position: 'left', studentId: 'hs_10a3_13' }, // L├¬ Minh Khß║úi (37─æ) [Hß╗ìc sinh giß╗Åi 37─æ, tß╗▒ gi├íc tß╗æt ngß╗ôi b├án cuß╗æi]
-      rightSeat: { seatId: 'seat_r2_g6_t4_r', position: 'right', studentId: null } // Ghß║┐ trß╗æng dß╗▒ ph├▓ng
+      title: 'Bàn 12',
+      subtitle: 'Ghép Bàn 11',
+      leftSeat: { seatId: 'seat_r2_g6_t4_l', position: 'left', studentId: 'hs_10a3_13' }, // Lê Minh Khải (37đ) [Học sinh giỏi 37đ, tự giác tốt ngồi bàn cuối]
+      rightSeat: { seatId: 'seat_r2_g6_t4_r', position: 'right', studentId: null } // Ghế trống dự phòng
     }
   ];
 }
 
 /**
- * Tß║úi dß╗» liß╗çu s╞í ─æß╗ô chß╗ù ngß╗ôi tß╗½ LocalStorage
+ * Tải dữ liệu sơ đồ chỗ ngồi từ LocalStorage
  */
 function loadSeatingData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SEATING);
     if (raw) {
       const parsed = JSON.parse(raw);
-      // Kiß╗âm tra t├¡nh to├án vß║╣n (─æß╗º 24 b├án v├á chß╗⌐a c├íc hß╗ìc sinh cß╗ºa lß╗¢p)
+      // Kiểm tra tính toàn vẹn (đủ 24 bàn và chứa các học sinh của lớp)
       if (Array.isArray(parsed) && parsed.length === 24) {
         let changed = false;
         const t1 = parsed.find(t => t.tableId === 'tbl_d1_t1');
@@ -2053,36 +2053,33 @@ function loadSeatingData() {
       }
     }
   } catch (err) {
-    console.warn('Lß╗ùi khi ─æß╗ìc s╞í ─æß╗ô chß╗ù ngß╗ôi tß╗½ storage:', err);
+    console.warn('Lỗi khi đọc sơ đồ chỗ ngồi từ storage:', err);
   }
-  // Mß║╖c ─æß╗ïnh tß║ío mß╗¢i
+  // Mặc định tạo mới
   appState.seating = getDefaultSeating();
   saveSeatingData();
 }
 
 /**
- * L╞░u dß╗» liß╗çu s╞í ─æß╗ô chß╗ù ngß╗ôi v├áo LocalStorage
+ * Lưu dữ liệu sơ đồ chỗ ngồi vào LocalStorage
  */
 function saveSeatingData() {
   try {
     localStorage.setItem(STORAGE_KEYS.SEATING, JSON.stringify(appState.seating));
   } catch (err) {
-    console.error('Kh├┤ng thß╗â l╞░u s╞í ─æß╗ô lß╗¢p:', err);
+    console.error('Không thể lưu sơ đồ lớp:', err);
   }
 }
 
 /**
- * Render to├án bß╗Ö s╞í ─æß╗ô lß╗¢p hß╗ìc 24 b├án (4 b├án / tß╗ò, 3 tß╗ò / d├úy)
+ * Render toàn bộ sơ đồ lớp học 24 bàn (4 bàn / tổ, 3 tổ / dãy)
  */
 function renderSeatingPlan() {
   if (!appState.seating || appState.seating.length !== 24) {
     loadSeatingData();
   }
 
-  // Render 6 tổ: Mỗi tổ có 4 bàn.
-  // Chiều chuẩn theo Thầy Vỹ: Bảng ở DƯỚI CÙNG.
-  // Cụm 2 (Hàng sau, xa Bảng hơn) ở TRÊN.
-  // Cụm 1 (Hàng trước, sát Bảng hơn) ở DƯỚI.
+  // Render 6 tổ: Bảng ở DƯỚI CÙNG. Cụm 2 ở TRÊN, Cụm 1 ở DƯỚI sát bảng
   for (let g = 1; g <= 6; g++) {
     const container = document.getElementById(`group-${g}-tables`);
     if (!container) continue;
@@ -2103,12 +2100,11 @@ function renderSeatingPlan() {
     }
   }
 
-  // Áp dụng bộ lọc hoặc tìm kiếm nếu có
   applySeatingFilters();
 }
 
 /**
- * Tß║ío phß║ºn tß╗¡ DOM cho 1 Cß╗Ñm B├án Gh├⌐p (2 b├án k├¬ gh├⌐p s├ít nhau: B├án 1 + B├án 2; B├án 3 + B├án 4...)
+ * Tạo phần tử DOM cho 1 Cụm Bàn Ghép (2 bàn kê ghép sát nhau: Bàn 1 + Bàn 2; Bàn 3 + Bàn 4...)
  */
 function renderPairedDesksCluster(table1, table2, groupNumber) {
   const cluster = document.createElement('div');
@@ -2120,7 +2116,7 @@ function renderPairedDesksCluster(table1, table2, groupNumber) {
   const desk1 = renderDeskElement(table1);
   const desk2 = renderDeskElement(table2);
 
-  // Xoay chuẩn 180 độ theo góc nhìn giáo viên ngồi bàn giáo viên: Bàn 2 bên trái, Bàn 1 bên phải
+  // Xoay 180 độ theo góc nhìn giáo viên: Bàn 2 bên trái, Bàn 1 bên phải
   desksGrid.appendChild(desk2);
   desksGrid.appendChild(desk1);
   cluster.appendChild(desksGrid);
@@ -2129,7 +2125,7 @@ function renderPairedDesksCluster(table1, table2, groupNumber) {
 }
 
 /**
- * Tß║ío phß║ºn tß╗¡ DOM cho 1 b├án hß╗ìc (gß╗ôm 2 chß╗ù ngß╗ôi, chß╗ë ─æß╗â lß║íi t├¬n hß╗ìc sinh)
+ * Tạo phần tử DOM cho 1 bàn học (gồm 2 chỗ ngồi, chỉ để lại tên học sinh)
  */
 function renderDeskElement(table) {
   const desk = document.createElement('div');
@@ -2143,7 +2139,7 @@ function renderDeskElement(table) {
   const leftSeatEl = renderSeatSlot(table, table.leftSeat);
   const rightSeatEl = renderSeatSlot(table, table.rightSeat);
 
-  // Xoay chuẩn 180 độ theo góc nhìn giáo viên: Ghế bên phải bàn ở bên trái, ghế bên trái bàn ở bên phải
+  // Xoay 180 độ theo góc nhìn giáo viên: Ghế bên phải bàn ở bên trái, ghế bên trái bàn ở bên phải
   seatsContainer.appendChild(rightSeatEl);
   seatsContainer.appendChild(leftSeatEl);
   desk.appendChild(seatsContainer);
@@ -2152,7 +2148,7 @@ function renderDeskElement(table) {
 }
 
 /**
- * Tß║ío phß║ºn tß╗¡ DOM cho 1 chß╗ù ngß╗ôi (ghß║┐ hß╗ìc sinh hoß║╖c ghß║┐ trß╗æng)
+ * Tạo phần tử DOM cho 1 chỗ ngồi (ghế học sinh hoặc ghế trống)
  */
 function renderSeatSlot(table, seat) {
   const slot = document.createElement('div');
@@ -2163,58 +2159,58 @@ function renderSeatSlot(table, seat) {
   slot.ondragleave = handleSeatDragLeave;
   slot.ondrop = (e) => handleSeatDrop(e, seat.seatId);
 
-  // Nß║┐u l├á ghß║┐ trß╗æng
+  // Nếu là ghế trống
   if (!seat.studentId) {
     slot.className = 'seat-empty p-2.5 flex items-center justify-center text-center cursor-pointer min-h-[58px] rounded-xl';
-    slot.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">(Trß╗æng)</span>`;
+    slot.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">(Trống)</span>`;
     slot.onclick = () => handleSeatClick(seat.seatId, null);
     return slot;
   }
 
-  // T├¼m hß╗ìc sinh
+  // Tìm học sinh
   const student = appState.students.find(s => s.id === seat.studentId);
   if (!student) {
     slot.className = 'seat-empty p-2.5 flex items-center justify-center text-center cursor-pointer min-h-[58px] rounded-xl';
-    slot.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">(Trß╗æng)</span>`;
+    slot.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">(Trống)</span>`;
     return slot;
   }
 
   const score = calculateStudentScore(student.id);
   const tier = getRankingTier(score);
 
-  // Kiß╗âm tra nß║┐u l├á ghß║┐ ─æang ─æ╞░ß╗úc chß╗ìn ─æß╗â swap
+  // Kiểm tra nếu là ghế đang được chọn để swap
   const isSwapSource = appState.swapSourceSeatId === seat.seatId;
 
-  // Styling ghß║┐: Tß║¡p trung hiß╗ân thß╗ï Hß╗ì v├á T├¬n hß╗ìc sinh r├╡ n├⌐t, kh├┤ng bß╗ï co ngß║»n
+  // Styling ghế: Tập trung hiển thị Họ và Tên học sinh rõ nét, không bị co ngắn
   slot.className = `seat-card p-2 sm:p-2.5 min-h-[58px] flex flex-col justify-center items-center text-center relative rounded-xl border border-slate-200 bg-white hover:border-teal-500 hover:shadow-xs transition ${isSwapSource ? 'seat-swap-source' : ''}`;
   slot.draggable = true;
   slot.ondragstart = (e) => handleSeatDragStart(e, seat.seatId);
 
-  // Chß╗⌐c danh nhß╗Å gß╗ìn (hß╗ù trß╗ú ki├¬m nhiß╗çm chß╗⌐c vß╗Ñ)
+  // Chức danh nhỏ gọn (hỗ trợ kiêm nhiệm chức vụ)
   let roleBadgeHtml = '';
-  if (student.role && student.role !== 'Th├ánh vi├¬n') {
+  if (student.role && student.role !== 'Thành viên') {
     const badges = [];
-    if (student.role.includes('Lß╗¢p tr╞░ß╗ƒng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-lead">LT</span>');
-    if (student.role.includes('Lß╗¢p ph├│ Lao ─æß╗Öng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP L─É</span>');
-    else if (student.role.includes('Lß╗¢p ph├│')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP</span>');
-    if (student.role.includes('B├¡ th╞░')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-sec">BT</span>');
-    if (student.role.includes('Tß╗ò tr╞░ß╗ƒng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-group">TT</span>');
-    if (student.role.includes('Sao ─æß╗Å')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-redstar">S─É</span>');
-    if (student.role.includes('To├ín')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200">To├ín</span>');
-    if (student.role.includes('L├╜')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">L├╜</span>');
-    if (student.role.includes('H├│a')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-purple-50 text-purple-700 border border-purple-200">H├│a</span>');
+    if (student.role.includes('Lớp trưởng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-lead">LT</span>');
+    if (student.role.includes('Lớp phó Lao động')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP LĐ</span>');
+    else if (student.role.includes('Lớp phó')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-deputy">LP</span>');
+    if (student.role.includes('Bí thư')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-sec">BT</span>');
+    if (student.role.includes('Tổ trưởng')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-group">TT</span>');
+    if (student.role.includes('Sao đỏ')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold badge-role-redstar">SĐ</span>');
+    if (student.role.includes('Toán')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-50 text-amber-700 border border-amber-200">Toán</span>');
+    if (student.role.includes('Lý')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">Lý</span>');
+    if (student.role.includes('Hóa')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-purple-50 text-purple-700 border border-purple-200">Hóa</span>');
     if (student.role.includes('Anh')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Anh</span>');
     if (student.role.includes('Sinh')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-teal-50 text-teal-700 border border-teal-200">Sinh</span>');
-    if (student.role.includes('V─ân')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-pink-50 text-pink-700 border border-pink-200">V─ân</span>');
+    if (student.role.includes('Văn')) badges.push('<span class="text-[9px] px-1 py-0.2 rounded font-bold bg-pink-50 text-pink-700 border border-pink-200">Văn</span>');
     roleBadgeHtml = badges.join('');
   }
 
   const peerBadgeHtml = student.isSpecialSupport ? 
-    '<span class="text-[9px] text-amber-600 font-bold ml-1" title="Diß╗çn k├¿m cß║╖p">≡ƒñ¥</span>' : '';
+    '<span class="text-[9px] text-amber-600 font-bold ml-1" title="Diện kèm cặp">🤝</span>' : '';
 
   slot.innerHTML = `
     <div class="w-full flex items-center justify-between mb-0.5 px-0.5 text-[10px]">
-      <span class="font-bold ${tier.color.split(' ')[0]}">${score}─æ</span>
+      <span class="font-bold ${tier.color.split(' ')[0]}">${score}đ</span>
       <div class="flex items-center">
         ${roleBadgeHtml}
         ${peerBadgeHtml}
@@ -2229,14 +2225,14 @@ function renderSeatSlot(table, seat) {
   return slot;
 }
 
-// ==================== Xß╗¼ L├¥ CLICK & ─Éß╗öI CHß╗û (SWAP & ACTIONS) ====================
+// ==================== XỬ LÝ CLICK & ĐỔI CHỖ (SWAP & ACTIONS) ====================
 
 /**
- * Bß║¡t / Tß║»t chß║┐ ─æß╗Ö ─æß╗òi chß╗ù
+ * Bật / Tắt chế độ đổi chỗ
  */
 function toggleSwapMode(forceState) {
   if (appState.currentUserRole === 'member') {
-    showToast('Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Vui l├▓ng ─æ─âng nhß║¡p C├ín sß╗▒ hoß║╖c GVCN ─æß╗â sß║»p xß║┐p chß╗ù ngß╗ôi.', 'warning');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để sắp xếp chỗ ngồi.', 'warning');
     return;
   }
 
@@ -2254,12 +2250,12 @@ function toggleSwapMode(forceState) {
 
   if (appState.isSwapMode) {
     if (btn) btn.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-xs transition';
-    if (btnText) btnText.textContent = 'Tho├ít ─Éß╗òi Chß╗ù';
+    if (btnText) btnText.textContent = 'Thoát Đổi Chỗ';
     if (banner) banner.classList.remove('hidden');
-    showToast('─É├ú Bß║¼T Chß║┐ ─æß╗Ö ─Éß╗òi chß╗ù: H├úy chß╗ìn hß╗ìc sinh thß╗⌐ nhß║Ñt!', 'info');
+    showToast('Đã BẬT Chế độ Đổi chỗ: Hãy chọn học sinh thứ nhất!', 'info');
   } else {
     if (btn) btn.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition';
-    if (btnText) btnText.textContent = 'Chß║┐ ─Éß╗Ö ─Éß╗òi Chß╗ù';
+    if (btnText) btnText.textContent = 'Chế Độ Đổi Chỗ';
     if (banner) banner.classList.add('hidden');
   }
 
@@ -2267,33 +2263,33 @@ function toggleSwapMode(forceState) {
 }
 
 /**
- * Click v├áo ghß║┐ ngß╗ôi
+ * Click vào ghế ngồi
  */
 function handleSeatClick(seatId, studentId) {
-  // Nß║┐u ─æang ß╗ƒ Swap Mode
+  // Nếu đang ở Swap Mode
   if (appState.isSwapMode) {
     if (!appState.swapSourceSeatId) {
-      // Chß╗ìn nguß╗ôn
+      // Chọn nguồn
       if (!studentId) {
-        showToast('Vui l├▓ng chß╗ìn mß╗Öt hß╗ìc sinh tr╞░ß╗¢c ─æß╗â ho├ín ─æß╗òi chß╗ù!', 'warning');
+        showToast('Vui lòng chọn một học sinh trước để hoán đổi chỗ!', 'warning');
         return;
       }
       appState.swapSourceSeatId = seatId;
       const student = appState.students.find(s => s.id === studentId);
       const bannerText = document.getElementById('swap-banner-text');
       if (bannerText && student) {
-        bannerText.textContent = `─Éang chß╗ìn: ${student.fullName}. H├úy bß║Ñm v├áo chß╗ù ngß╗ôi thß╗⌐ hai (hoß║╖c ghß║┐ trß╗æng) ─æß╗â ─æß╗òi!`;
+        bannerText.textContent = `Đang chọn: ${student.fullName}. Hãy bấm vào chỗ ngồi thứ hai (hoặc ghế trống) để đổi!`;
       }
       renderSeatingPlan();
     } else {
-      // ─É├ú c├│ nguß╗ôn, chß╗ìn ─æ├¡ch
+      // Đã có nguồn, chọn đích
       if (appState.swapSourceSeatId === seatId) {
-        // Hß╗ºy chß╗ìn
+        // Hủy chọn
         appState.swapSourceSeatId = null;
         renderSeatingPlan();
         return;
       }
-      // Thß╗▒c hiß╗çn ─æß╗òi chß╗ù
+      // Thực hiện đổi chỗ
       executeSeatSwap(appState.swapSourceSeatId, seatId);
       appState.swapSourceSeatId = null;
       renderSeatingPlan();
@@ -2301,19 +2297,19 @@ function handleSeatClick(seatId, studentId) {
     return;
   }
 
-  // Nß║┐u kh├┤ng ß╗ƒ Swap Mode
+  // Nếu không ở Swap Mode
   if (studentId) {
     openSeatActionModal(seatId, studentId);
   } else {
-    // Ghß║┐ trß╗æng: hß╗Åi xem c├│ muß╗æn bß║¡t chß║┐ ─æß╗Ö ─æß╗òi chß╗ù ─æß╗â chuyß╗ân ai v├áo ─æ├óy kh├┤ng
-    if (confirm('Ghß║┐ n├áy hiß╗çn ─æang trß╗æng. Bß║ín c├│ muß╗æn chß╗ìn mß╗Öt hß╗ìc sinh ─æß╗â chuyß╗ân v├áo vß╗ï tr├¡ n├áy kh├┤ng?')) {
+    // Ghế trống: hỏi xem có muốn bật chế độ đổi chỗ để chuyển ai vào đây không
+    if (confirm('Ghế này hiện đang trống. Bạn có muốn chọn một học sinh để chuyển vào vị trí này không?')) {
       toggleSwapMode(true);
     }
   }
 }
 
 /**
- * Ho├ín ─æß╗òi 2 ghß║┐ ngß╗ôi
+ * Hoán đổi 2 ghế ngồi
  */
 function executeSeatSwap(seatId1, seatId2) {
   let seat1Ref = null;
@@ -2327,7 +2323,7 @@ function executeSeatSwap(seatId1, seatId2) {
   }
 
   if (!seat1Ref || !seat2Ref) {
-    showToast('Lß╗ùi: Kh├┤ng t├¼m thß║Ñy vß╗ï tr├¡ ghß║┐ ngß╗ôi!', 'error');
+    showToast('Lỗi: Không tìm thấy vị trí ghế ngồi!', 'error');
     return;
   }
 
@@ -2340,13 +2336,13 @@ function executeSeatSwap(seatId1, seatId2) {
   const student1 = appState.students.find(s => s.id === seat1Ref.studentId);
   const student2 = appState.students.find(s => s.id === seat2Ref.studentId);
 
-  const name1 = student1 ? student1.fullName : 'Ghß║┐ trß╗æng';
-  const name2 = student2 ? student2.fullName : 'Ghß║┐ trß╗æng';
+  const name1 = student1 ? student1.fullName : 'Ghế trống';
+  const name2 = student2 ? student2.fullName : 'Ghế trống';
 
-  showToast(`─É├ú ho├ín ─æß╗òi chß╗ù ngß╗ôi giß╗»a "${name1}" v├á "${name2}"!`, 'success');
+  showToast(`Đã hoán đổi chỗ ngồi giữa "${name1}" và "${name2}"!`, 'success');
 }
 
-// ==================== K├ëO THß║ó (DRAG & DROP) ====================
+// ==================== KÉO THẢ (DRAG & DROP) ====================
 
 function handleSeatDragStart(e, seatId) {
   e.dataTransfer.setData('text/plain', seatId);
@@ -2376,7 +2372,7 @@ function handleSeatDrop(e, targetSeatId) {
   }
 }
 
-// ==================== MODAL THAO T├üC NHANH TR├èN GHß║╛ ====================
+// ==================== MODAL THAO TÁC NHANH TRÊN GHẾ ====================
 
 function openSeatActionModal(seatId, studentId) {
   const student = appState.students.find(s => s.id === studentId);
@@ -2384,19 +2380,19 @@ function openSeatActionModal(seatId, studentId) {
 
   appState.activeModalSeat = { seatId, studentId };
 
-  // T├¼m th├┤ng tin b├án
+  // Tìm thông tin bàn
   let tableInfo = '';
   for (const t of appState.seating) {
-    if (t.leftSeat.seatId === seatId) tableInfo = `${t.title} ΓÇó D├úy ${t.row} ΓÇó Vß╗ï tr├¡ Tr├íi`;
-    if (t.rightSeat.seatId === seatId) tableInfo = `${t.title} ΓÇó D├úy ${t.row} ΓÇó Vß╗ï tr├¡ Phß║úi`;
+    if (t.leftSeat.seatId === seatId) tableInfo = `${t.title} • Dãy ${t.row} • Vị trí Trái`;
+    if (t.rightSeat.seatId === seatId) tableInfo = `${t.title} • Dãy ${t.row} • Vị trí Phải`;
   }
 
   const score = calculateStudentScore(student.id);
   const tier = getRankingTier(score);
 
   document.getElementById('seat-action-student-name').textContent = student.fullName;
-  document.getElementById('seat-action-meta').textContent = tableInfo || `Tß╗ò ${student.groupNumber} ΓÇó ${student.role}`;
-  document.getElementById('seat-action-score').textContent = `${score}─æ`;
+  document.getElementById('seat-action-meta').textContent = tableInfo || `Tổ ${student.groupNumber} • ${student.role}`;
+  document.getElementById('seat-action-score').textContent = `${score}đ`;
   
   const rankEl = document.getElementById('seat-action-rank');
   rankEl.textContent = tier.label;
@@ -2416,12 +2412,12 @@ function closeSeatActionModal() {
 }
 
 /**
- * Chß║Ñm ─æiß╗âm nhanh tß╗½ ghß║┐ ngß╗ôi
+ * Chấm điểm nhanh từ ghế ngồi
  */
 function quickSeatScoring(ruleKey) {
   const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Vui l├▓ng ─æ─âng nhß║¡p C├ín sß╗▒ hoß║╖c GVCN ─æß╗â chß║Ñm ─æiß╗âm.', 'warning');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để chấm điểm.', 'warning');
     return;
   }
   if (!appState.activeModalSeat) return;
@@ -2432,7 +2428,7 @@ function quickSeatScoring(ruleKey) {
   if (appState.currentUserRole.startsWith('lead_t')) {
     const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
     if (Number(student.groupNumber) !== leaderGroup) {
-      showToast(`Bß║ín l├á Tß╗ò tr╞░ß╗ƒng Tß╗ò ${leaderGroup}, chß╗ë ─æ╞░ß╗úc chß║Ñm ─æiß╗âm cho hß╗ìc sinh Tß╗ò ${leaderGroup}!`, 'warning');
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được chấm điểm cho học sinh Tổ ${leaderGroup}!`, 'warning');
       return;
     }
   }
@@ -2451,8 +2447,8 @@ function quickSeatScoring(ruleKey) {
     ruleLabel: rule.label,
     pointsChanged: rule.points,
     type: rule.points > 0 ? 'bonus' : 'violation',
-    recordedBy: 'GVCN / S╞í ─æß╗ô lß╗¢p',
-    note: 'Chß║Ñm nhanh tr├¬n s╞í ─æß╗ô chß╗ù ngß╗ôi',
+    recordedBy: 'GVCN / Sơ đồ lớp',
+    note: 'Chấm nhanh trên sơ đồ chỗ ngồi',
     timestamp: Date.now()
   };
 
@@ -2463,20 +2459,20 @@ function quickSeatScoring(ruleKey) {
   const tier = getRankingTier(newScore);
 
   // Update modal score
-  document.getElementById('seat-action-score').textContent = `${newScore}─æ`;
+  document.getElementById('seat-action-score').textContent = `${newScore}đ`;
   const rankEl = document.getElementById('seat-action-rank');
   rankEl.textContent = tier.label;
   rankEl.className = `px-2 py-0.5 rounded-full font-bold text-[11px] ${tier.color}`;
 
-  showToast(`─É├ú ghi nhß║¡n: ${rule.label} (${rule.points > 0 ? '+' : ''}${rule.points}─æ) cho ${student.fullName}!`, rule.points > 0 ? 'success' : 'warning');
+  showToast(`Đã ghi nhận: ${rule.label} (${rule.points > 0 ? '+' : ''}${rule.points}đ) cho ${student.fullName}!`, rule.points > 0 ? 'success' : 'warning');
 
-  // Cß║¡p nhß║¡t lß║íi s╞í ─æß╗ô v├á thß╗æng k├¬
+  // Cập nhật lại sơ đồ và thống kê
   renderDashboardStats();
   renderSeatingPlan();
 }
 
 /**
- * Bß║»t ─æß║ºu ─æß╗òi chß╗ù tß╗½ Modal
+ * Bắt đầu đổi chỗ từ Modal
  */
 function startSwapFromModal() {
   if (!appState.activeModalSeat) return;
@@ -2491,21 +2487,21 @@ function startSwapFromModal() {
   const btnText = document.getElementById('btn-swap-text');
 
   if (btn) btn.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-xs transition';
-  if (btnText) btnText.textContent = 'Tho├ít ─Éß╗òi Chß╗ù';
+  if (btnText) btnText.textContent = 'Thoát Đổi Chỗ';
   if (banner) banner.classList.remove('hidden');
 
   const student = appState.students.find(s => s.id === appState.activeModalSeat?.studentId);
   const bannerText = document.getElementById('swap-banner-text');
   if (bannerText && student) {
-    bannerText.textContent = `─Éang chß╗ìn: ${student.fullName}. Bß║Ñm v├áo ghß║┐ thß╗⌐ hai (hoß║╖c ghß║┐ trß╗æng) ─æß╗â ─æß╗òi!`;
+    bannerText.textContent = `Đang chọn: ${student.fullName}. Bấm vào ghế thứ hai (hoặc ghế trống) để đổi!`;
   }
 
-  showToast('─Éang chß╗ìn hß╗ìc sinh. H├úy click v├áo vß╗ï tr├¡ bß║ín muß╗æn ho├ín ─æß╗òi!', 'info');
+  showToast('Đang chọn học sinh. Hãy click vào vị trí bạn muốn hoán đổi!', 'info');
   renderSeatingPlan();
 }
 
 /**
- * Xem lß╗ïch sß╗¡ hß╗ìc sinh tß╗½ Modal chß╗ù ngß╗ôi
+ * Xem lịch sử học sinh từ Modal chỗ ngồi
  */
 function viewStudentDetailsFromModal() {
   if (!appState.activeModalSeat) return;
@@ -2514,7 +2510,7 @@ function viewStudentDetailsFromModal() {
   openDetailModal(studentId);
 }
 
-// ==================== T├îM KIß║╛M, Bß╗ÿ Lß╗îC & IN ß║ñN ====================
+// ==================== TÌM KIẾM, BỘ LỌC & IN ẤN ====================
 
 function handleSeatingSearch(query) {
   appState.seatingSearch = query.trim().toLowerCase();
@@ -2535,7 +2531,7 @@ function applySeatingFilters() {
     const seatId = el.dataset.seatId;
     if (!seatId) return;
 
-    // T├¼m hß╗ìc sinh
+    // Tìm học sinh
     let studentId = null;
     for (const t of appState.seating) {
       if (t.leftSeat.seatId === seatId) studentId = t.leftSeat.studentId;
@@ -2548,7 +2544,7 @@ function applySeatingFilters() {
 
     const score = calculateStudentScore(student.id);
 
-    // Kiß╗âm tra search
+    // Kiểm tra search
     let matchSearch = true;
     if (query) {
       const matchName = student.fullName.toLowerCase().includes(query);
@@ -2556,20 +2552,20 @@ function applySeatingFilters() {
       matchSearch = matchName || matchCode;
     }
 
-    // Kiß╗âm tra filter
+    // Kiểm tra filter
     let matchFilter = true;
     if (filter === 'leaders') {
-      matchFilter = ['Lß╗¢p tr╞░ß╗ƒng', 'Lß╗¢p ph├│', 'B├¡ th╞░', 'Tß╗ò tr╞░ß╗ƒng', 'Sao ─æß╗Å'].some(k => student.role && student.role.includes(k)) || (student.role && (student.role.includes('C├ín sß╗▒') || student.role.includes('CS')));
+      matchFilter = ['Lớp trưởng', 'Lớp phó', 'Bí thư', 'Tổ trưởng', 'Sao đỏ'].some(k => student.role && student.role.includes(k)) || (student.role && (student.role.includes('Cán sự') || student.role.includes('CS')));
     } else if (filter === 'special') {
       matchFilter = !!student.isSpecialSupport;
     } else if (filter === 'tutoring') {
-      // Hß╗ìc sinh hß╗ù trß╗ú hoß║╖c c├ín sß╗▒ ngß╗ôi c├╣ng b├án
-      matchFilter = !!student.isSpecialSupport || ['Lß╗¢p tr╞░ß╗ƒng', 'Lß╗¢p ph├│', 'Tß╗ò tr╞░ß╗ƒng', 'Sao ─æß╗Å'].includes(student.role) || (student.role && student.role.startsWith('C├ín sß╗▒'));
+      // Học sinh hỗ trợ hoặc cán sự ngồi cùng bàn
+      matchFilter = !!student.isSpecialSupport || ['Lớp trưởng', 'Lớp phó', 'Tổ trưởng', 'Sao đỏ'].includes(student.role) || (student.role && student.role.startsWith('Cán sự'));
     } else if (filter === 'low-score') {
       matchFilter = score < 80;
     }
 
-    // ├üp dß╗Ñng style
+    // Áp dụng style
     if (matchSearch && matchFilter) {
       el.style.opacity = '1';
       if (query && matchSearch) {
@@ -2585,22 +2581,22 @@ function applySeatingFilters() {
 }
 
 /**
- * Kh├┤i phß╗Ñc s╞í ─æß╗ô chuß║⌐n theo m├┤ h├¼nh ─É├┤i bß║ín c├╣ng tiß║┐n
+ * Khôi phục sơ đồ chuẩn theo mô hình Đôi bạn cùng tiến
  */
 function confirmResetDefaultSeating() {
-  if (confirm('Bß║ín c├│ chß║»c chß║»n muß╗æn kh├┤i phß╗Ñc lß║íi S╞í ─æß╗ô chß╗ù ngß╗ôi chuß║⌐n (─É├┤i bß║ín c├╣ng tiß║┐n: 10 hß╗ìc sinh diß╗çn hß╗ù trß╗ú ngß╗ôi cß║ính C├ín sß╗▒ / Bß║ín hß╗ìc tß╗æt)?')) {
+  if (confirm('Bạn có chắc chắn muốn khôi phục lại Sơ đồ chỗ ngồi chuẩn (Đôi bạn cùng tiến: 10 học sinh diện hỗ trợ ngồi cạnh Cán sự / Bạn học tốt)?')) {
     appState.seating = getDefaultSeating();
     saveSeatingData();
     renderSeatingPlan();
-    showToast('─É├ú kh├┤i phß╗Ñc S╞í ─æß╗ô chß╗ù ngß╗ôi chuß║⌐n th├ánh c├┤ng!', 'success');
+    showToast('Đã khôi phục Sơ đồ chỗ ngồi chuẩn thành công!', 'success');
   }
 }
 
 /**
- * In s╞í ─æß╗ô lß╗¢p hß╗ìc ra file A4
+ * In sơ đồ lớp học ra file A4
  */
 /**
- * Sinh m├ú HTML cho Bß║ún In S╞í ─Éß╗ô Lß╗¢p Hß╗ìc Chuß║⌐n A4 Khß╗ò Ngang (Fit 1 Trang 100%)
+ * Sinh mã HTML cho Bản In Sơ Đồ Lớp Học Chuẩn A4 Khổ Ngang (Fit 1 Trang 100%)
  */
 function generatePrintSeatingHTML() {
   if (!appState.seating || appState.seating.length !== 24) {
@@ -2612,17 +2608,21 @@ function generatePrintSeatingHTML() {
       return '';
     }
     const tags = [];
-    if (student.role.includes('Lớp trưởng')) tags.push('Lớp trưởng');
-    if (student.role.includes('Lớp phó Học tập') || student.role.includes('LPHT')) tags.push('LPHT');
-    if (student.role.includes('Thủ quỹ') || student.role.includes('TQ')) tags.push('TQ');
-    if (student.role.includes('Lớp phó Lao động') || student.role.includes('LPLĐ')) tags.push('LPLĐ');
-    if (student.role.includes('Bí thư')) tags.push('Bí thư');
+    if (student.role.includes('Lớp trưởng')) tags.push('LT');
+    if (student.role.includes('Lớp phó Lao động')) tags.push('LP LĐ');
+    else if (student.role.includes('Lớp phó')) tags.push('LP');
+    if (student.role.includes('Bí thư')) tags.push('BT');
     if (student.role.includes('Tổ trưởng')) tags.push('TT');
-    if (student.role.includes('Sao đỏ')) tags.push('Sao đỏ');
+    if (student.role.includes('Sao đỏ')) tags.push('SĐ');
+    if (student.role.includes('Toán')) tags.push('CS Toán');
+    if (student.role.includes('Lý')) tags.push('CS Lý');
+    if (student.role.includes('Hóa')) tags.push('CS Hóa');
+    if (student.role.includes('Anh')) tags.push('CS Anh');
+    if (student.role.includes('Sinh')) tags.push('CS Sinh');
+    if (student.role.includes('Văn')) tags.push('CS Văn');
     return tags.length > 0 ? ' (' + tags.join(', ') + ')' : '';
   };
 
-  // Ô ghế ngồi: Nếu ghế trống, để trắng hoàn toàn
   const renderPrintSeat = (seat) => {
     if (!seat || !seat.studentId) {
       return `<div class="print-seat-cell flex items-center justify-center p-1 border-2 border-slate-700 min-h-[38px] rounded bg-white"></div>`;
@@ -2639,7 +2639,6 @@ function generatePrintSeatingHTML() {
     `;
   };
 
-  // Cụm 4 ghế xoay chuẩn 180 độ theo góc nhìn giáo viên: t2.right -> t2.left -> t1.right -> t1.left
   const renderClusterRow = (t1, t2) => {
     return `
       <div class="grid grid-cols-4 gap-1.5 w-full">
@@ -2660,7 +2659,6 @@ function generatePrintSeatingHTML() {
 
   return `
     <div class="print-page-box bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[285mm] mx-auto p-2">
-      <!-- HEADER CHUẨN THEO GVCN THẦY NGUYỄN VỸ -->
       <div class="text-center pb-2">
         <h1 class="text-sm md:text-base font-extrabold uppercase tracking-wide text-black">
           GVCN: Thầy Nguyễn Vỹ | Năm học: 2026 – 2027
@@ -2670,14 +2668,12 @@ function generatePrintSeatingHTML() {
         </p>
       </div>
 
-      <!-- SƠ ĐỒ CHỖ NGỒI: 6 HÀNG XẾP TỪ TRÊN (CUỐI LỚP) XUỐNG DƯỚI (SÁT BẢNG) -->
       <div class="space-y-2 my-2">
-
-        <!-- KHỐI 3: TỔ 6 (BÊN TRÁI) & TỔ 3 (BÊN PHẢI) - HÀNG 6 & HÀNG 5 (CUỐI LỚP) -->
+        <!-- KHỐI 3: TỔ 6 (BÊN TRÁI) & TỔ 3 (BÊN PHẢI) - HÀNG CUỐI LỚP -->
         <div class="grid grid-cols-12 gap-2 items-center">
           <div class="col-span-5 space-y-1.5">
-            ${renderClusterRow(g6[2], g6[3])} <!-- Hàng 6 (Bàn 11+12) -->
-            ${renderClusterRow(g6[0], g6[1])} <!-- Hàng 5 (Bàn 9+10) -->
+            ${renderClusterRow(g6[2], g6[3])}
+            ${renderClusterRow(g6[0], g6[1])}
           </div>
           <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
             <span>Tổ 6</span>
@@ -2686,16 +2682,16 @@ function generatePrintSeatingHTML() {
             <span>Tổ 3</span>
           </div>
           <div class="col-span-5 space-y-1.5">
-            ${renderClusterRow(g3[2], g3[3])} <!-- Hàng 6 (Bàn 11+12) -->
-            ${renderClusterRow(g3[0], g3[1])} <!-- Hàng 5 (Bàn 9+10) -->
+            ${renderClusterRow(g3[2], g3[3])}
+            ${renderClusterRow(g3[0], g3[1])}
           </div>
         </div>
 
-        <!-- KHỐI 2: TỔ 5 (BÊN TRÁI) & TỔ 2 (BÊN PHẢI) - HÀNG 4 & HÀNG 3 (GIỮA LỚP) -->
+        <!-- KHỐI 2: TỔ 5 (BÊN TRÁI) & TỔ 2 (BÊN PHẢI) - HÀNG GIỮA LỚP -->
         <div class="grid grid-cols-12 gap-2 items-center">
           <div class="col-span-5 space-y-1.5">
-            ${renderClusterRow(g5[2], g5[3])} <!-- Hàng 4 (Bàn 7+8) -->
-            ${renderClusterRow(g5[0], g5[1])} <!-- Hàng 3 (Bàn 5+6) -->
+            ${renderClusterRow(g5[2], g5[3])}
+            ${renderClusterRow(g5[0], g5[1])}
           </div>
           <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
             <span>Tổ 5</span>
@@ -2704,16 +2700,16 @@ function generatePrintSeatingHTML() {
             <span>Tổ 2</span>
           </div>
           <div class="col-span-5 space-y-1.5">
-            ${renderClusterRow(g2[2], g2[3])} <!-- Hàng 4 (Bàn 7+8) -->
-            ${renderClusterRow(g2[0], g2[1])} <!-- Hàng 3 (Bàn 5+6) -->
+            ${renderClusterRow(g2[2], g2[3])}
+            ${renderClusterRow(g2[0], g2[1])}
           </div>
         </div>
 
-        <!-- KHỐI 1: TỔ 4 (BÊN TRÁI) & TỔ 1 (BÊN PHẢI) - HÀNG 2 & HÀNG 1 (SÁT BẢNG) -->
+        <!-- KHỐI 1: TỔ 4 (BÊN TRÁI) & TỔ 1 (BÊN PHẢI) - HÀNG ĐẦU LỚP, SÁT BẢNG -->
         <div class="grid grid-cols-12 gap-2 items-center">
           <div class="col-span-5 space-y-1.5">
-            ${renderClusterRow(g4[2], g4[3])} <!-- Hàng 2 (Bàn 3+4) -->
-            ${renderClusterRow(g4[0], g4[1])} <!-- Hàng 1 (Bàn 1+2) -->
+            ${renderClusterRow(g4[2], g4[3])}
+            ${renderClusterRow(g4[0], g4[1])}
           </div>
           <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
             <span>Tổ 4</span>
@@ -2722,32 +2718,25 @@ function generatePrintSeatingHTML() {
             <span>Tổ 1</span>
           </div>
           <div class="col-span-5 space-y-1.5">
-            ${renderClusterRow(g1[2], g1[3])} <!-- Hàng 2 (Bàn 3+4) -->
-            ${renderClusterRow(g1[0], g1[1])} <!-- Hàng 1 (Bàn 1+2) -->
+            ${renderClusterRow(g1[2], g1[3])}
+            ${renderClusterRow(g1[0], g1[1])}
           </div>
         </div>
-
       </div>
 
-      <!-- KHU VỰC ĐẦU LỚP (BẢNG, CỬA VÀO, BÀN GIÁO VIÊN) THEO GÓC NHÌN GIÁO VIÊN -->
       <div class="mt-4 pt-2 border-t border-slate-300">
         <div class="grid grid-cols-12 gap-3 items-center">
-          <!-- CỬA RA VÀO (Bên trái dưới cùng kèm mũi tên vào bảng) -->
           <div class="col-span-3">
             <div class="border-2 border-slate-800 rounded px-3 py-2 text-center font-extrabold text-xs uppercase bg-white flex items-center justify-center space-x-2">
               <span class="tracking-widest">CỬA VÀO</span>
               <span class="text-base font-black">&rArr;</span>
             </div>
           </div>
-
-          <!-- BẢNG ĐEN TRUNG TÂM -->
           <div class="col-span-6">
             <div class="border-2 border-slate-800 rounded py-2 text-center font-extrabold text-sm uppercase bg-white tracking-widest">
               BẢNG
             </div>
           </div>
-
-          <!-- BÀN GIÁO VIÊN (Bên phải dưới cùng) -->
           <div class="col-span-3">
             <div class="border-2 border-slate-800 rounded py-2 text-center font-extrabold text-xs uppercase bg-white">
               BÀN GIÁO VIÊN
@@ -2755,7 +2744,6 @@ function generatePrintSeatingHTML() {
           </div>
         </div>
 
-        <!-- DÒNG NHẮC NHỞ GVBM -->
         <div class="mt-3 py-1.5 px-3 bg-amber-50 border border-amber-300 rounded text-center font-bold text-[11px] text-amber-900 shadow-2xs">
           Kính nhờ thầy cô GVBM ghi tên học sinh đổi chỗ ngồi và lỗi vi phạm vào sổ đầu bài
         </div>
@@ -2768,12 +2756,12 @@ function openPrintPreviewModal() {
   const modal = document.getElementById('modal-print-preview');
   const content = document.getElementById('print-preview-content');
   if (!modal || !content) {
-    // Nß║┐u ch╞░a c├│ modal, in trß╗▒c tiß║┐p
+    // Nếu chưa có modal, in trực tiếp
     printSeatingChart();
     return;
   }
 
-  // Cß║¡p nhß║¡t nß╗Öi dung xem tr╞░ß╗¢c
+  // Cập nhật nội dung xem trước
   content.innerHTML = generatePrintSeatingHTML();
 
   modal.classList.remove('hidden');
@@ -2789,10 +2777,10 @@ function closePrintPreviewModal() {
 }
 
 /**
- * Thß╗▒c hiß╗çn in s╞í ─æß╗ô lß╗¢p hß╗ìc: ─Éß║úm bß║úo thß║Ñy hß║┐t 100% lß╗¢p hß╗ìc trong 1 trang A4
+ * Thực hiện in sơ đồ lớp học: Đảm bảo thấy hết 100% lớp học trong 1 trang A4
  */
 function printSeatingChart() {
-  // Cß║¡p nhß║¡t khung in ß║⌐n cho chß║┐ ─æß╗Ö print cß╗ºa tr├¼nh duyß╗çt
+  // Cập nhật khung in ẩn cho chế độ print của trình duyệt
   let printContainer = document.getElementById('print-seating-container');
   if (!printContainer) {
     printContainer = document.createElement('div');
@@ -2803,16 +2791,16 @@ function printSeatingChart() {
   }
   printContainer.innerHTML = generatePrintSeatingHTML();
 
-  // ─É├│ng modal xem tr╞░ß╗¢c nß║┐u ─æang mß╗ƒ ─æß╗â tr├ính in ─æ├¿
+  // Đóng modal xem trước nếu đang mở để tránh in đè
   closePrintPreviewModal();
 
-  // K├¡ch hoß║ít in tr├¼nh duyß╗çt
+  // Kích hoạt in trình duyệt
   setTimeout(() => {
     window.print();
   }, 150);
 }
 
-// ==================== TRUNG T├éM BIß╗éU Mß║¬U S╞» PHß║áM (Kß╗╢ LUß║¼T T├ìCH Cß╗░C & GDPT 2018) ====================
+// ==================== TRUNG TÂM BIỂU MẪU SƯ PHẠM (KỶ LUẬT TÍCH CỰC & GDPT 2018) ====================
 
 function initFormsTab() {
   populateFormStudentSelect();
@@ -2827,11 +2815,11 @@ function populateFormStudentSelect() {
   const sortedStudents = [...appState.students].sort((a, b) => a.fullName.localeCompare(b.fullName, 'vi'));
 
   select.innerHTML = `
-    <option value="">-- In Ph├┤i Trß╗æng (Ph├ít cho hß╗ìc sinh viß║┐t tay) --</option>
+    <option value="">-- In Phôi Trống (Phát cho học sinh viết tay) --</option>
     ${sortedStudents.map(s => {
-      const badge = s.isSpecialSupport ? ' ≡ƒñ¥' : '';
-      const roleStr = s.role && s.role !== 'Th├ánh vi├¬n' ? ` (${s.role})` : '';
-      return `<option value="${s.id}" ${s.id === currentVal ? 'selected' : ''}>Tß╗ò ${s.groupNumber}: ${s.fullName} ΓÇó ${s.academicScore}─æ${badge}${roleStr}</option>`;
+      const badge = s.isSpecialSupport ? ' 🤝' : '';
+      const roleStr = s.role && s.role !== 'Thành viên' ? ` (${s.role})` : '';
+      return `<option value="${s.id}" ${s.id === currentVal ? 'selected' : ''}>Tổ ${s.groupNumber}: ${s.fullName} • ${s.academicScore}đ${badge}${roleStr}</option>`;
     }).join('')}
   `;
 }
@@ -2861,7 +2849,7 @@ function onFormStudentChange() {
 }
 
 /**
- * T├¼m bß║ín c├╣ng b├án (─É├┤i bß║ín c├╣ng tiß║┐n) cß╗ºa hß╗ìc sinh dß╗▒a tr├¬n S╞í ─æß╗ô chß╗ù ngß╗ôi
+ * Tìm bạn cùng bàn (Đôi bạn cùng tiến) của học sinh dựa trên Sơ đồ chỗ ngồi
  */
 function getDeskMate(studentId) {
   if (!appState.seating || !studentId) return null;
@@ -2902,118 +2890,118 @@ function renderPedagogicalForm() {
 }
 
 /**
- * BIß╗éU Mß║¬U 01: PHIß║╛U KHß║óO S├üT T├éM T╞» & Hß╗Æ S╞á C├ü NH├éN Hß╗îC SINH
+ * BIỂU MẪU 01: PHIẾU KHẢO SÁT TÂM TƯ & HỒ SƠ CÁ NHÂN HỌC SINH
  */
 function generateForm1HTML(student) {
   const nameVal = student ? student.fullName : '....................................................................';
-  const groupVal = student ? `Tß╗ò ${student.groupNumber}` : '................';
+  const groupVal = student ? `Tổ ${student.groupNumber}` : '................';
   const dobVal = student ? student.dob : '....... / ....... / 2011';
 
   return `
     <div class="pedagogical-a4-document space-y-4 text-slate-800 leading-relaxed">
-      <!-- Header Bß╗Ö GD&─ÉT -->
+      <!-- Header Bộ GD&ĐT -->
       <div class="flex justify-between items-start border-b pb-3 border-slate-300">
         <div class="text-center font-bold text-xs uppercase leading-tight">
-          Sß╗₧ GD&─ÉT L├éM ─Éß╗ÆNG<br>
-          <span class="text-sm font-extrabold text-blue-900">TR╞»ß╗£NG THPT B├ÖI THß╗è XU├éN - M┼¿I N├ë</span><br>
-          <span class="font-normal text-[11px] text-slate-500">Lß╗¢p: 10A3 ΓÇó N─âm hß╗ìc 2026 - 2027</span>
+          SỞ GD&ĐT LÂM ĐỒNG<br>
+          <span class="text-sm font-extrabold text-blue-900">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</span><br>
+          <span class="font-normal text-[11px] text-slate-500">Lớp: 10A3 • Năm học 2026 - 2027</span>
         </div>
         <div class="text-center font-bold text-xs leading-tight">
-          Cß╗ÿNG H├ÆA X├â Hß╗ÿI CHß╗ª NGH─¿A VIß╗åT NAM<br>
-          <span class="text-xs font-semibold underline">─Éß╗Öc lß║¡p ΓÇö Tß╗▒ do ΓÇö Hß║ính ph├║c</span><br>
-          <span class="font-normal italic text-[11px] text-slate-500">M┼⌐i N├⌐, ng├áy ..... th├íng ..... n─âm 2026</span>
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
+          <span class="text-xs font-semibold underline">Độc lập — Tự do — Hạnh phúc</span><br>
+          <span class="font-normal italic text-[11px] text-slate-500">Mũi Né, ngày ..... tháng ..... năm 2026</span>
         </div>
       </div>
 
-      <!-- Ti├¬u ─æß╗ü ch├¡nh -->
+      <!-- Tiêu đề chính -->
       <div class="text-center py-2">
         <h1 class="text-base sm:text-lg font-black uppercase text-purple-900 tracking-wide">
-          PHIß║╛U KHß║óO S├üT T├éM T╞» & NGUYß╗åN Vß╗îNG Hß╗îC SINH Lß╗ÜP 10
+          PHIẾU KHẢO SÁT TÂM TƯ & NGUYỆN VỌNG HỌC SINH LỚP 10
         </h1>
         <p class="text-xs italic text-slate-600 mt-0.5">
-          (D├ánh cho GVCN ph├ít ─æß║ºu n─âm hoß║╖c l├ám viß╗çc ri├¬ng ΓÇô Th├┤ng tin bß║úo mß║¡t tuyß╗çt ─æß╗æi theo tinh thß║ºn Tr╞░ß╗¥ng hß╗ìc hß║ính ph├║c)
+          (Dành cho GVCN phát đầu năm hoặc làm việc riêng – Thông tin bảo mật tuyệt đối theo tinh thần Trường học hạnh phúc)
         </p>
       </div>
 
-      <!-- Lß╗¥i nhß║»n t├óm huyß║┐t tß╗½ GVCN -->
+      <!-- Lời nhắn tâm huyết từ GVCN -->
       <div class="bg-purple-50/60 p-3 rounded-lg border border-purple-200 text-xs italic text-purple-950">
-        <p><b>Thß║ºy/C├┤ gß╗¡i c├íc em:</b> B╞░ß╗¢c v├áo bß║¡c THPT vß╗¢i m├┤i tr╞░ß╗¥ng hß╗ìc tß║¡p mß╗¢i chß║»c hß║│n c├íc em c├│ nhiß╗üu bß╗í ngß╗í, lo ├óu v├á ├íp lß╗▒c. Phiß║┐u n├áy l├á cß║ºu nß╗æi ch├ón th├ánh, cß╗ƒi mß╗ƒ giß╗»a em v├á Thß║ºy/C├┤ chß╗º nhiß╗çm. Mß╗ìi chia sß║╗ cß╗ºa em ─æß╗üu ─æ╞░ß╗úc giß╗» k├¡n ho├án to├án ─æß╗â Thß║ºy/C├┤ c├│ thß╗â thß║Ñu hiß╗âu, ─æß╗ông h├ánh v├á hß╗ù trß╗ú em tß╗æt nhß║Ñt tr├¬n h├ánh tr├¼nh 3 n─âm cß║Ñp 3 sß║»p tß╗¢i.</p>
+        <p><b>Thầy/Cô gửi các em:</b> Bước vào bậc THPT với môi trường học tập mới chắc hẳn các em có nhiều bỡ ngỡ, lo âu và áp lực. Phiếu này là cầu nối chân thành, cởi mở giữa em và Thầy/Cô chủ nhiệm. Mọi chia sẻ của em đều được giữ kín hoàn toàn để Thầy/Cô có thể thấu hiểu, đồng hành và hỗ trợ em tốt nhất trên hành trình 3 năm cấp 3 sắp tới.</p>
       </div>
 
-      <!-- Th├┤ng tin c├í nh├ón -->
+      <!-- Thông tin cá nhân -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
-        <div><b>Hß╗ì v├á t├¬n:</b> <span class="text-blue-900 font-bold">${nameVal}</span></div>
-        <div><b>Lß╗¢p:</b> <span class="font-bold">10A3</span> ΓÇó <b>Tß╗ò:</b> ${groupVal}</div>
-        <div><b>Ng├áy sinh:</b> ${dobVal}</div>
+        <div><b>Họ và tên:</b> <span class="text-blue-900 font-bold">${nameVal}</span></div>
+        <div><b>Lớp:</b> <span class="font-bold">10A3</span> • <b>Tổ:</b> ${groupVal}</div>
+        <div><b>Ngày sinh:</b> ${dobVal}</div>
       </div>
 
-      <!-- C├íc c├óu hß╗Åi khß║úo s├ít -->
+      <!-- Các câu hỏi khảo sát -->
       <div class="space-y-3.5 text-xs pt-2">
         <div>
-          <p class="font-bold text-slate-900">1. Sß╗ƒ th├¡ch, ─æam m├¬ hoß║╖c n─âng khiß║┐u nß╗òi trß╗Öi cß╗ºa em (thß╗â thao, ├óm nhß║íc, ─æß╗ô hß╗ìa, c├┤ng nghß╗ç, ─æß╗ìc s├ích, hoß║ít ─æß╗Öng phong tr├áo...):</p>
+          <p class="font-bold text-slate-900">1. Sở thích, đam mê hoặc năng khiếu nổi trội của em (thể thao, âm nhạc, đồ họa, công nghệ, đọc sách, hoạt động phong trào...):</p>
           <p class="border-b border-dotted border-slate-400 py-1 text-slate-600">&nbsp;</p>
         </div>
 
         <div>
-          <p class="font-bold text-slate-900">2. M├┤n hß╗ìc em cß║úm thß║Ñy tß╗▒ tin v├á hß╗⌐ng th├║ nhß║Ñt hiß╗çn nay:</p>
+          <p class="font-bold text-slate-900">2. Môn học em cảm thấy tự tin và hứng thú nhất hiện nay:</p>
           <div class="grid grid-cols-2 gap-2 mt-1">
-            <p>ΓÇó M├┤n hß╗ìc: ....................................................................</p>
-            <p>ΓÇó L├╜ do y├¬u th├¡ch: ............................................................</p>
+            <p>• Môn học: ....................................................................</p>
+            <p>• Lý do yêu thích: ............................................................</p>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-slate-900">3. M├┤n hß╗ìc em cß║úm thß║Ñy gß║╖p nhiß╗üu kh├│ kh─ân, lo lß║»ng nhß║Ñt:</p>
-          <p class="mt-1">ΓÇó T├¬n m├┤n hß╗ìc: .........................................................................................................................</p>
+          <p class="font-bold text-slate-900">3. Môn học em cảm thấy gặp nhiều khó khăn, lo lắng nhất:</p>
+          <p class="mt-1">• Tên môn học: .........................................................................................................................</p>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1.5 pl-2 text-[11px] text-slate-700">
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mß║Ñt gß╗æc tß╗½ THCS</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Ph╞░╞íng ph├íp hß╗ìc mß╗¢i kh├│</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>B├ái tß║¡p qu├í nhiß╗üu</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Ngß║íi hß╗Åi thß║ºy c├┤</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mất gốc từ THCS</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Phương pháp học mới khó</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bài tập quá nhiều</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Ngại hỏi thầy cô</span></label>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-slate-900">4. ╞»ß╗¢c m╞í nghß╗ü nghiß╗çp hoß║╖c ─æß╗ïnh h╞░ß╗¢ng cß╗ºa em sau khi tß╗æt nghiß╗çp THPT:</p>
+          <p class="font-bold text-slate-900">4. Ước mơ nghề nghiệp hoặc định hướng của em sau khi tốt nghiệp THPT:</p>
           <p class="border-b border-dotted border-slate-400 py-1 text-slate-600">&nbsp;</p>
         </div>
 
         <div>
-          <p class="font-bold text-slate-900">5. ß╗₧ gia ─æ├¼nh, ai l├á ng╞░ß╗¥i em cß║úm thß║Ñy tin t╞░ß╗ƒng v├á dß╗à t├óm sß╗▒ nhß║Ñt?</p>
+          <p class="font-bold text-slate-900">5. Ở gia đình, ai là người em cảm thấy tin tưởng và dễ tâm sự nhất?</p>
           <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-1.5 pl-2 text-[11px] text-slate-700">
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bß╗æ</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mß║╣</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Anh / Chß╗ï / Em</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bß║ín th├ón</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Kh├┤ng c├│ ai</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bố</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mẹ</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Anh / Chị / Em</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Bạn thân</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Không có ai</span></label>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-slate-900">6. ├üp lß╗▒c hoß║╖c lo lß║»ng lß╗¢n nhß║Ñt cß╗ºa em trong giai ─æoß║ín n├áy l├á g├¼?</p>
+          <p class="font-bold text-slate-900">6. Áp lực hoặc lo lắng lớn nhất của em trong giai đoạn này là gì?</p>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1.5 pl-2 text-[11px] text-slate-700">
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>─Éiß╗âm sß╗æ & thi cß╗¡</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Kß╗│ vß╗ìng cß╗ºa cha mß║╣</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mß╗æi quan hß╗ç bß║ín b├¿</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>C├ím dß╗ù game / MXH</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Kh├│ kh─ân kinh tß║┐ / gia ─æ├¼nh</span></label>
-            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>├üp lß╗▒c kh├íc...</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Điểm số & thi cử</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Kỳ vọng của cha mẹ</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Mối quan hệ bạn bè</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Cám dỗ game / MXH</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Khó khăn kinh tế / gia đình</span></label>
+            <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span>Áp lực khác...</span></label>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-slate-900">7. ─Éiß╗üu em mong muß╗æn Thß║ºy/C├┤ chß╗º nhiß╗çm hß╗ù trß╗ú hoß║╖c lß║»ng nghe nhß║Ñt trong n─âm hß╗ìc n├áy:</p>
+          <p class="font-bold text-slate-900">7. Điều em mong muốn Thầy/Cô chủ nhiệm hỗ trợ hoặc lắng nghe nhất trong năm học này:</p>
           <p class="border-b border-dotted border-slate-400 py-1.5 text-slate-600">&nbsp;</p>
           <p class="border-b border-dotted border-slate-400 py-1.5 text-slate-600">&nbsp;</p>
         </div>
       </div>
 
-      <!-- Chß╗» k├╜ -->
+      <!-- Chữ ký -->
       <div class="pt-6 flex justify-between text-xs text-center">
         <div class="w-1/2"></div>
         <div class="w-1/2">
-          <p class="font-bold">Hß╗îC SINH B├ÇY Tß╗Ä T├éM T╞»</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n - c├│ thß╗â ─æß╗â ß║⌐n danh)</p>
+          <p class="font-bold">HỌC SINH BÀY TỎ TÂM TƯ</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên - có thể để ẩn danh)</p>
           <div class="h-16"></div>
           <p class="font-semibold text-slate-700">${student ? student.fullName : '........................................................'}</p>
         </div>
@@ -3023,110 +3011,110 @@ function generateForm1HTML(student) {
 }
 
 /**
- * BIß╗éU Mß║¬U 02: Bß║óN GIAO ╞»ß╗ÜC H├ÇNH VI V├Ç Kß║╛ HOß║áCH TIß║╛N Bß╗ÿ C├ü NH├éN
+ * BIỂU MẪU 02: BẢN GIAO ƯỚC HÀNH VI VÀ KẾ HOẠCH TIẾN BỘ CÁ NHÂN
  */
 function generateForm2HTML(student, deskMate) {
   const nameVal = student ? student.fullName : '....................................................................';
-  const groupVal = student ? `Tß╗ò ${student.groupNumber}` : '................';
-  const deskMateVal = deskMate ? `${deskMate.fullName}${deskMate.role !== 'Th├ánh vi├¬n' ? ' (' + deskMate.role + ')' : ''}` : '....................................................................';
+  const groupVal = student ? `Tổ ${student.groupNumber}` : '................';
+  const deskMateVal = deskMate ? `${deskMate.fullName}${deskMate.role !== 'Thành viên' ? ' (' + deskMate.role + ')' : ''}` : '....................................................................';
 
   return `
     <div class="pedagogical-a4-document space-y-4 text-slate-800 leading-relaxed">
-      <!-- Header Bß╗Ö GD&─ÉT -->
+      <!-- Header Bộ GD&ĐT -->
       <div class="flex justify-between items-start border-b pb-3 border-slate-300">
         <div class="text-center font-bold text-xs uppercase leading-tight">
-          Sß╗₧ GD&─ÉT L├éM ─Éß╗ÆNG<br>
-          <span class="text-sm font-extrabold text-blue-900">TR╞»ß╗£NG THPT B├ÖI THß╗è XU├éN - M┼¿I N├ë</span><br>
-          <span class="font-normal text-[11px] text-slate-500">Lß╗¢p: 10A3 ΓÇó N─âm hß╗ìc 2026 - 2027</span>
+          SỞ GD&ĐT LÂM ĐỒNG<br>
+          <span class="text-sm font-extrabold text-blue-900">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</span><br>
+          <span class="font-normal text-[11px] text-slate-500">Lớp: 10A3 • Năm học 2026 - 2027</span>
         </div>
         <div class="text-center font-bold text-xs leading-tight">
-          Cß╗ÿNG H├ÆA X├â Hß╗ÿI CHß╗ª NGH─¿A VIß╗åT NAM<br>
-          <span class="text-xs font-semibold underline">─Éß╗Öc lß║¡p ΓÇö Tß╗▒ do ΓÇö Hß║ính ph├║c</span><br>
-          <span class="font-normal italic text-[11px] text-slate-500">M┼⌐i N├⌐, ng├áy ..... th├íng ..... n─âm 2026</span>
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
+          <span class="text-xs font-semibold underline">Độc lập — Tự do — Hạnh phúc</span><br>
+          <span class="font-normal italic text-[11px] text-slate-500">Mũi Né, ngày ..... tháng ..... năm 2026</span>
         </div>
       </div>
 
-      <!-- Ti├¬u ─æß╗ü ch├¡nh -->
+      <!-- Tiêu đề chính -->
       <div class="text-center py-2">
         <h1 class="text-base sm:text-lg font-black uppercase text-purple-900 tracking-wide">
-          Bß║óN GIAO ╞»ß╗ÜC H├ÇNH VI & Kß║╛ HOß║áCH TIß║╛N Bß╗ÿ C├ü NH├éN
+          BẢN GIAO ƯỚC HÀNH VI & KẾ HOẠCH TIẾN BỘ CÁ NHÂN
         </h1>
         <p class="text-xs italic text-slate-600 mt-0.5">
-          (Thß╗▒c hiß╗çn theo ─æß╗ïnh h╞░ß╗¢ng Kß╗╖ luß║¡t t├¡ch cß╗▒c ΓÇô Tß╗▒ nguyß╗çn k├╜ kß║┐t giß╗»a Hß╗ìc sinh, Phß╗Ñ huynh v├á GVCN)
+          (Thực hiện theo định hướng Kỷ luật tích cực – Tự nguyện ký kết giữa Học sinh, Phụ huynh và GVCN)
         </p>
       </div>
 
-      <!-- Th├┤ng tin & Cam kß║┐t mß╗ƒ ─æß║ºu -->
+      <!-- Thông tin & Cam kết mở đầu -->
       <div class="text-xs space-y-2">
-        <p>H├┤m nay, ng├áy ..... th├íng ..... n─âm 2026, tß║íi Tr╞░ß╗¥ng THPT B├╣i Thß╗ï Xu├ón - M┼⌐i N├⌐.</p>
-        <p>T├┤i t├¬n l├á: <span class="text-blue-900 font-bold">${nameVal}</span> &nbsp;&nbsp;ΓÇó&nbsp;&nbsp; Hß╗ìc sinh Lß╗¢p: <b>10A3</b> &nbsp;&nbsp;ΓÇó&nbsp;&nbsp; ${groupVal}</p>
+        <p>Hôm nay, ngày ..... tháng ..... năm 2026, tại Trường THPT Bùi Thị Xuân - Mũi Né.</p>
+        <p>Tôi tên là: <span class="text-blue-900 font-bold">${nameVal}</span> &nbsp;&nbsp;•&nbsp;&nbsp; Học sinh Lớp: <b>10A3</b> &nbsp;&nbsp;•&nbsp;&nbsp; ${groupVal}</p>
         <p class="italic text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200">
-          "Nhß║¡n thß╗⌐c r├╡ tr├ích nhiß╗çm cß╗ºa bß║ún th├ón ─æß╗æi vß╗¢i kß║┐t quß║ú hß╗ìc tß║¡p v├á r├¿n luyß╗çn ─æß║ío ─æß╗⌐c tß║íi tr╞░ß╗¥ng, ─æ╞░ß╗úc sß╗▒ lß║»ng nghe v├á ─æß╗ïnh h╞░ß╗¢ng tß╗½ Thß║ºy/C├┤ chß╗º nhiß╗çm, t├┤i tß╗▒ nguyß╗çn lß║¡p bß║ún giao ╞░ß╗¢c n├áy v├á cam kß║┐t nß╗ù lß╗▒c thß╗▒c hiß╗çn nghi├¬m t├║c trong 4 tuß║ºn tß╗¢i:"
+          "Nhận thức rõ trách nhiệm của bản thân đối với kết quả học tập và rèn luyện đạo đức tại trường, được sự lắng nghe và định hướng từ Thầy/Cô chủ nhiệm, tôi tự nguyện lập bản giao ước này và cam kết nỗ lực thực hiện nghiêm túc trong 4 tuần tới:"
         </p>
       </div>
 
-      <!-- C├íc hß║íng mß╗Ñc giao ╞░ß╗¢c -->
+      <!-- Các hạng mục giao ước -->
       <div class="space-y-3.5 text-xs pt-1">
         <div>
-          <p class="font-bold text-rose-900 uppercase">I. 03 H├ánh vi em cam kß║┐t tß╗▒ gi├íc chß║Ñm dß╗⌐t (Tß╗½ bß╗Å th├│i quen xß║Ñu):</p>
+          <p class="font-bold text-rose-900 uppercase">I. 03 Hành vi em cam kết tự giác chấm dứt (Từ bỏ thói quen xấu):</p>
           <div class="space-y-1.5 mt-1 pl-2">
-            <p>1. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Kh├┤ng ─æi hß╗ìc muß╗Ön, kh├┤ng c├║p tiß║┐t, kh├┤ng vß║»ng kh├┤ng ph├⌐p.</span></p>
-            <p>2. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Kh├┤ng sß╗¡ dß╗Ñng ─æiß╗çn thoß║íi t├╣y tiß╗çn / ch╞íi game / l├ám viß╗çc ri├¬ng trong giß╗¥ hß╗ìc.</span></p>
+            <p>1. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Không đi học muộn, không cúp tiết, không vắng không phép.</span></p>
+            <p>2. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Không sử dụng điện thoại tùy tiện / chơi game / làm việc riêng trong giờ học.</span></p>
             <p>3. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">........................................................................................................................................................</span></p>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-emerald-900 uppercase">II. 03 H├ánh vi t├¡ch cß╗▒c em cam kß║┐t thß╗▒c hiß╗çn h├áng ng├áy:</p>
+          <p class="font-bold text-emerald-900 uppercase">II. 03 Hành vi tích cực em cam kết thực hiện hàng ngày:</p>
           <div class="space-y-1.5 mt-1 pl-2">
-            <p>1. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Chuß║⌐n bß╗ï ─æß╗º s├ích vß╗ƒ, l├ám b├ái tß║¡p vß╗ü nh├á tr╞░ß╗¢c khi ─æß║┐n lß╗¢p; ch├║ ├╜ lß║»ng nghe b├ái giß║úng.</span></p>
-            <p>2. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">─Éß╗ông phß╗Ñc, t├íc phong chuß║⌐n mß╗▒c; lß╗à ph├⌐p vß╗¢i thß║ºy c├┤ v├á h├▓a nh├ú vß╗¢i bß║ín b├¿.</span></p>
+            <p>1. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Chuẩn bị đủ sách vở, làm bài tập về nhà trước khi đến lớp; chú ý lắng nghe bài giảng.</span></p>
+            <p>2. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">Đồng phục, tác phong chuẩn mực; lễ phép với thầy cô và hòa nhã với bạn bè.</span></p>
             <p>3. <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[95%]">........................................................................................................................................................</span></p>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-blue-900 uppercase">III. Mß╗Ñc ti├¬u nß╗ù lß╗▒c vi m├┤ (Baby Steps) trong 4 tuß║ºn tß╗¢i:</p>
+          <p class="font-bold text-blue-900 uppercase">III. Mục tiêu nỗ lực vi mô (Baby Steps) trong 4 tuần tới:</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1 pl-2">
-            <p>ΓÇó Chuy├¬n cß║ºn 100%, kh├┤ng vi phß║ím nß╗Öi quy.</p>
-            <p>ΓÇó ─Éiß╗âm kiß╗âm tra c├íc m├┤n ─æß║ít tß╗æi thiß╗âu: <span class="font-bold text-blue-900">.......... ─æiß╗âm</span>.</p>
+            <p>• Chuyên cần 100%, không vi phạm nội quy.</p>
+            <p>• Điểm kiểm tra các môn đạt tối thiểu: <span class="font-bold text-blue-900">.......... điểm</span>.</p>
           </div>
         </div>
 
         <div>
-          <p class="font-bold text-indigo-900 uppercase">IV. Ng╞░ß╗¥i ─æß╗ông h├ánh hß╗ù trß╗ú tß║íi lß╗¢p (M├┤ h├¼nh ─É├┤i bß║ín c├╣ng tiß║┐n):</p>
-          <p class="mt-1 pl-2">ΓÇó Bß║ín ─æß╗ông h├ánh: <span class="font-bold text-blue-900">${deskMateVal}</span></p>
-          <p class="text-[11px] text-slate-600 pl-2">ΓÇó Nhiß╗çm vß╗Ñ: C├╣ng ngß╗ôi hß╗ìc, kiß╗âm tra ch├⌐o b├ái vß╗ƒ ─æß║ºu giß╗¥, ─æ├┤n ─æß╗æc nhß║»c nhß╗ƒ nß╗ü nß║┐p v├á hß╗ù trß╗ú nhau hß╗ìc tß║¡p.</p>
+          <p class="font-bold text-indigo-900 uppercase">IV. Người đồng hành hỗ trợ tại lớp (Mô hình Đôi bạn cùng tiến):</p>
+          <p class="mt-1 pl-2">• Bạn đồng hành: <span class="font-bold text-blue-900">${deskMateVal}</span></p>
+          <p class="text-[11px] text-slate-600 pl-2">• Nhiệm vụ: Cùng ngồi học, kiểm tra chéo bài vở đầu giờ, đôn đốc nhắc nhở nề nếp và hỗ trợ nhau học tập.</p>
         </div>
 
         <div>
-          <p class="font-bold text-purple-900 uppercase">V. ─Éß╗Öng lß╗▒c ghi nhß║¡n & Biß╗çn ph├íp khß║»c phß╗Ñc hß╗ç quß║ú logic:</p>
+          <p class="font-bold text-purple-900 uppercase">V. Động lực ghi nhận & Biện pháp khắc phục hệ quả logic:</p>
           <div class="space-y-1 mt-1 pl-2 text-[11px]">
-            <p><b>1. Phß║ºn th╞░ß╗ƒng / Sß╗▒ ghi nhß║¡n mong muß╗æn khi ho├án th├ánh tß╗æt cam kß║┐t:</b></p>
-            <p class="border-b border-dotted border-slate-400 pb-0.5 w-[95%] italic text-slate-600">─É╞░ß╗úc cß╗Öng 20 ─æiß╗âm r├¿n luyß╗çn, tuy├¬n d╞░╞íng tr╞░ß╗¢c lß╗¢p, xß║┐p loß║íi R├¿n luyß╗çn Tß╗æt th├íng.</p>
-            <p class="pt-1"><b>2. H├¼nh thß╗⌐c tß╗▒ gi├íc khß║»c phß╗Ñc hß╗ç quß║ú nß║┐u t├íi vi phß║ím:</b></p>
-            <p class="border-b border-dotted border-slate-400 pb-0.5 w-[95%] italic text-slate-600">Tß╗▒ gi├íc trß╗▒c nhß║¡t b├╣ 1 tuß║ºn, ch─âm s├│c bß╗ôn hoa s├ón tr╞░ß╗¥ng, b├án giao ─æiß╗çn thoß║íi cho GVCN cß║Ñt tß╗º ─æß║ºu giß╗¥.</p>
+            <p><b>1. Phần thưởng / Sự ghi nhận mong muốn khi hoàn thành tốt cam kết:</b></p>
+            <p class="border-b border-dotted border-slate-400 pb-0.5 w-[95%] italic text-slate-600">Được cộng 20 điểm rèn luyện, tuyên dương trước lớp, xếp loại Rèn luyện Tốt tháng.</p>
+            <p class="pt-1"><b>2. Hình thức tự giác khắc phục hệ quả nếu tái vi phạm:</b></p>
+            <p class="border-b border-dotted border-slate-400 pb-0.5 w-[95%] italic text-slate-600">Tự giác trực nhật bù 1 tuần, chăm sóc bồn hoa sân trường, bàn giao điện thoại cho GVCN cất tủ đầu giờ.</p>
           </div>
         </div>
       </div>
 
-      <!-- Chß╗» k├╜ 3 b├¬n -->
+      <!-- Chữ ký 3 bên -->
       <div class="pt-6 grid grid-cols-3 gap-2 text-xs text-center border-t border-slate-300">
         <div>
-          <p class="font-bold uppercase">─Éß║áI DIß╗åN PHß╗ñ HUYNH</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">ĐẠI DIỆN PHỤ HUYNH</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
           <div class="h-16"></div>
           <p class="font-semibold text-slate-600">................................................</p>
         </div>
         <div>
-          <p class="font-bold uppercase">Hß╗îC SINH CAM Kß║╛T</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">HỌC SINH CAM KẾT</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
           <div class="h-16"></div>
           <p class="font-semibold text-blue-900">${student ? student.fullName : '................................................'}</p>
         </div>
         <div>
-          <p class="font-bold uppercase">GI├üO VI├èN CHß╗ª NHIß╗åM</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
           <div class="h-16"></div>
           <p class="font-semibold text-slate-600">................................................</p>
         </div>
@@ -3136,171 +3124,171 @@ function generateForm2HTML(student, deskMate) {
 }
 
 /**
- * BIß╗éU Mß║¬U 03: Sß╗ö THEO D├òI TIß║╛N Bß╗ÿ H├ÇNG TUß║ªN (WEEKLY PROGRESS LOG)
+ * BIỂU MẪU 03: SỔ THEO DÕI TIẾN BỘ HÀNG TUẦN (WEEKLY PROGRESS LOG)
  */
 function generateForm3HTML(student, deskMate) {
   const nameVal = student ? student.fullName : '....................................................................';
-  const groupVal = student ? `Tß╗ò ${student.groupNumber}` : '................';
-  const deskMateVal = deskMate ? `${deskMate.fullName}${deskMate.role !== 'Th├ánh vi├¬n' ? ' (' + deskMate.role + ')' : ''}` : '....................................................................';
+  const groupVal = student ? `Tổ ${student.groupNumber}` : '................';
+  const deskMateVal = deskMate ? `${deskMate.fullName}${deskMate.role !== 'Thành viên' ? ' (' + deskMate.role + ')' : ''}` : '....................................................................';
 
   return `
     <div class="pedagogical-a4-document space-y-4 text-slate-800 leading-relaxed">
-      <!-- Header Bß╗Ö GD&─ÉT -->
+      <!-- Header Bộ GD&ĐT -->
       <div class="flex justify-between items-start border-b pb-3 border-slate-300">
         <div class="text-center font-bold text-xs uppercase leading-tight">
-          Sß╗₧ GD&─ÉT L├éM ─Éß╗ÆNG<br>
-          <span class="text-sm font-extrabold text-blue-900">TR╞»ß╗£NG THPT B├ÖI THß╗è XU├éN - M┼¿I N├ë</span><br>
-          <span class="font-normal text-[11px] text-slate-500">Lß╗¢p: 10A3 ΓÇó N─âm hß╗ìc 2026 - 2027</span>
+          SỞ GD&ĐT LÂM ĐỒNG<br>
+          <span class="text-sm font-extrabold text-blue-900">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</span><br>
+          <span class="font-normal text-[11px] text-slate-500">Lớp: 10A3 • Năm học 2026 - 2027</span>
         </div>
         <div class="text-center font-bold text-xs leading-tight">
-          Cß╗ÿNG H├ÆA X├â Hß╗ÿI CHß╗ª NGH─¿A VIß╗åT NAM<br>
-          <span class="text-xs font-semibold underline">─Éß╗Öc lß║¡p ΓÇö Tß╗▒ do ΓÇö Hß║ính ph├║c</span><br>
-          <span class="font-normal italic text-[11px] text-slate-500">M┼⌐i N├⌐, ng├áy ..... th├íng ..... n─âm 2026</span>
+          CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>
+          <span class="text-xs font-semibold underline">Độc lập — Tự do — Hạnh phúc</span><br>
+          <span class="font-normal italic text-[11px] text-slate-500">Mũi Né, ngày ..... tháng ..... năm 2026</span>
         </div>
       </div>
 
-      <!-- Ti├¬u ─æß╗ü ch├¡nh -->
+      <!-- Tiêu đề chính -->
       <div class="text-center py-2">
         <h1 class="text-base sm:text-lg font-black uppercase text-purple-900 tracking-wide">
-          Sß╗ö THEO D├òI TIß║╛N Bß╗ÿ H├ÇNG TUß║ªN (WEEKLY PROGRESS LOG)
+          SỔ THEO DÕI TIẾN BỘ HÀNG TUẦN (WEEKLY PROGRESS LOG)
         </h1>
         <p class="text-xs italic text-slate-600 mt-0.5">
-          (D├ánh cho Ban C├ín sß╗▒ lß╗¢p & GVCN phß╗æi hß╗úp ghi nhß║¡n sß╗▒ chuyß╗ân biß║┐n t├¡ch cß╗▒c cß╗ºa hß╗ìc sinh)
+          (Dành cho Ban Cán sự lớp & GVCN phối hợp ghi nhận sự chuyển biến tích cực của học sinh)
         </p>
       </div>
 
-      <!-- Th├┤ng tin hß╗ìc sinh -->
+      <!-- Thông tin học sinh -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs bg-slate-50 p-2.5 rounded border border-slate-200">
-        <div><b>Hß╗ìc sinh:</b> <span class="text-blue-900 font-bold">${nameVal}</span></div>
-        <div><b>Lß╗¢p:</b> <span class="font-bold">10A3</span> ΓÇó <b>Tß╗ò:</b> ${groupVal}</div>
-        <div><b>Bß║ín ─æß╗ông h├ánh:</b> <span class="text-slate-800 font-bold">${deskMateVal}</span></div>
+        <div><b>Học sinh:</b> <span class="text-blue-900 font-bold">${nameVal}</span></div>
+        <div><b>Lớp:</b> <span class="font-bold">10A3</span> • <b>Tổ:</b> ${groupVal}</div>
+        <div><b>Bạn đồng hành:</b> <span class="text-slate-800 font-bold">${deskMateVal}</span></div>
       </div>
 
-      <!-- Bß║úng theo d├╡i 4 tuß║ºn -->
+      <!-- Bảng theo dõi 4 tuần -->
       <div class="overflow-x-auto pt-1">
         <table class="w-full border-collapse border border-slate-400 text-xs">
           <thead>
             <tr class="bg-purple-100/70 text-purple-950 font-bold text-center">
-              <th class="border border-slate-400 p-2 w-16">Thß╗¥i gian</th>
-              <th class="border border-slate-400 p-2 w-48">Chuy├¬n cß║ºn & Nß╗ün nß║┐p</th>
-              <th class="border border-slate-400 p-2 w-48">├¥ thß╗⌐c hß╗ìc tß║¡p & ─Éiß╗âm sß╗æ</th>
-              <th class="border border-slate-400 p-2">Viß╗çc tß╗æt / Nß╗ù lß╗▒c vi m├┤ ghi nhß║¡n</th>
-              <th class="border border-slate-400 p-2 w-32">─É├ính gi├í cß╗ºa GVCN</th>
+              <th class="border border-slate-400 p-2 w-16">Thời gian</th>
+              <th class="border border-slate-400 p-2 w-48">Chuyên cần & Nền nếp</th>
+              <th class="border border-slate-400 p-2 w-48">Ý thức học tập & Điểm số</th>
+              <th class="border border-slate-400 p-2">Việc tốt / Nỗ lực vi mô ghi nhận</th>
+              <th class="border border-slate-400 p-2 w-32">Đánh giá của GVCN</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuß║ºn 1</td>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 1</td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó ─Éi muß╗Ön: ...... buß╗òi</p>
-                <p>ΓÇó ─Éß╗ông phß╗Ñc: ................</p>
-                <p>ΓÇó Giß╗» trß║¡t tß╗▒ trong giß╗¥: [ ] Tß╗æt</p>
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó Vß╗ƒ ghi b├ái: [ ] ─Éß║ºy ─æß╗º</p>
-                <p>ΓÇó B├ái tß║¡p vß╗ü nh├á: ..............</p>
-                <p>ΓÇó ─Éiß╗âm kiß╗âm tra: ...............</p>
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p class="text-slate-500 italic">V├¡ dß╗Ñ: T├¡ch cß╗▒c k├¬ b├án ghß║┐, chuß║⌐n bß╗ï phß║Ñn bß║úng cho lß╗¢p, gi├║p bß║ín trß╗▒c nhß║¡t...</p>
+                <p class="text-slate-500 italic">Ví dụ: Tích cực kê bàn ghế, chuẩn bị phấn bảng cho lớp, giúp bạn trực nhật...</p>
               </td>
               <td class="border border-slate-400 p-2 text-center text-[11px]">
                 <div class="h-10"></div>
-                <p class="text-[10px] text-slate-400">(K├╜ duyß╗çt)</p>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
               </td>
             </tr>
             <tr>
-              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuß║ºn 2</td>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 2</td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó ─Éi muß╗Ön: ...... buß╗òi</p>
-                <p>ΓÇó ─Éß╗ông phß╗Ñc: ................</p>
-                <p>ΓÇó Giß╗» trß║¡t tß╗▒ trong giß╗¥: [ ] Tß╗æt</p>
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó Vß╗ƒ ghi b├ái: [ ] ─Éß║ºy ─æß╗º</p>
-                <p>ΓÇó B├ái tß║¡p vß╗ü nh├á: ..............</p>
-                <p>ΓÇó ─Éiß╗âm kiß╗âm tra: ...............</p>
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p class="text-slate-500 italic">V├¡ dß╗Ñ: C├│ tiß║┐n bß╗Ö r├╡ rß╗çt trong giß╗¥ To├ín/L├╜, ph├ít biß╗âu x├óy dß╗▒ng b├ái 2 lß║ºn...</p>
+                <p class="text-slate-500 italic">Ví dụ: Có tiến bộ rõ rệt trong giờ Toán/Lý, phát biểu xây dựng bài 2 lần...</p>
               </td>
               <td class="border border-slate-400 p-2 text-center text-[11px]">
                 <div class="h-10"></div>
-                <p class="text-[10px] text-slate-400">(K├╜ duyß╗çt)</p>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
               </td>
             </tr>
             <tr>
-              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuß║ºn 3</td>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 3</td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó ─Éi muß╗Ön: ...... buß╗òi</p>
-                <p>ΓÇó ─Éß╗ông phß╗Ñc: ................</p>
-                <p>ΓÇó Giß╗» trß║¡t tß╗▒ trong giß╗¥: [ ] Tß╗æt</p>
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó Vß╗ƒ ghi b├ái: [ ] ─Éß║ºy ─æß╗º</p>
-                <p>ΓÇó B├ái tß║¡p vß╗ü nh├á: ..............</p>
-                <p>ΓÇó ─Éiß╗âm kiß╗âm tra: ...............</p>
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p class="text-slate-500 italic">V├¡ dß╗Ñ: Tß╗▒ gi├íc hß╗ìc b├ái, kh├┤ng d├╣ng ─æiß╗çn thoß║íi, c├╣ng bß║ín ─æß║ít ─æiß╗âm kh├í...</p>
+                <p class="text-slate-500 italic">Ví dụ: Tự giác học bài, không dùng điện thoại, cùng bạn đạt điểm khá...</p>
               </td>
               <td class="border border-slate-400 p-2 text-center text-[11px]">
                 <div class="h-10"></div>
-                <p class="text-[10px] text-slate-400">(K├╜ duyß╗çt)</p>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
               </td>
             </tr>
             <tr>
-              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuß║ºn 4</td>
+              <td class="border border-slate-400 p-2.5 font-bold text-center bg-slate-50">Tuần 4</td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó ─Éi muß╗Ön: ...... buß╗òi</p>
-                <p>ΓÇó ─Éß╗ông phß╗Ñc: ................</p>
-                <p>ΓÇó Giß╗» trß║¡t tß╗▒ trong giß╗¥: [ ] Tß╗æt</p>
+                <p>• Đi muộn: ...... buổi</p>
+                <p>• Đồng phục: ................</p>
+                <p>• Giữ trật tự trong giờ: [ ] Tốt</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p>ΓÇó Vß╗ƒ ghi b├ái: [ ] ─Éß║ºy ─æß╗º</p>
-                <p>ΓÇó B├ái tß║¡p vß╗ü nh├á: ..............</p>
-                <p>ΓÇó ─Éiß╗âm kiß╗âm tra: ...............</p>
+                <p>• Vở ghi bài: [ ] Đầy đủ</p>
+                <p>• Bài tập về nhà: ..............</p>
+                <p>• Điểm kiểm tra: ...............</p>
               </td>
               <td class="border border-slate-400 p-2 text-[11px]">
-                <p class="text-slate-500 italic">V├¡ dß╗Ñ: Ho├án th├ánh 100% mß╗Ñc ti├¬u cam kß║┐t, ─æß║ít danh hiß╗çu Hß╗ìc sinh nß╗ù lß╗▒c tuß║ºn...</p>
+                <p class="text-slate-500 italic">Ví dụ: Hoàn thành 100% mục tiêu cam kết, đạt danh hiệu Học sinh nỗ lực tuần...</p>
               </td>
               <td class="border border-slate-400 p-2 text-center text-[11px]">
                 <div class="h-10"></div>
-                <p class="text-[10px] text-slate-400">(K├╜ duyß╗çt)</p>
+                <p class="text-[10px] text-slate-400">(Ký duyệt)</p>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- ─É├ính gi├í tß╗òng kß║┐t sau 4 tuß║ºn -->
+      <!-- Đánh giá tổng kết sau 4 tuần -->
       <div class="bg-purple-50/50 p-3 rounded border border-purple-200 text-xs space-y-2">
-        <p class="font-bold text-purple-900">Kß║╛T LUß║¼N CHUNG SAU 4 TUß║ªN Cß╗ªA GVCN:</p>
+        <p class="font-bold text-purple-900">KẾT LUẬN CHUNG SAU 4 TUẦN CỦA GVCN:</p>
         <div class="flex flex-wrap gap-4 pl-2 text-[11px]">
-          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>─Éß║ít mß╗Ñc ti├¬u giao ╞░ß╗¢c:</b> Tuy├¬n d╞░╞íng tr╞░ß╗¢c lß╗¢p & ghi nhß║¡n ─æiß╗âm cß╗Öng</span></label>
-          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>C├│ tiß║┐n bß╗Ö:</b> Cß║ºn tiß║┐p tß╗Ñc duy tr├¼ v├á ─æ├┤n ─æß╗æc th├¬m</span></label>
-          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Ch╞░a ─æß║ít:</b> Cß║ºn hß╗ìp gia ─æ├¼nh ─æß╗â ─æiß╗üu chß╗ënh giß║úi ph├íp</span></label>
+          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Đạt mục tiêu giao ước:</b> Tuyên dương trước lớp & ghi nhận điểm cộng</span></label>
+          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Có tiến bộ:</b> Cần tiếp tục duy trì và đôn đốc thêm</span></label>
+          <label class="flex items-center space-x-1.5"><input type="checkbox" class="rounded"> <span><b>Chưa đạt:</b> Cần họp gia đình để điều chỉnh giải pháp</span></label>
         </div>
-        <p class="pt-1"><b>Nhß║¡n x├⌐t cß╗Ñ thß╗â cß╗ºa GVCN:</b> <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[80%]">....................................................................................................</span></p>
+        <p class="pt-1"><b>Nhận xét cụ thể của GVCN:</b> <span class="border-b border-dotted border-slate-400 pb-0.5 inline-block w-[80%]">....................................................................................................</span></p>
       </div>
 
-      <!-- Chß╗» k├╜ x├íc nhß║¡n -->
+      <!-- Chữ ký xác nhận -->
       <div class="pt-4 grid grid-cols-3 gap-2 text-xs text-center border-t border-slate-300">
         <div>
-          <p class="font-bold uppercase">BAN C├üN Sß╗░ Lß╗ÜP</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">BAN CÁN SỰ LỚP</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
           <div class="h-14"></div>
           <p class="font-semibold text-slate-600">................................................</p>
         </div>
         <div>
-          <p class="font-bold uppercase">├¥ KIß║╛N PHß╗ñ HUYNH</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">Ý KIẾN PHỤ HUYNH</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
           <div class="h-14"></div>
           <p class="font-semibold text-slate-600">................................................</p>
         </div>
         <div>
-          <p class="font-bold uppercase">GI├üO VI├èN CHß╗ª NHIß╗åM</p>
-          <p class="italic text-[11px] text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="italic text-[11px] text-slate-500">(Ký và ghi rõ họ tên)</p>
           <div class="h-14"></div>
           <p class="font-semibold text-slate-600">................................................</p>
         </div>
@@ -3310,12 +3298,12 @@ function generateForm3HTML(student, deskMate) {
 }
 
 /**
- * Thß╗▒c hiß╗çn in biß╗âu mß║½u s╞░ phß║ím hiß╗çn tß║íi: Khß╗ò dß╗ìc A4 (Portrait)
+ * Thực hiện in biểu mẫu sư phạm hiện tại: Khổ dọc A4 (Portrait)
  */
 function printCurrentPedagogicalForm() {
   const paper = document.getElementById('pedagogical-form-paper');
   if (!paper) {
-    showToast('Kh├┤ng t├¼m thß║Ñy nß╗Öi dung biß╗âu mß║½u ─æß╗â in!', 'error');
+    showToast('Không tìm thấy nội dung biểu mẫu để in!', 'error');
     return;
   }
 
@@ -3335,7 +3323,7 @@ function printCurrentPedagogicalForm() {
     <html lang="vi">
     <head>
       <meta charset="UTF-8">
-      <title>Biß╗âu Mß║½u S╞░ Phß║ím Lß╗¢p 10A3</title>
+      <title>Biểu Mẫu Sư Phạm Lớp 10A3</title>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
       <style>
         @page {
@@ -3399,7 +3387,7 @@ function printCurrentPedagogicalForm() {
   }, 300);
 }
 
-// ==================== CHß║╛ ─Éß╗ÿ S├üNG / Tß╗ÉI & HIß╗åU ß╗¿NG NG├öI SAO Lß║ñP L├üNH ====================
+// ==================== CHẾ ĐỘ SÁNG / TỐI & HIỆU ỨNG NGÔI SAO LẤP LÁNH ====================
 
 let starfieldAnimationId = null;
 let starfieldStars = [];
@@ -3407,7 +3395,7 @@ let activeShootingStar = null;
 let starfieldClickBursts = [];
 
 /**
- * Khß╗ƒi tß║ío Theme (Dark/Light) v├á Bß║ºu trß╗¥i sao lß║Ñp l├ính
+ * Khởi tạo Theme (Dark/Light) và Bầu trời sao lấp lánh
  */
 function initThemeAndStarfield() {
   const savedTheme = localStorage.getItem('dashboard10a3_theme');
@@ -3427,7 +3415,7 @@ function initThemeAndStarfield() {
 }
 
 /**
- * ├üp dß╗Ñng chß║┐ ─æß╗Ö m├áu S├íng / Tß╗æi
+ * Áp dụng chế độ màu Sáng / Tối
  */
 function applyTheme(theme, notify = true) {
   appState.theme = theme;
@@ -3446,27 +3434,27 @@ function applyTheme(theme, notify = true) {
       toggleIcon.className = 'fa-solid fa-sun text-amber-400 text-sm';
     }
     if (toggleBtn) {
-      toggleBtn.title = 'Chß║┐ ─æß╗Ö S├íng (Click ─æß╗â bß║¡t)';
+      toggleBtn.title = 'Chế độ Sáng (Click để bật)';
     }
     if (canvas && appState.starsEnabled) {
       canvas.style.opacity = '0.75';
     }
-    if (notify) showToast('─É├ú chuyß╗ân sang chß║┐ ─æß╗Ö Tß╗æi (Dark Mode) ≡ƒîÖ', 'info');
+    if (notify) showToast('Đã chuyển sang chế độ Tối (Dark Mode) 🌙', 'info');
   } else {
     htmlEl.classList.remove('dark');
     if (toggleIcon) {
       toggleIcon.className = 'fa-solid fa-moon text-slate-500 text-sm';
     }
     if (toggleBtn) {
-      toggleBtn.title = 'Chß║┐ ─æß╗Ö Tß╗æi (Click ─æß╗â bß║¡t)';
+      toggleBtn.title = 'Chế độ Tối (Click để bật)';
     }
     if (canvas && appState.starsEnabled) {
       canvas.style.opacity = '0.4';
     }
-    if (notify) showToast('─É├ú chuyß╗ân sang chß║┐ ─æß╗Ö S├íng (Light Mode) ΓÿÇ∩╕Å', 'info');
+    if (notify) showToast('Đã chuyển sang chế độ Sáng (Light Mode) ☀️', 'info');
   }
 
-  // Cß║¡p nhß║¡t lß║íi biß╗âu ─æß╗ô nß║┐u ─æang hiß╗ân thß╗ï
+  // Cập nhật lại biểu đồ nếu đang hiển thị
   if (appState.charts.groupsChart || appState.charts.ratingsChart) {
     try {
       renderCharts();
@@ -3475,7 +3463,7 @@ function applyTheme(theme, notify = true) {
 }
 
 /**
- * Bß║¡t / tß║»t chß║┐ ─æß╗Ö Dark Mode
+ * Bật / tắt chế độ Dark Mode
  */
 function toggleDarkMode() {
   const newTheme = appState.theme === 'dark' ? 'light' : 'dark';
@@ -3483,7 +3471,7 @@ function toggleDarkMode() {
 }
 
 /**
- * Bß║¡t / tß║»t hiß╗çu ß╗⌐ng Bß║ºu trß╗¥i sao lß║Ñp l├ính
+ * Bật / tắt hiệu ứng Bầu trời sao lấp lánh
  */
 function toggleStarfield() {
   appState.starsEnabled = !appState.starsEnabled;
@@ -3504,13 +3492,13 @@ function toggleStarfield() {
   }
 
   showToast(
-    appState.starsEnabled ? '─É├ú bß║¡t hiß╗çu ß╗⌐ng Bß║ºu trß╗¥i sao lß║Ñp l├ính Γ£¿' : '─É├ú tß║»t hiß╗çu ß╗⌐ng Bß║ºu trß╗¥i sao', 
+    appState.starsEnabled ? 'Đã bật hiệu ứng Bầu trời sao lấp lánh ✨' : 'Đã tắt hiệu ứng Bầu trời sao', 
     'info'
   );
 }
 
 /**
- * ─Éß╗Öng c╞í vß║╜ Bß║ºu trß╗¥i sao v├á Sao b─âng (Starfield Canvas Engine)
+ * Động cơ vẽ Bầu trời sao và Sao băng (Starfield Canvas Engine)
  */
 function initStarfieldEngine() {
   const canvas = document.getElementById('starfield-canvas');
@@ -3526,7 +3514,7 @@ function initStarfieldEngine() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  // Tß║ío 85 ng├┤i sao ngß║½u nhi├¬n
+  // Tạo 85 ngôi sao ngẫu nhiên
   const starColors = ['#ffffff', '#fef08a', '#93c5fd', '#c084fc', '#6ee7b7'];
   starfieldStars = [];
   const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 14000), 100);
@@ -3543,9 +3531,9 @@ function initStarfieldEngine() {
     });
   }
 
-  // Khß╗ƒi tß║ío sao b─âng ngß║½u nhi├¬n
+  // Khởi tạo sao băng ngẫu nhiên
   let lastShootingStarTime = Date.now();
-  const shootingStarInterval = 9000; // ~9 gi├óy c├│ 1 sao b─âng l╞░ß╗¢t qua
+  const shootingStarInterval = 9000; // ~9 giây có 1 sao băng lướt qua
 
   function spawnShootingStar() {
     activeShootingStar = {
@@ -3566,7 +3554,7 @@ function initStarfieldEngine() {
     if (appState.starsEnabled) {
       const now = Date.now();
 
-      // Vß║╜ c├íc ng├┤i sao lß║Ñp l├ính
+      // Vẽ các ngôi sao lấp lánh
       starfieldStars.forEach(star => {
         star.phase += star.twinkleSpeed;
         const currentAlpha = star.baseAlpha + Math.sin(star.phase) * 0.35;
@@ -3581,7 +3569,7 @@ function initStarfieldEngine() {
         ctx.fill();
       });
 
-      // Tß║ío sao b─âng ─æß╗ïnh kß╗│
+      // Tạo sao băng định kỳ
       if (!activeShootingStar && now - lastShootingStarTime > shootingStarInterval) {
         if (Math.random() < 0.6) {
           spawnShootingStar();
@@ -3589,7 +3577,7 @@ function initStarfieldEngine() {
         lastShootingStarTime = now;
       }
 
-      // Vß║╜ v├á cß║¡p nhß║¡t sao b─âng
+      // Vẽ và cập nhật sao băng
       if (activeShootingStar) {
         const ss = activeShootingStar;
         const tailX = ss.x - Math.cos(ss.angle) * ss.length;
@@ -3610,7 +3598,7 @@ function initStarfieldEngine() {
         ctx.shadowBlur = 10;
         ctx.stroke();
 
-        // Di chuyß╗ân sao b─âng
+        // Di chuyển sao băng
         ss.x += Math.cos(ss.angle) * ss.speed;
         ss.y += Math.sin(ss.angle) * ss.speed;
         ss.alpha -= ss.decay;
@@ -3620,7 +3608,7 @@ function initStarfieldEngine() {
         }
       }
 
-      // Vß║╜ c├íc hß║ít lß║Ñp l├ính khi click chuß╗Öt
+      // Vẽ các hạt lấp lánh khi click chuột
       for (let i = starfieldClickBursts.length - 1; i >= 0; i--) {
         const p = starfieldClickBursts[i];
         ctx.beginPath();
@@ -3654,11 +3642,11 @@ function initStarfieldEngine() {
 }
 
 /**
- * Hiß╗çu ß╗⌐ng bung hß║ít sao lß║Ñp l├ính (Stardust) khi click chuß╗Öt
+ * Hiệu ứng bung hạt sao lấp lánh (Stardust) khi click chuột
  */
 function setupStarBurstOnClick() {
   document.addEventListener('click', (e) => {
-    // Kh├┤ng bß║»n hiß╗çu ß╗⌐ng nß║┐u click tr├║ng input hoß║╖c n├║t chß╗ënh sß╗¡a ─æß╗â tr├ính rß╗æi mß║»t
+    // Không bắn hiệu ứng nếu click trúng input hoặc nút chỉnh sửa để tránh rối mắt
     if (e.target.closest('input, textarea, select')) return;
 
     const colors = ['#f59e0b', '#fbbf24', '#c084fc', '#60a5fa', '#34d399'];
@@ -3682,7 +3670,7 @@ function setupStarBurstOnClick() {
 
 
 
-// ==================== Bß║óNG Xß║╛P Hß║áNG THI ─ÉUA THEO TUß║ªN (LEADERBOARD) ====================
+// ==================== BẢNG XẾP HẠNG THI ĐUA THEO TUẦN (LEADERBOARD) ====================
 
 function changeLeaderboardWeek(weekVal) {
   appState.activeLeaderboardWeek = weekVal;
@@ -3699,7 +3687,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
   const isCumulative = weekFilter === 'all' || weekFilter === 'all_hk1' || weekFilter === 'all_hk2' || weekFilter === 'all_year';
 
   if (!isCumulative) {
-    // 1. T├ìNH ─ÉIß╗éM Cß╗ªA 1 TUß║ªN Cß╗ñ THß╗é (─Éiß╗âm tß╗▒ ─æß╗Öng vß╗ü ban ─æß║ºu 100─æ nß║┐u l├á tuß║ºn mß╗¢i ch╞░a c├│ vi phß║ím/th╞░ß╗ƒng)
+    // 1. TÍNH ĐIỂM CỦA 1 TUẦN CỤ THỂ (Điểm tự động về ban đầu 100đ nếu là tuần mới chưa có vi phạm/thưởng)
     const logs = appState.dailyLogs.filter(log => {
       if (log.studentId !== studentId) return false;
       const logWeek = log.week || '10';
@@ -3723,7 +3711,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       }
     });
 
-    const baseScore = BASE_WEEKLY_SCORE; // 100 ─æiß╗âm s├án tuß║ºn
+    const baseScore = BASE_WEEKLY_SCORE; // 100 điểm sàn tuần
     const totalScore = baseScore + bonusPts + violPts;
 
     return {
@@ -3738,18 +3726,18 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       isCumulative: false
     };
   } else {
-    // 2. T├ìNH ─ÉIß╗éM Cß╗ÿNG Dß╗ÆN Bß║óNG Xß║╛P Hß║áNG Tß╗öNG (L┼⌐y kß║┐ ─æiß╗âm sß╗æ qua c├íc tuß║ºn)
+    // 2. TÍNH ĐIỂM CỘNG DỒN BẢNG XẾP HẠNG TỔNG (Lũy kế điểm số qua các tuần)
     let minW = 1, maxW = 16;
     if (weekFilter === 'all_hk2') { minW = 18; maxW = 35; }
     else if (weekFilter === 'all_year') { minW = 1; maxW = 35; }
 
-    // T├¼m c├íc tuß║ºn ─æ├ú ho├án th├ánh / c├│ ─æiß╗âm
+    // Tìm các tuần đã hoàn thành / có điểm
     const weeksSet = new Set();
     appState.dailyLogs.forEach(l => {
       const w = Number(l.week) || 10;
       if (w >= minW && w <= maxW) weeksSet.add(w);
     });
-    // Tß╗æi thiß╗âu tuß║ºn 1 ─æß║┐n tuß║ºn 10 nß║┐u ß╗ƒ HK1
+    // Tối thiểu tuần 1 đến tuần 10 nếu ở HK1
     for (let w = minW; w <= Math.min(maxW, 10); w++) {
       weeksSet.add(w);
     }
@@ -3778,7 +3766,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       }
     });
 
-    // Cß╗Öng dß╗ôn ─æiß╗âm c├íc tuß║ºn: Mß╗ùi tuß║ºn bß║»t ─æß║ºu 100─æ s├án
+    // Cộng dồn điểm các tuần: Mỗi tuần bắt đầu 100đ sàn
     const cumulativeBase = numWeeks * BASE_WEEKLY_SCORE;
     const totalScore = cumulativeBase + bonusPts + violPts;
     const avgScorePerWeek = (totalScore / numWeeks).toFixed(1);
@@ -3808,29 +3796,29 @@ function getRankedStudents(weekFilter) {
     };
   });
 
-  // PH╞»╞áNG ├üN 1: Bß║¼C Xß║╛P LOß║áI ╞»U TI├èN TR╞»ß╗ÜC (TIER-FIRST RANKING)
-  // Nh├│m Khß╗æng chß║┐ giß╗» ─æiß╗âm thß╗▒c tß║┐ nh╞░ng bß╗ï xß║┐p ß╗ƒ ─æ├íy bß║úng thi ─æua (priority 0)
+  // PHƯƠNG ÁN 1: BẬC XẾP LOẠI ƯU TIÊN TRƯỚC (TIER-FIRST RANKING)
+  // Nhóm Khống chế giữ điểm thực tế nhưng bị xếp ở đáy bảng thi đua (priority 0)
   function getTierPriority(item) {
-    if (item.hasRestrictedViolation) return 0; // ─É├íy bß║úng thi ─æua
-    if (item.totalScore >= RANKING_TIERS.GOOD.min) return 4; // Tß╗æt (>= 95─æ)
-    if (item.totalScore >= RANKING_TIERS.FAIR.min) return 3; // Kh├í (80 - 94─æ)
-    if (item.totalScore >= RANKING_TIERS.PASS.min) return 2; // ─Éß║ít (60 - 79─æ)
-    return 1; // Ch╞░a ─æß║ít do ─æiß╗âm thß║Ñp (< 60─æ)
+    if (item.hasRestrictedViolation) return 0; // Đáy bảng thi đua
+    if (item.totalScore >= RANKING_TIERS.GOOD.min) return 4; // Tốt (>= 95đ)
+    if (item.totalScore >= RANKING_TIERS.FAIR.min) return 3; // Khá (80 - 94đ)
+    if (item.totalScore >= RANKING_TIERS.PASS.min) return 2; // Đạt (60 - 79đ)
+    return 1; // Chưa đạt do điểm thấp (< 60đ)
   }
 
-  // Sß║»p xß║┐p: ╞»u ti├¬n Bß║¡c thi ─æua tr╞░ß╗¢c, sau ─æ├│ ─æiß╗âm tuß║ºn tß╗½ cao xuß╗æng thß║Ñp
+  // Sắp xếp: Ưu tiên Bậc thi đua trước, sau đó điểm tuần từ cao xuống thấp
   list.sort((a, b) => {
     const tierA = getTierPriority(a);
     const tierB = getTierPriority(b);
     if (tierB !== tierA) {
-      return tierB - tierA; // Bß║¡c cao h╞ín xß║┐p tr├¬n
+      return tierB - tierA; // Bậc cao hơn xếp trên
     }
     if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
-    if (a.violPts !== b.violPts) return b.violPts - a.violPts; // violPts l├á sß╗æ ├óm, lß╗¢n h╞ín tß╗⌐c l├á ├¡t bß╗ï trß╗½ h╞ín
+    if (a.violPts !== b.violPts) return b.violPts - a.violPts; // violPts là số âm, lớn hơn tức là ít bị trừ hơn
     return (b.academicScore || 0) - (a.academicScore || 0);
   });
 
-  // G├ín thß╗⌐ hß║íng (Rank 1 -> 45)
+  // Gán thứ hạng (Rank 1 -> 45)
   list.forEach((item, index) => {
     item.rank = index + 1;
     item.tier = getRankingTier(item.totalScore, item.hasRestrictedViolation);
@@ -3849,19 +3837,19 @@ function renderLeaderboard() {
   const weekLabel = document.getElementById('podium-week-label');
   if (weekLabel) {
     if (weekFilter === 'all' || weekFilter === 'all_hk1') {
-      weekLabel.textContent = 'Th├ánh t├¡ch l┼⌐y kß║┐ cß╗Öng dß╗ôn to├án bß╗Ö Hß╗ìc kß╗│ 1 (Tuß║ºn 1 ─æß║┐n 16) cß╗ºa 45 hß╗ìc sinh Lß╗¢p 10A3';
+      weekLabel.textContent = 'Thành tích lũy kế cộng dồn toàn bộ Học kỳ 1 (Tuần 1 đến 16) của 45 học sinh Lớp 10A3';
     } else if (weekFilter === 'all_hk2') {
-      weekLabel.textContent = 'Th├ánh t├¡ch l┼⌐y kß║┐ cß╗Öng dß╗ôn to├án bß╗Ö Hß╗ìc kß╗│ 2 (Tuß║ºn 18 ─æß║┐n 35) cß╗ºa 45 hß╗ìc sinh Lß╗¢p 10A3';
+      weekLabel.textContent = 'Thành tích lũy kế cộng dồn toàn bộ Học kỳ 2 (Tuần 18 đến 35) của 45 học sinh Lớp 10A3';
     } else if (weekFilter === 'all_year') {
-      weekLabel.textContent = 'Bß║úng v├áng vinh danh cß╗Öng dß╗ôn Cß║ú N─âm Hß╗ìc 2026 - 2027 (Tuß║ºn 1 ─æß║┐n 35) cß╗ºa 45 hß╗ìc sinh Lß╗¢p 10A3';
+      weekLabel.textContent = 'Bảng vàng vinh danh cộng dồn Cả Năm Học 2026 - 2027 (Tuần 1 đến 35) của 45 học sinh Lớp 10A3';
     } else {
       const wNum = Number(weekFilter);
-      const termName = wNum >= 18 ? 'Hß╗ìc kß╗│ 2' : 'Hß╗ìc kß╗│ 1';
-      weekLabel.textContent = `Ghi nhß║¡n th├ánh t├¡ch thi ─æua xuß║Ñt sß║»c nhß║Ñt trong Tuß║ºn ${weekFilter} (${termName})`;
+      const termName = wNum >= 18 ? 'Học kỳ 2' : 'Học kỳ 1';
+      weekLabel.textContent = `Ghi nhận thành tích thi đua xuất sắc nhất trong Tuần ${weekFilter} (${termName})`;
     }
   }
 
-  // Cß║¡p nhß║¡t trß║íng th├íi Kh├│a / Mß╗ƒ kh├│a tuß║ºn tr├¬n Leaderboard Toolbar
+  // Cập nhật trạng thái Khóa / Mở khóa tuần trên Leaderboard Toolbar
   updateLeaderboardLockStatusUI(weekFilter);
 
   const rankedList = getRankedStudents(weekFilter);
@@ -3885,7 +3873,7 @@ function updateLeaderboardLockStatusUI(weekFilter) {
   if (isCumulative) {
     badge.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center space-x-1';
     icon.className = 'fa-solid fa-chart-line text-xs';
-    text.textContent = 'Bß║úng Cß╗Öng Dß╗ôn';
+    text.textContent = 'Bảng Cộng Dồn';
     if (btnLock) btnLock.classList.add('hidden');
     return;
   }
@@ -3896,14 +3884,14 @@ function updateLeaderboardLockStatusUI(weekFilter) {
   if (locked) {
     badge.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 flex items-center space-x-1';
     icon.className = 'fa-solid fa-lock text-xs';
-    text.textContent = '─É├ú Kh├│a Sß╗ò';
-    if (btnLockText) btnLockText.textContent = 'Mß╗ƒ Kh├│a Tuß║ºn';
+    text.textContent = 'Đã Khóa Sổ';
+    if (btnLockText) btnLockText.textContent = 'Mở Khóa Tuần';
     if (btnLockIcon) btnLockIcon.className = 'fa-solid fa-lock-open';
   } else {
     badge.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center space-x-1';
     icon.className = 'fa-solid fa-lock-open text-xs';
-    text.textContent = '─Éang Mß╗ƒ';
-    if (btnLockText) btnLockText.textContent = 'Kh├│a Sß╗ò Tuß║ºn';
+    text.textContent = 'Đang Mở';
+    if (btnLockText) btnLockText.textContent = 'Khóa Sổ Tuần';
     if (btnLockIcon) btnLockIcon.className = 'fa-solid fa-lock';
   }
 }
@@ -3913,7 +3901,7 @@ function renderLeaderboardPodium(rankedList) {
   if (!container) return;
 
   if (rankedList.length < 3) {
-    container.innerHTML = '<p class="text-xs text-slate-400 col-span-3 text-center py-6">─Éang tß║úi dß╗» liß╗çu hß╗ìc sinh...</p>';
+    container.innerHTML = '<p class="text-xs text-slate-400 col-span-3 text-center py-6">Đang tải dữ liệu học sinh...</p>';
     return;
   }
 
@@ -3922,47 +3910,47 @@ function renderLeaderboardPodium(rankedList) {
   const rank3 = rankedList[2];
 
   container.innerHTML = `
-    <!-- Rank 2: ├ü Qu├ón 1 (B├¬n Tr├íi) -->
+    <!-- Rank 2: Á Quân 1 (Bên Trái) -->
     <div class="order-2 md:order-1 bg-gradient-to-t from-slate-100 to-white dark:from-slate-900 dark:to-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-2xl p-4 text-center shadow-md flex flex-col items-center justify-end relative h-64 md:h-72 cursor-pointer hover:border-slate-400 transition" onclick="openStudentDetailModal('${rank2.id}')">
       <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-2 border-slate-400 flex items-center justify-center font-black text-lg mb-2 shadow-inner">
-        ≡ƒÑê 2
+        🥈 2
       </div>
-      <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">├ü Qu├ón 1 Tuß║ºn</span>
+      <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Á Quân 1 Tuần</span>
       <h4 class="font-black text-slate-900 dark:text-white text-base leading-tight mb-1">${escapeHtml(rank2.fullName)}</h4>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Tß╗ò ${rank2.groupNumber} &bull; ${escapeHtml(rank2.role || 'Th├ánh vi├¬n')}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Tổ ${rank2.groupNumber} &bull; ${escapeHtml(rank2.role || 'Thành viên')}</p>
       <div class="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 px-3 py-1 rounded-xl w-full">
-        <span class="text-xl font-black text-blue-600 dark:text-blue-400">${rank2.totalScore}</span> <span class="text-xs font-bold text-slate-500">─æiß╗âm</span>
+        <span class="text-xl font-black text-blue-600 dark:text-blue-400">${rank2.totalScore}</span> <span class="text-xs font-bold text-slate-500">điểm</span>
       </div>
     </div>
 
-    <!-- Rank 1: Qu├ín Qu├ón (ß╗₧ Giß╗»a - Cao Nhß║Ñt) -->
+    <!-- Rank 1: Quán Quân (Ở Giữa - Cao Nhất) -->
     <div class="order-1 md:order-2 bg-gradient-to-t from-amber-100 via-amber-50 to-white dark:from-amber-950/60 dark:via-slate-900 dark:to-slate-800 border-3 border-amber-400 dark:border-amber-500 rounded-2xl p-5 text-center shadow-xl flex flex-col items-center justify-end relative h-76 md:h-84 transform md:-translate-y-2 cursor-pointer hover:scale-[1.02] transition" onclick="openStudentDetailModal('${rank1.id}')">
       <div class="absolute -top-4 w-9 h-9 rounded-full bg-amber-400 text-amber-900 flex items-center justify-center text-lg shadow-md border-2 border-white dark:border-slate-800">
-        ≡ƒææ
+        👑
       </div>
       <div class="w-14 h-14 rounded-full bg-amber-300 dark:bg-amber-600 text-amber-950 dark:text-white border-2 border-amber-500 flex items-center justify-center font-black text-2xl mb-2 shadow-lg">
-        ≡ƒÑç 1
+        🥇 1
       </div>
       <span class="text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-        <i class="fa-solid fa-star text-[10px]"></i> QU├üN QU├éN TUß║ªN <i class="fa-solid fa-star text-[10px]"></i>
+        <i class="fa-solid fa-star text-[10px]"></i> QUÁN QUÂN TUẦN <i class="fa-solid fa-star text-[10px]"></i>
       </span>
       <h4 class="font-black text-slate-900 dark:text-white text-lg leading-tight mb-1">${escapeHtml(rank1.fullName)}</h4>
-      <p class="text-xs text-amber-800 dark:text-amber-300 font-semibold mb-3">Tß╗ò ${rank1.groupNumber} &bull; ${escapeHtml(rank1.role || 'Th├ánh vi├¬n')}</p>
+      <p class="text-xs text-amber-800 dark:text-amber-300 font-semibold mb-3">Tổ ${rank1.groupNumber} &bull; ${escapeHtml(rank1.role || 'Thành viên')}</p>
       <div class="bg-amber-200/60 dark:bg-amber-900/40 border border-amber-400 dark:border-amber-600 px-4 py-1.5 rounded-xl w-full">
-        <span class="text-2xl font-black text-amber-700 dark:text-amber-300">${rank1.totalScore}</span> <span class="text-xs font-black text-amber-800 dark:text-amber-400">─æiß╗âm</span>
+        <span class="text-2xl font-black text-amber-700 dark:text-amber-300">${rank1.totalScore}</span> <span class="text-xs font-black text-amber-800 dark:text-amber-400">điểm</span>
       </div>
     </div>
 
-    <!-- Rank 3: ├ü Qu├ón 2 (B├¬n Phß║úi) -->
+    <!-- Rank 3: Á Quân 2 (Bên Phải) -->
     <div class="order-3 bg-gradient-to-t from-orange-100 to-white dark:from-slate-900 dark:to-slate-800 border-2 border-amber-600/40 dark:border-amber-700/60 rounded-2xl p-4 text-center shadow-md flex flex-col items-center justify-end relative h-60 md:h-68 cursor-pointer hover:border-amber-600 transition" onclick="openStudentDetailModal('${rank3.id}')">
       <div class="w-12 h-12 rounded-full bg-amber-700/20 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border-2 border-amber-600 flex items-center justify-center font-black text-lg mb-2 shadow-inner">
-        ≡ƒÑë 3
+        🥉 3
       </div>
-      <span class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-1">├ü Qu├ón 2 Tuß║ºn</span>
+      <span class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-1">Á Quân 2 Tuần</span>
       <h4 class="font-black text-slate-900 dark:text-white text-base leading-tight mb-1">${escapeHtml(rank3.fullName)}</h4>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Tß╗ò ${rank3.groupNumber} &bull; ${escapeHtml(rank3.role || 'Th├ánh vi├¬n')}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Tổ ${rank3.groupNumber} &bull; ${escapeHtml(rank3.role || 'Thành viên')}</p>
       <div class="bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 px-3 py-1 rounded-xl w-full">
-        <span class="text-xl font-black text-orange-600 dark:text-orange-400">${rank3.totalScore}</span> <span class="text-xs font-bold text-slate-500">─æiß╗âm</span>
+        <span class="text-xl font-black text-orange-600 dark:text-orange-400">${rank3.totalScore}</span> <span class="text-xs font-bold text-slate-500">điểm</span>
       </div>
     </div>
   `;
@@ -3983,13 +3971,13 @@ function renderLeaderboardGroups(rankedList) {
     groupStats.push({ groupNumber: g, count, sum, avg: Number(avg), totalBonus, totalViol });
   }
 
-  // Sß║»p xß║┐p tß╗ò theo ─æiß╗âm trung b├¼nh tuß║ºn giß║úm dß║ºn
+  // Sắp xếp tổ theo điểm trung bình tuần giảm dần
   groupStats.sort((a, b) => b.avg - a.avg);
 
   const winningGroup = groupStats[0];
   const winDisplay = document.getElementById('winning-group-name');
   if (winDisplay && winningGroup) {
-    winDisplay.textContent = `Tß╗ò ${winningGroup.groupNumber} (TB: ${winningGroup.avg}─æ)`;
+    winDisplay.textContent = `Tổ ${winningGroup.groupNumber} (TB: ${winningGroup.avg}đ)`;
   }
 
   container.innerHTML = groupStats.map((g, idx) => {
@@ -3999,13 +3987,13 @@ function renderLeaderboardGroups(rankedList) {
 
     return `
       <div class="${cardBorder} rounded-xl p-3 flex flex-col justify-between text-center relative overflow-hidden">
-        ${isTop ? '<div class="absolute -right-6 -top-6 w-14 h-14 bg-amber-400 rotate-45 flex items-end justify-center pb-0.5 text-xs">≡ƒÜ⌐</div>' : ''}
+        ${isTop ? '<div class="absolute -right-6 -top-6 w-14 h-14 bg-amber-400 rotate-45 flex items-end justify-center pb-0.5 text-xs">🚩</div>' : ''}
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${badgeColor}">${idx + 1}</span>
             <span class="text-[10px] font-bold text-slate-400">${g.count} HS</span>
           </div>
-          <h5 class="font-extrabold text-sm text-slate-800 dark:text-slate-100 mb-1">Tß╗ò ${g.groupNumber}</h5>
+          <h5 class="font-extrabold text-sm text-slate-800 dark:text-slate-100 mb-1">Tổ ${g.groupNumber}</h5>
           <div class="text-lg font-black text-blue-600 dark:text-blue-400">${g.avg} <span class="text-[10px] font-bold text-slate-400">TB</span></div>
         </div>
         <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-500 flex justify-between">
@@ -4036,7 +4024,7 @@ function renderLeaderboardTable(preloadedList) {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400 text-xs">Kh├┤ng t├¼m thß║Ñy hß╗ìc sinh n├áo ph├╣ hß╗úp vß╗¢i bß╗Ö lß╗ìc</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp với bộ lọc</td></tr>';
     return;
   }
 
@@ -4044,23 +4032,23 @@ function renderLeaderboardTable(preloadedList) {
     const rank = stu.rank;
     const isRestricted = stu.hasRestrictedViolation;
     const rankBadge = isRestricted 
-      ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 font-black text-[11px] border border-rose-400 dark:border-rose-800 inline-flex items-center gap-1 shadow-2xs" title="Hß║í bß║¡c xuß╗æng cuß╗æi bß║úng do vi phß║ím Lß╗ùi khß╗æng chß║┐">ΓÜá∩╕Å ${rank}</span>`
-      : rank === 1 ? '<span class="w-6 h-6 rounded-full bg-amber-400 text-amber-950 font-black text-xs inline-flex items-center justify-center shadow-xs">≡ƒÑç</span>'
-      : rank === 2 ? '<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-800 font-bold text-xs inline-flex items-center justify-center">≡ƒÑê</span>'
-      : rank === 3 ? '<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-bold text-xs inline-flex items-center justify-center">≡ƒÑë</span>'
+      ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 font-black text-[11px] border border-rose-400 dark:border-rose-800 inline-flex items-center gap-1 shadow-2xs" title="Hạ bậc xuống cuối bảng do vi phạm Lỗi khống chế">⚠️ ${rank}</span>`
+      : rank === 1 ? '<span class="w-6 h-6 rounded-full bg-amber-400 text-amber-950 font-black text-xs inline-flex items-center justify-center shadow-xs">🥇</span>'
+      : rank === 2 ? '<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-800 font-bold text-xs inline-flex items-center justify-center">🥈</span>'
+      : rank === 3 ? '<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-bold text-xs inline-flex items-center justify-center">🥉</span>'
       : `<span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs inline-flex items-center justify-center">${rank}</span>`;
 
     const tierBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${stu.tier.color}">${stu.tier.label}</span>`;
 
     const progressBadges = [];
     if (stu.hasPairedProgress) {
-      progressBadges.push('<span class="text-[9px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.2 rounded font-bold border border-emerald-300/60 inline-flex items-center gap-1">≡ƒñ¥ C├╣ng tiß║┐n</span>');
+      progressBadges.push('<span class="text-[9px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.2 rounded font-bold border border-emerald-300/60 inline-flex items-center gap-1">🤝 Cùng tiến</span>');
     }
     if (stu.hasBabySteps) {
-      progressBadges.push('<span class="text-[9px] bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 px-1.5 py-0.2 rounded font-bold border border-purple-300/60 inline-flex items-center gap-1">≡ƒ¬£ Baby Steps</span>');
+      progressBadges.push('<span class="text-[9px] bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 px-1.5 py-0.2 rounded font-bold border border-purple-300/60 inline-flex items-center gap-1">🪜 Baby Steps</span>');
     }
     if (stu.isSpecialSupport) {
-      progressBadges.push('<span class="text-[9px] bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">K├¿m cß║╖p</span>');
+      progressBadges.push('<span class="text-[9px] bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">Kèm cặp</span>');
     }
 
     const rowClass = isRestricted 
@@ -4075,9 +4063,9 @@ function renderLeaderboardTable(preloadedList) {
             <span>${escapeHtml(stu.fullName)}</span>
             ${getRoleBadgeHtml(stu.role)}
           </div>
-          <div class="text-[10px] text-slate-400">M├ú: ${stu.code} &bull; NS: ${stu.dob}</div>
+          <div class="text-[10px] text-slate-400">Mã: ${stu.code} &bull; NS: ${stu.dob}</div>
         </td>
-        <td class="py-2.5 px-3 text-center font-bold text-slate-600 dark:text-slate-300">Tß╗ò ${stu.groupNumber}</td>
+        <td class="py-2.5 px-3 text-center font-bold text-slate-600 dark:text-slate-300">Tổ ${stu.groupNumber}</td>
         <td class="py-2.5 px-3 text-center text-slate-500 font-semibold">${stu.baseScore}</td>
         <td class="py-2.5 px-3 text-center font-bold text-emerald-600 dark:text-emerald-400">+${stu.bonusPts}</td>
         <td class="py-2.5 px-3 text-center font-bold text-rose-600 dark:text-rose-400">${stu.violPts}</td>
@@ -4087,11 +4075,11 @@ function renderLeaderboardTable(preloadedList) {
         <td class="py-2.5 px-3 text-center">${tierBadge}</td>
         <td class="py-2.5 px-3">
           <div class="flex flex-wrap gap-1">
-            ${progressBadges.length > 0 ? progressBadges.join(' ') : '<span class="text-slate-400 text-[10px]">Nß╗ü nß║┐p ß╗òn ─æß╗ïnh</span>'}
+            ${progressBadges.length > 0 ? progressBadges.join(' ') : '<span class="text-slate-400 text-[10px]">Nề nếp ổn định</span>'}
           </div>
         </td>
         <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation()">
-          <button onclick="openStudentDetailModal('${stu.id}')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-blue-600 rounded transition" title="Xem hß╗ô s╞í">
+          <button onclick="openStudentDetailModal('${stu.id}')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-blue-600 rounded transition" title="Xem hồ sơ">
             <i class="fa-solid fa-eye text-xs"></i>
           </button>
         </td>
@@ -4100,7 +4088,7 @@ function renderLeaderboardTable(preloadedList) {
   }).join('');
 }
 
-// IN Bß║óNG Xß║╛P Hß║áNG THI ─ÉUA TUß║ªN (A4)
+// IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4)
 function openPrintLeaderboardModal() {
   const modal = document.getElementById('modal-print-leaderboard');
   const content = document.getElementById('print-leaderboard-content');
@@ -4135,62 +4123,62 @@ function printLeaderboardDirectly() {
 function generatePrintLeaderboardHTML() {
   const weekFilter = appState.activeLeaderboardWeek || '10';
   const rankedList = getRankedStudents(weekFilter);
-  let weekText = `TUß║ªN ${weekFilter}`;
+  let weekText = `TUẦN ${weekFilter}`;
   if (weekFilter === 'all' || weekFilter === 'all_hk1') {
-    weekText = 'Tß╗öNG Kß║╛T THI ─ÉUA Hß╗îC Kß╗▓ 1 (TUß║ªN 1 - 16)';
+    weekText = 'TỔNG KẾT THI ĐUA HỌC KỲ 1 (TUẦN 1 - 16)';
   } else if (weekFilter === 'all_hk2') {
-    weekText = 'Tß╗öNG Kß║╛T THI ─ÉUA Hß╗îC Kß╗▓ 2 (TUß║ªN 18 - 35)';
+    weekText = 'TỔNG KẾT THI ĐUA HỌC KỲ 2 (TUẦN 18 - 35)';
   } else if (weekFilter === 'all_year') {
-    weekText = 'Tß╗öNG Kß║╛T THI ─ÉUA Cß║ó N─éM Hß╗îC 2026 - 2027 (TUß║ªN 1 - 35)';
+    weekText = 'TỔNG KẾT THI ĐUA CẢ NĂM HỌC 2026 - 2027 (TUẦN 1 - 35)';
   } else {
     const wNum = Number(weekFilter);
-    weekText = `TUß║ªN ${weekFilter} ΓÇö ${wNum >= 18 ? 'Hß╗îC Kß╗▓ 2' : 'Hß╗îC Kß╗▓ 1'}`;
+    weekText = `TUẦN ${weekFilter} — ${wNum >= 18 ? 'HỌC KỲ 2' : 'HỌC KỲ 1'}`;
   }
 
   return `
     <div class="bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[210mm] mx-auto p-4 space-y-3">
-      <!-- QUß╗ÉC HIß╗åU & TI├èU NGß╗« -->
+      <!-- QUỐC HIỆU & TIÊU NGỮ -->
       <div class="grid grid-cols-12 items-start pb-2 border-b-2 border-black">
         <div class="col-span-5 text-center">
-          <p class="text-[9px] uppercase font-bold text-slate-700">Sß╗₧ GD&─ÉT L├éM ─Éß╗ÆNG</p>
-          <p class="text-[10px] uppercase font-bold text-black tracking-wide">TR╞»ß╗£NG THPT B├ÖI THß╗è XU├éN - M┼¿I N├ë</p>
+          <p class="text-[9px] uppercase font-bold text-slate-700">SỞ GD&ĐT LÂM ĐỒNG</p>
+          <p class="text-[10px] uppercase font-bold text-black tracking-wide">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</p>
         </div>
         <div class="col-span-7 text-center">
-          <p class="text-[10px] uppercase font-bold text-black tracking-wide">Cß╗ÿNG H├ÆA X├â Hß╗ÿI CHß╗ª NGH─¿A VIß╗åT NAM</p>
-          <p class="text-[9px] italic font-semibold text-slate-800">─Éß╗Öc lß║¡p &mdash; Tß╗▒ do &mdash; Hß║ính ph├║c</p>
+          <p class="text-[10px] uppercase font-bold text-black tracking-wide">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+          <p class="text-[9px] italic font-semibold text-slate-800">Độc lập &mdash; Tự do &mdash; Hạnh phúc</p>
         </div>
       </div>
 
-      <!-- TI├èU ─Éß╗Ç Bß║óNG THI ─ÉUA -->
+      <!-- TIÊU ĐỀ BẢNG THI ĐUA -->
       <div class="text-center my-2">
         <h1 class="text-base font-black tracking-wider uppercase text-black">
-          Bß║óNG Xß║╛P Hß║áNG THI ─ÉUA Hß╗îC SINH &mdash; Lß╗ÜP 10A3
+          BẢNG XẾP HẠNG THI ĐUA HỌC SINH &mdash; LỚP 10A3
         </h1>
         <p class="text-xs font-bold text-blue-900 mt-0.5">
-          ${weekText} &bull; N─éM Hß╗îC 2026 - 2027 &bull; S─¿ Sß╗É: 45 Hß╗îC SINH
+          ${weekText} &bull; NĂM HỌC 2026 - 2027 &bull; SĨ SỐ: 45 HỌC SINH
         </p>
       </div>
 
-      <!-- Bß║óNG Tß╗öNG Kß║╛T 45 Hß╗îC SINH (2 Cß╗ÿT Gß╗îN G├ÇNG TR├èN 1 TRANG A4) -->
+      <!-- BẢNG TỔNG KẾT 45 HỌC SINH (2 CỘT GỌN GÀNG TRÊN 1 TRANG A4) -->
       <div class="overflow-x-auto">
         <table class="w-full border-collapse border border-black text-[10px]">
           <thead>
             <tr class="bg-slate-200 uppercase font-bold">
-              <th class="border border-black p-1 text-center w-8">Hß║íng</th>
-              <th class="border border-black p-1">Hß╗ì v├á T├¬n</th>
-              <th class="border border-black p-1 text-center w-8">Tß╗ò</th>
-              <th class="border border-black p-1 text-center w-12">─Éiß╗âm S├án</th>
-              <th class="border border-black p-1 text-center w-12">─Éiß╗âm Cß╗Öng</th>
-              <th class="border border-black p-1 text-center w-12">─Éiß╗âm Trß╗½</th>
-              <th class="border border-black p-1 text-center w-14 font-black">Tß╗òng ─Éiß╗âm</th>
-              <th class="border border-black p-1 text-center w-14">Xß║┐p Loß║íi</th>
+              <th class="border border-black p-1 text-center w-8">Hạng</th>
+              <th class="border border-black p-1">Họ và Tên</th>
+              <th class="border border-black p-1 text-center w-8">Tổ</th>
+              <th class="border border-black p-1 text-center w-12">Điểm Sàn</th>
+              <th class="border border-black p-1 text-center w-12">Điểm Cộng</th>
+              <th class="border border-black p-1 text-center w-12">Điểm Trừ</th>
+              <th class="border border-black p-1 text-center w-14 font-black">Tổng Điểm</th>
+              <th class="border border-black p-1 text-center w-14">Xếp Loại</th>
             </tr>
           </thead>
           <tbody>
             ${rankedList.map(s => `
               <tr class="${s.hasRestrictedViolation ? 'bg-rose-50' : s.rank <= 3 ? 'bg-amber-50 font-semibold' : ''}">
-                <td class="border border-black p-1 text-center font-bold">${s.hasRestrictedViolation ? `ΓÜá∩╕Å ${s.rank}` : s.rank}</td>
-                <td class="border border-black p-1">${s.fullName} ${s.role && s.role !== 'Th├ánh vi├¬n' ? `(${s.role})` : ''}</td>
+                <td class="border border-black p-1 text-center font-bold">${s.hasRestrictedViolation ? `⚠️ ${s.rank}` : s.rank}</td>
+                <td class="border border-black p-1">${s.fullName} ${s.role && s.role !== 'Thành viên' ? `(${s.role})` : ''}</td>
                 <td class="border border-black p-1 text-center">T${s.groupNumber}</td>
                 <td class="border border-black p-1 text-center">${s.baseScore}</td>
                 <td class="border border-black p-1 text-center text-emerald-800">+${s.bonusPts}</td>
@@ -4203,23 +4191,23 @@ function generatePrintLeaderboardHTML() {
         </table>
       </div>
 
-      <!-- CHß╗« K├¥ GVCN V├Ç Lß╗ÜP TR╞»ß╗₧NG -->
+      <!-- CHỮ KÝ GVCN VÀ LỚP TRƯỞNG -->
       <div class="grid grid-cols-2 pt-2 border-t border-slate-300 text-[10px] mt-3">
         <div class="text-center">
-          <p class="font-bold uppercase">Lß╗ÜP TR╞»ß╗₧NG / BAN C├üN Sß╗░</p>
-          <p class="text-[9px] italic text-slate-500 mt-8">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="font-bold uppercase">LỚP TRƯỞNG / BAN CÁN SỰ</p>
+          <p class="text-[9px] italic text-slate-500 mt-8">(Ký và ghi rõ họ tên)</p>
         </div>
         <div class="text-center">
-          <p class="italic">M┼⌐i N├⌐, ng├áy ... th├íng ... n─âm 2026</p>
-          <p class="font-bold uppercase mt-0.5">GI├üO VI├èN CHß╗ª NHIß╗åM</p>
-          <p class="text-[9px] italic text-slate-500 mt-8">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</p>
+          <p class="italic">Mũi Né, ngày ... tháng ... năm 2026</p>
+          <p class="font-bold uppercase mt-0.5">GIÁO VIÊN CHỦ NHIỆM</p>
+          <p class="text-[9px] italic text-slate-500 mt-8">(Ký và ghi rõ họ tên)</p>
         </div>
       </div>
     </div>
   `;
 }
 
-// ==================== H├ÇM TIß╗åN ├ìCH CHß║ñM ─ÉIß╗éM Xß╗ö XUß╗ÉNG (DROPDOWN SCORING) ====================
+// ==================== HÀM TIỆN ÍCH CHẤM ĐIỂM XỔ XUỐNG (DROPDOWN SCORING) ====================
 
 function onDropdownRuleChange(type, ruleKey) {
   if (type === 'bonus') {
@@ -4246,7 +4234,7 @@ function onDropdownRuleChange(type, ruleKey) {
     const cardBadge = document.getElementById('bonus-card-badge');
     if (bonusCard) {
       if (cardTitle) cardTitle.textContent = rule.label;
-      if (cardBadge) cardBadge.textContent = `+${rule.points} ─æiß╗âm`;
+      if (cardBadge) cardBadge.textContent = `+${rule.points} điểm`;
       bonusCard.classList.remove('hidden');
     }
   } else {
@@ -4275,10 +4263,10 @@ function onDropdownRuleChange(type, ruleKey) {
       if (cardTitle) cardTitle.textContent = rule.label;
       if (cardBadge) {
         if (rule.isRestricted) {
-          cardBadge.textContent = 'Khß╗æng chß║┐ ΓÜá∩╕Å (-50─æ)';
+          cardBadge.textContent = 'Khống chế ⚠️ (-50đ)';
           cardBadge.className = 'px-2 py-0.5 bg-rose-600 text-white font-black text-xs rounded-full border border-rose-300';
         } else {
-          cardBadge.textContent = `${rule.points} ─æiß╗âm`;
+          cardBadge.textContent = `${rule.points} điểm`;
           cardBadge.className = 'px-2 py-0.5 bg-rose-500 text-white font-black text-xs rounded-full';
         }
       }
@@ -4292,14 +4280,14 @@ function onDropdownRuleChange(type, ruleKey) {
 
   if (ruleText && appState.activeRule) {
     const isRestricted = appState.activeRule.isRestricted;
-    ruleText.textContent = `[${isRestricted ? 'Lß╗ûI KHß╗ÉNG CHß║╛ ΓÜá∩╕Å' : type === 'bonus' ? '─ÉIß╗éM Cß╗ÿNG' : '─ÉIß╗éM TRß╗¬'}] ${appState.activeRule.label}`;
+    ruleText.textContent = `[${isRestricted ? 'LỖI KHỐNG CHẾ ⚠️' : type === 'bonus' ? 'ĐIỂM CỘNG' : 'ĐIỂM TRỪ'}] ${appState.activeRule.label}`;
   }
   if (pointsBadge && appState.activeRule) {
     if (appState.activeRule.isRestricted) {
-      pointsBadge.textContent = 'Khß╗æng chß║┐ ΓÜá∩╕Å (-50─æ)';
+      pointsBadge.textContent = 'Khống chế ⚠️ (-50đ)';
       pointsBadge.className = 'font-black text-xs text-rose-300 px-2 py-0.5 rounded bg-rose-950/90 border border-rose-500';
     } else {
-      pointsBadge.textContent = type === 'bonus' ? `+${appState.activeRule.points} ─æiß╗âm` : `${appState.activeRule.points} ─æiß╗âm`;
+      pointsBadge.textContent = type === 'bonus' ? `+${appState.activeRule.points} điểm` : `${appState.activeRule.points} điểm`;
       pointsBadge.className = type === 'bonus' 
         ? 'font-black text-base text-emerald-400 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-600' 
         : 'font-black text-base text-rose-400 px-2 py-0.5 rounded bg-rose-950/80 border border-rose-600';
@@ -4310,17 +4298,17 @@ function onDropdownRuleChange(type, ruleKey) {
 function applyDropdownScore(type) {
   const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Chß╗ë Tß╗ò tr╞░ß╗ƒng, Lß╗¢p tr╞░ß╗ƒng v├á GVCN mß╗¢i c├│ quyß╗ün chß║Ñm ─æiß╗âm.', 'error');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Chỉ Tổ trưởng, Lớp trưởng và GVCN mới có quyền chấm điểm.', 'error');
     return;
   }
   const selectEl = document.getElementById(type === 'bonus' ? 'select-bonus-rule' : 'select-violation-rule');
   const ruleKey = selectEl ? selectEl.value : '';
   if (!ruleKey) {
-    showToast(`Vui l├▓ng chß╗ìn 1 mß╗Ñc tß╗½ danh s├ích xß╗ò xuß╗æng ${type === 'bonus' ? '─Éiß╗âm cß╗Öng' : '─Éiß╗âm trß╗½'}!`, 'warning');
+    showToast(`Vui lòng chọn 1 mục từ danh sách xổ xuống ${type === 'bonus' ? 'Điểm cộng' : 'Điểm trừ'}!`, 'warning');
     return;
   }
   if (appState.selectedStudentIds.size === 0) {
-    showToast('Vui l├▓ng click chß╗ìn ├¡t nhß║Ñt 1 hß╗ìc sinh ß╗ƒ Danh s├ích b├¬n d╞░ß╗¢i!', 'warning');
+    showToast('Vui lòng click chọn ít nhất 1 học sinh ở Danh sách bên dưới!', 'warning');
     return;
   }
   onDropdownRuleChange(type, ruleKey);
@@ -4331,7 +4319,7 @@ function onQuickSelectStudentDropdown(studentId) {
   if (!studentId) return;
   const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('Bß║ín ─æang ß╗ƒ Chß║┐ ─æß╗Ö Chß╗ë Xem! Vui l├▓ng ─æ─âng nhß║¡p C├ín sß╗▒ hoß║╖c GVCN ─æß╗â chß╗ìn hß╗ìc sinh.', 'warning');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để chọn học sinh.', 'warning');
     const quickSelect = document.getElementById('quick-select-student-dropdown');
     if (quickSelect) quickSelect.value = '';
     return;
@@ -4340,7 +4328,7 @@ function onQuickSelectStudentDropdown(studentId) {
     const leaderGroup = parseInt(appState.currentUserRole.replace('lead_t', ''), 10);
     const stu = appState.students.find(s => s.id === studentId);
     if (stu && Number(stu.groupNumber) !== leaderGroup) {
-      showToast(`Bß║ín l├á Tß╗ò tr╞░ß╗ƒng Tß╗ò ${leaderGroup}, chß╗ë ─æ╞░ß╗úc chß╗ìn hß╗ìc sinh Tß╗ò ${leaderGroup}!`, 'warning');
+      showToast(`Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được chọn học sinh Tổ ${leaderGroup}!`, 'warning');
       const quickSelect = document.getElementById('quick-select-student-dropdown');
       if (quickSelect) quickSelect.value = '';
       return;
@@ -4357,65 +4345,65 @@ function onRecorderSelectChange(val) {
   if (hiddenInput) hiddenInput.value = val;
 }
 
-// ==================== KHß╗₧I Tß║áO Dß╗« LIß╗åU Lß╗èCH Sß╗¼ THI ─ÉUA TUß║ªN 1 ─Éß║╛N 8 ====================
+// ==================== KHỞI TẠO DỮ LIỆU LỊCH SỬ THI ĐUA TUẦN 1 ĐẾN 8 ====================
 function seedHistoricalWeeklyLogs() {
   const sampleLogs = [
-    // Tuß║ºn 1
-    { week: '1', date: '2026-09-08', studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'Tß╗ò tr╞░ß╗ƒng T1 ─æiß╗üu h├ánh tß╗æt tuß║ºn ─æß║ºu' },
-    { week: '1', date: '2026-09-09', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Lß╗¢p tr╞░ß╗ƒng ─æiß╗üu h├ánh ß╗òn ─æß╗ïnh nß╗ü nß║┐p lß╗¢p' },
-    { week: '1', date: '2026-09-10', studentId: 'hs_10a3_24', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong l├¬n bß║úng ─æ├║ng', pointsChanged: 10, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Giß║úi b├ái tß║¡p To├ín h├¼nh tß╗æt' },
-    { week: '1', date: '2026-09-11', studentId: 'hs_10a3_14', type: 'violation', ruleKey: 'viol_sleeping_eating', ruleLabel: 'Ngß╗º gß╗Ñc / n├│i chuyß╗çn', pointsChanged: -5, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Ngß╗º gß╗Ñc tiß║┐t 3' },
-    { week: '1', date: '2026-09-12', studentId: 'hs_10a3_21', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: '─Éi muß╗Ön / sai ─æß╗ông phß╗Ñc', pointsChanged: -5, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: '─Éi muß╗Ön 5 ph├║t' },
+    // Tuần 1
+    { week: '1', date: '2026-09-08', studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'Lớp trưởng', note: 'Tổ trưởng T1 điều hành tốt tuần đầu' },
+    { week: '1', date: '2026-09-09', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Lớp trưởng điều hành ổn định nề nếp lớp' },
+    { week: '1', date: '2026-09-10', studentId: 'hs_10a3_24', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Giải bài tập Toán hình tốt' },
+    { week: '1', date: '2026-09-11', studentId: 'hs_10a3_14', type: 'violation', ruleKey: 'viol_sleeping_eating', ruleLabel: 'Ngủ gục / nói chuyện', pointsChanged: -5, recordedBy: 'Sao đỏ trực nhật', note: 'Ngủ gục tiết 3' },
+    { week: '1', date: '2026-09-12', studentId: 'hs_10a3_21', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: 'Đi muộn / sai đồng phục', pointsChanged: -5, recordedBy: 'Sao đỏ trực nhật', note: 'Đi muộn 5 phút' },
 
-    // Tuß║ºn 2
-    { week: '2', date: '2026-09-15', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3 bao qu├ít tß╗ò tß╗æt' },
-    { week: '2', date: '2026-09-16', studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3', note: 'K├¿m bß║ín Kim Tr├║c hß╗ìc tß║¡p' },
-    { week: '2', date: '2026-09-16', studentId: 'hs_10a3_36', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3', note: 'Ch─âm ch├║ hß╗ìc tß║¡p c├╣ng Mß╗╣ Duy├¬n' },
-    { week: '2', date: '2026-09-17', studentId: 'hs_10a3_33', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Hß╗ìc sinh diß╗çn hß╗ù trß╗ú c├│ nß╗ù lß╗▒c l├ám b├ái', pointsChanged: 10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 2', note: 'L├ám ─æß║ºy ─æß╗º b├ái tß║¡p H├│a' },
-    { week: '2', date: '2026-09-18', studentId: 'hs_10a3_06', type: 'violation', ruleKey: 'viol_no_homework', ruleLabel: 'Kh├┤ng l├ám b├ái / kh├┤ng hß╗ìc b├ái', pointsChanged: -10, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Qu├¬n vß╗ƒ b├ái tß║¡p V─ân' },
+    // Tuần 2
+    { week: '2', date: '2026-09-15', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'Lớp trưởng', note: 'Tổ trưởng Tổ 3 bao quát tổ tốt' },
+    { week: '2', date: '2026-09-16', studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 3', note: 'Kèm bạn Kim Trúc học tập' },
+    { week: '2', date: '2026-09-16', studentId: 'hs_10a3_36', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 3', note: 'Chăm chú học tập cùng Mỹ Duyên' },
+    { week: '2', date: '2026-09-17', studentId: 'hs_10a3_33', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh diện hỗ trợ có nỗ lực làm bài', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 2', note: 'Làm đầy đủ bài tập Hóa' },
+    { week: '2', date: '2026-09-18', studentId: 'hs_10a3_06', type: 'violation', ruleKey: 'viol_no_homework', ruleLabel: 'Không làm bài / không học bài', pointsChanged: -10, recordedBy: 'Sao đỏ trực nhật', note: 'Quên vở bài tập Văn' },
 
-    // Tuß║ºn 3
-    { week: '3', date: '2026-09-22', studentId: 'hs_10a3_35', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 4 duy tr├¼ kß╗╖ luß║¡t xuß║Ñt sß║»c' },
-    { week: '3', date: '2026-09-23', studentId: 'hs_10a3_14', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nß╗ù lß╗▒c vi m├┤ (Baby Steps)', pointsChanged: 10, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: 'Ho├án th├ánh cam kß║┐t tuß║ºn kh├┤ng vi phß║ím' },
-    { week: '3', date: '2026-09-23', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'K├¿m bß║ín yß║┐u To├ín/L├╜', pointsChanged: 10, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Hß╗ù trß╗ú bß║ín Khang tiß║┐n bß╗Ö' },
-    { week: '3', date: '2026-09-24', studentId: 'hs_10a3_01', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: '─Éi muß╗Ön / sai ─æß╗ông phß╗Ñc', pointsChanged: -5, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Thiß║┐u ph├╣ hiß╗çu' },
-    { week: '3', date: '2026-09-25', studentId: 'hs_10a3_16', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 2', note: 'K├¿m Kim B╞í l├ám b├ái' },
+    // Tuần 3
+    { week: '3', date: '2026-09-22', studentId: 'hs_10a3_35', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 4 duy trì kỷ luật xuất sắc' },
+    { week: '3', date: '2026-09-23', studentId: 'hs_10a3_14', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nỗ lực vi mô (Baby Steps)', pointsChanged: 10, recordedBy: 'Lớp trưởng', note: 'Hoàn thành cam kết tuần không vi phạm' },
+    { week: '3', date: '2026-09-23', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_peer_tutoring', ruleLabel: 'Kèm bạn yếu Toán/Lý', pointsChanged: 10, recordedBy: 'GVCN Lớp 10A3', note: 'Hỗ trợ bạn Khang tiến bộ' },
+    { week: '3', date: '2026-09-24', studentId: 'hs_10a3_01', type: 'violation', ruleKey: 'viol_late_uniform', ruleLabel: 'Đi muộn / sai đồng phục', pointsChanged: -5, recordedBy: 'Sao đỏ trực nhật', note: 'Thiếu phù hiệu' },
+    { week: '3', date: '2026-09-25', studentId: 'hs_10a3_16', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 2', note: 'Kèm Kim Bơ làm bài' },
 
-    // Tuß║ºn 4
-    { week: '4', date: '2026-09-29', studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 6 bao qu├ít nß╗ü nß║┐p xuß║Ñt sß║»c' },
-    { week: '4', date: '2026-09-30', studentId: 'hs_10a3_09', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 5 ─æiß╗üu h├ánh tß╗æt' },
-    { week: '4', date: '2026-10-01', studentId: 'hs_10a3_12', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong l├¬n bß║úng ─æ├║ng', pointsChanged: 10, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Giß║úi b├ái tß║¡p H├│a hß╗ìc xuß║Ñt sß║»c' },
-    { week: '4', date: '2026-10-02', studentId: 'hs_10a3_41', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 1', note: 'Gi├║p bß║ín Gi├áu c├╣ng tiß║┐n bß╗Ö' },
-    { week: '4', date: '2026-10-02', studentId: 'hs_10a3_06', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nß╗ù lß╗▒c vi m├┤ (Baby Steps)', pointsChanged: 10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 1', note: 'Tiß║┐n bß╗Ö r├╡ rß╗çt trong giß╗¥ To├ín' },
+    // Tuần 4
+    { week: '4', date: '2026-09-29', studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 6 bao quát nề nếp xuất sắc' },
+    { week: '4', date: '2026-09-30', studentId: 'hs_10a3_09', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 5 điều hành tốt' },
+    { week: '4', date: '2026-10-01', studentId: 'hs_10a3_12', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Giải bài tập Hóa học xuất sắc' },
+    { week: '4', date: '2026-10-02', studentId: 'hs_10a3_41', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 1', note: 'Giúp bạn Giàu cùng tiến bộ' },
+    { week: '4', date: '2026-10-02', studentId: 'hs_10a3_06', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nỗ lực vi mô (Baby Steps)', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 1', note: 'Tiến bộ rõ rệt trong giờ Toán' },
 
-    // Tuß║ºn 5
-    { week: '5', date: '2026-10-06', studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_school_honors', ruleLabel: '─Éß║ít ─æiß╗âm Tß╗æt to├án diß╗çn', pointsChanged: 50, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Khen th╞░ß╗ƒng th├ánh t├¡ch phong tr├áo cß║Ñp tr╞░ß╗¥ng' },
-    { week: '5', date: '2026-10-07', studentId: 'hs_10a3_03', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Lß╗¢p ph├│ & C├ín sß╗▒ H├│a tß║¡n tß╗Ñy' },
-    { week: '5', date: '2026-10-08', studentId: 'hs_10a3_44', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Hß╗ìc sinh diß╗çn hß╗ù trß╗ú nß╗ù lß╗▒c l├ám b├ái', pointsChanged: 10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 4', note: 'Ch─âm ch├║ nghe giß║úng v├á l├ám b├ái' },
-    { week: '5', date: '2026-10-09', studentId: 'hs_10a3_38', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 4', note: 'K├¿m T╞░ß╗¥ng Vy tiß║┐n bß╗Ö' },
+    // Tuần 5
+    { week: '5', date: '2026-10-06', studentId: 'hs_10a3_43', type: 'bonus', ruleKey: 'bonus_school_honors', ruleLabel: 'Đạt điểm Tốt toàn diện', pointsChanged: 50, recordedBy: 'GVCN Lớp 10A3', note: 'Khen thưởng thành tích phong trào cấp trường' },
+    { week: '5', date: '2026-10-07', studentId: 'hs_10a3_03', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Lớp phó & Cán sự Hóa tận tụy' },
+    { week: '5', date: '2026-10-08', studentId: 'hs_10a3_44', type: 'bonus', ruleKey: 'bonus_effort_support', ruleLabel: 'Học sinh diện hỗ trợ nỗ lực làm bài', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 4', note: 'Chăm chú nghe giảng và làm bài' },
+    { week: '5', date: '2026-10-09', studentId: 'hs_10a3_38', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Tổ trưởng Tổ 4', note: 'Kèm Tường Vy tiến bộ' },
 
-    // Tuß║ºn 6
-    { week: '6', date: '2026-10-13', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong l├¬n bß║úng ─æ├║ng', pointsChanged: 10, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'L├¬n bß║úng giß║úi b├ái Vß║¡t l├╜ ─æß║ít ─æiß╗âm 10' },
-    { week: '6', date: '2026-10-14', studentId: 'hs_10a3_20', type: 'bonus', ruleKey: 'bonus_group_homework', ruleLabel: 'Cß║ú tß╗ò 100% l├ám b├ái tß║¡p', pointsChanged: 10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3', note: 'Tß╗ò 3 chuß║⌐n bß╗ï b├ái chu ─æ├ío' },
-    { week: '6', date: '2026-10-14', studentId: 'hs_10a3_19', type: 'bonus', ruleKey: 'bonus_group_homework', ruleLabel: 'Cß║ú tß╗ò 100% l├ám b├ái tß║¡p', pointsChanged: 10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3', note: 'Tß╗ò 3 chuß║⌐n bß╗ï b├ái chu ─æ├ío' },
-    { week: '6', date: '2026-10-15', studentId: 'hs_10a3_21', type: 'bonus', ruleKey: 'bonus_logical_consequence', ruleLabel: 'Tß╗▒ gi├íc khß║»c phß╗Ñc hß╗ç quß║ú', pointsChanged: 5, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 6', note: 'Tß╗▒ gi├íc trß╗▒c nhß║¡t b├╣ chu ─æ├ío' },
-    { week: '6', date: '2026-10-16', studentId: 'hs_10a3_08', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Ph├ít biß╗âu x├óy dß╗▒ng b├ái', pointsChanged: 5, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Ph├ít biß╗âu s├┤i nß╗òi m├┤n Lß╗ïch sß╗¡' },
+    // Tuần 6
+    { week: '6', date: '2026-10-13', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Lên bảng giải bài Vật lý đạt điểm 10' },
+    { week: '6', date: '2026-10-14', studentId: 'hs_10a3_20', type: 'bonus', ruleKey: 'bonus_group_homework', ruleLabel: 'Cả tổ 100% làm bài tập', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 3', note: 'Tổ 3 chuẩn bị bài chu đáo' },
+    { week: '6', date: '2026-10-14', studentId: 'hs_10a3_19', type: 'bonus', ruleKey: 'bonus_group_homework', ruleLabel: 'Cả tổ 100% làm bài tập', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 3', note: 'Tổ 3 chuẩn bị bài chu đáo' },
+    { week: '6', date: '2026-10-15', studentId: 'hs_10a3_21', type: 'bonus', ruleKey: 'bonus_logical_consequence', ruleLabel: 'Tự giác khắc phục hệ quả', pointsChanged: 5, recordedBy: 'Tổ trưởng Tổ 6', note: 'Tự giác trực nhật bù chu đáo' },
+    { week: '6', date: '2026-10-16', studentId: 'hs_10a3_08', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Phát biểu xây dựng bài', pointsChanged: 5, recordedBy: 'Sao đỏ trực nhật', note: 'Phát biểu sôi nổi môn Lịch sử' },
 
-    // Tuß║ºn 7
-    { week: '7', date: '2026-10-20', studentId: 'hs_10a3_24', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 2 ho├án th├ánh xuß║Ñt sß║»c' },
-    { week: '7', date: '2026-10-21', studentId: 'hs_10a3_33', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nß╗ù lß╗▒c vi m├┤ (Baby Steps)', pointsChanged: 10, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 2', note: 'Nß╗ù lß╗▒c hß╗ìc tß║¡p r├╡ rß╗çt' },
-    { week: '7', date: '2026-10-22', studentId: 'hs_10a3_14', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'Lß╗¢p tr╞░ß╗ƒng', note: '─Éß║ít ─æiß╗âm 8 kiß╗âm tra 15 ph├║t To├ín' },
-    { week: '7', date: '2026-10-22', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: '─É├┤i bß║ín c├╣ng tiß║┐n', pointsChanged: 15, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'K├¿m cß║╖p bß║ín Khang tiß║┐n bß╗Ö v╞░ß╗út bß║¡c' },
+    // Tuần 7
+    { week: '7', date: '2026-10-20', studentId: 'hs_10a3_24', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 2 hoàn thành xuất sắc' },
+    { week: '7', date: '2026-10-21', studentId: 'hs_10a3_33', type: 'bonus', ruleKey: 'bonus_baby_steps', ruleLabel: 'Nỗ lực vi mô (Baby Steps)', pointsChanged: 10, recordedBy: 'Tổ trưởng Tổ 2', note: 'Nỗ lực học tập rõ rệt' },
+    { week: '7', date: '2026-10-22', studentId: 'hs_10a3_14', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'Lớp trưởng', note: 'Đạt điểm 8 kiểm tra 15 phút Toán' },
+    { week: '7', date: '2026-10-22', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_paired_progress', ruleLabel: 'Đôi bạn cùng tiến', pointsChanged: 15, recordedBy: 'GVCN Lớp 10A3', note: 'Kèm cặp bạn Khang tiến bộ vượt bậc' },
 
-    // Tuß║ºn 8
-    { week: '8', date: '2026-10-27', studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_school_honors', ruleLabel: '─Éß║ít ─æiß╗âm Tß╗æt to├án diß╗çn', pointsChanged: 50, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'G╞░╞íng s├íng viß╗çc tß╗æt nhß║╖t ─æ╞░ß╗úc cß╗ºa r╞íi trß║ú lß║íi' },
-    { week: '8', date: '2026-10-28', studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Trß╗▒c nhß║¡t tß╗▒ gi├íc', pointsChanged: 5, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3', note: 'Vß╗ç sinh ph├▓ng hß╗ìc sß║ích sß║╜' },
-    { week: '8', date: '2026-10-29', studentId: 'hs_10a3_36', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Ho├án th├ánh b├ái tß║¡p c├í nh├ón', pointsChanged: 5, recordedBy: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3', note: 'L├ám b├ái tß║¡p ─æß║ºy ─æß╗º' },
-    { week: '8', date: '2026-10-30', studentId: 'hs_10a3_16', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong l├¬n bß║úng ─æ├║ng', pointsChanged: 10, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Giß║úi b├ái tß║¡p To├ín h├¼nh ch├¡nh x├íc' },
+    // Tuần 8
+    { week: '8', date: '2026-10-27', studentId: 'hs_10a3_23', type: 'bonus', ruleKey: 'bonus_school_honors', ruleLabel: 'Đạt điểm Tốt toàn diện', pointsChanged: 50, recordedBy: 'GVCN Lớp 10A3', note: 'Gương sáng việc tốt nhặt được của rơi trả lại' },
+    { week: '8', date: '2026-10-28', studentId: 'hs_10a3_02', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Trực nhật tự giác', pointsChanged: 5, recordedBy: 'Tổ trưởng Tổ 3', note: 'Vệ sinh phòng học sạch sẽ' },
+    { week: '8', date: '2026-10-29', studentId: 'hs_10a3_36', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Hoàn thành bài tập cá nhân', pointsChanged: 5, recordedBy: 'Tổ trưởng Tổ 3', note: 'Làm bài tập đầy đủ' },
+    { week: '8', date: '2026-10-30', studentId: 'hs_10a3_16', type: 'bonus', ruleKey: 'bonus_board_solution', ruleLabel: 'Xung phong lên bảng đúng', pointsChanged: 10, recordedBy: 'Sao đỏ trực nhật', note: 'Giải bài tập Toán hình chính xác' },
 
-    // Tuß║ºn 10 (Hiß╗çn tß║íi)
-    { week: '10', date: '2026-11-06', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'C├ín sß╗▒ lß╗¢p l├ám tß╗æt nhiß╗çm vß╗Ñ', pointsChanged: 20, recordedBy: 'GVCN Lß╗¢p 10A3', note: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3 quß║ún l├╜ nß╗ü nß║┐p tß╗ò nghi├¬m t├║c' },
-    { week: '10', date: '2026-11-06', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Ph├ít biß╗âu x├óy dß╗▒ng b├ái', pointsChanged: 5, recordedBy: 'Sao ─æß╗Å trß╗▒c nhß║¡t', note: 'Ph├ít biß╗âu b├ái hß╗ìc t├¡ch cß╗▒c' }
+    // Tuần 10 (Hiện tại)
+    { week: '10', date: '2026-11-06', studentId: 'hs_10a3_10', type: 'bonus', ruleKey: 'bonus_duty_excellent', ruleLabel: 'Cán sự lớp làm tốt nhiệm vụ', pointsChanged: 20, recordedBy: 'GVCN Lớp 10A3', note: 'Tổ trưởng Tổ 3 quản lý nề nếp tổ nghiêm túc' },
+    { week: '10', date: '2026-11-06', studentId: 'hs_10a3_22', type: 'bonus', ruleKey: 'bonus_individual_effort', ruleLabel: 'Phát biểu xây dựng bài', pointsChanged: 5, recordedBy: 'Sao đỏ trực nhật', note: 'Phát biểu bài học tích cực' }
   ];
 
   return sampleLogs.map(item => ({
@@ -4425,7 +4413,7 @@ function seedHistoricalWeeklyLogs() {
   }));
 }
 
-// ==================== C╞á CHß║╛ KH├ôA TUß║ªN, RESET ─ÉIß╗éM & PH├éN QUYß╗ÇN ====================
+// ==================== CƠ CHẾ KHÓA TUẦN, RESET ĐIỂM & PHÂN QUYỀN ====================
 
 function isWeekLocked(weekVal) {
   if (!appState.lockedWeeks) return false;
@@ -4435,14 +4423,14 @@ function isWeekLocked(weekVal) {
 function toggleCurrentLeaderboardWeekLock() {
   const currentRole = appState.currentUserRole || 'gvcn';
   if (currentRole !== 'gvcn') {
-    showToast('Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ quyß╗ün Kh├│a hoß║╖c Mß╗ƒ kh├│a sß╗ò ─æiß╗âm tuß║ºn!', 'error');
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Khóa hoặc Mở khóa sổ điểm tuần!', 'error');
     return;
   }
 
   const weekVal = appState.activeLeaderboardWeek || '10';
   const isCumulative = weekVal === 'all' || weekVal === 'all_hk1' || weekVal === 'all_hk2' || weekVal === 'all_year';
   if (isCumulative) {
-    showToast('Kh├┤ng thß╗â kh├│a Bß║úng tß╗òng hß╗úp l┼⌐y kß║┐! Vui l├▓ng chß╗ìn 1 tuß║ºn cß╗Ñ thß╗â ─æß╗â kh├│a.', 'warning');
+    showToast('Không thể khóa Bảng tổng hợp lũy kế! Vui lòng chọn 1 tuần cụ thể để khóa.', 'warning');
     return;
   }
 
@@ -4452,10 +4440,10 @@ function toggleCurrentLeaderboardWeekLock() {
   const locked = appState.lockedWeeks.includes(wStr);
   if (locked) {
     appState.lockedWeeks = appState.lockedWeeks.filter(w => w !== wStr);
-    showToast(`─É├ú Mß╗₧ KH├ôA sß╗ò ─æiß╗âm Tuß║ºn ${wStr}! Ban c├ín sß╗▒ c├│ thß╗â cß║¡p nhß║¡t ─æiß╗âm.`, 'success');
+    showToast(`Đã MỞ KHÓA sổ điểm Tuần ${wStr}! Ban cán sự có thể cập nhật điểm.`, 'success');
   } else {
     appState.lockedWeeks.push(wStr);
-    showToast(`─É├ú KH├ôA Sß╗ö ─æiß╗âm Tuß║ºn ${wStr}! ─Éiß╗âm sß╗æ tuß║ºn n├áy ─æ╞░ß╗úc bß║úo vß╗ç an to├án.`, 'success');
+    showToast(`Đã KHÓA SỔ điểm Tuần ${wStr}! Điểm số tuần này được bảo vệ an toàn.`, 'success');
   }
 
   saveDataToStorage();
@@ -4465,18 +4453,18 @@ function toggleCurrentLeaderboardWeekLock() {
 function confirmResetWeekDiscipline() {
   const currentRole = appState.currentUserRole || 'gvcn';
   if (currentRole !== 'gvcn') {
-    showToast('Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ quyß╗ün Reset ─æiß╗âm thi ─æua cß╗ºa hß╗ìc sinh!', 'error');
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Reset điểm thi đua của học sinh!', 'error');
     return;
   }
 
   const weekVal = appState.activeLeaderboardWeek || '10';
-  let targetDesc = `Tuß║ºn ${weekVal}`;
-  if (weekVal === 'all' || weekVal === 'all_hk1') targetDesc = 'to├án bß╗Ö Hß╗ìc kß╗│ 1 (Tuß║ºn 1 - 16)';
-  else if (weekVal === 'all_hk2') targetDesc = 'to├án bß╗Ö Hß╗ìc kß╗│ 2 (Tuß║ºn 18 - 35)';
-  else if (weekVal === 'all_year') targetDesc = 'Cß║ó N─éM Hß╗îC (Tuß║ºn 1 - 35)';
+  let targetDesc = `Tuần ${weekVal}`;
+  if (weekVal === 'all' || weekVal === 'all_hk1') targetDesc = 'toàn bộ Học kỳ 1 (Tuần 1 - 16)';
+  else if (weekVal === 'all_hk2') targetDesc = 'toàn bộ Học kỳ 2 (Tuần 18 - 35)';
+  else if (weekVal === 'all_year') targetDesc = 'CẢ NĂM HỌC (Tuần 1 - 35)';
 
   const confirmed = confirm(
-    `[X├üC NHß║¼N RESET ─ÉIß╗éM THI ─ÉUA Vß╗Ç BAN ─Éß║ªU]\n\nThß║ºy/C├┤ c├│ chß║»c chß║»n muß╗æn ─æ╞░a ─æiß╗âm cß╗ºa tß║Ñt cß║ú 45 hß╗ìc sinh trong ${targetDesc} vß╗ü mß╗æc 100 ─ÉIß╗éM S├ÇN BAN ─Éß║ªU kh├┤ng?\n\n(To├án bß╗Ö ─æiß╗âm cß╗Öng v├á ─æiß╗âm trß╗½ cß╗ºa giai ─æoß║ín n├áy sß║╜ ─æ╞░ß╗úc l├ám mß╗¢i vß╗ü 0)`
+    `[XÁC NHẬN RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU]\n\nThầy/Cô có chắc chắn muốn đưa điểm của tất cả 45 học sinh trong ${targetDesc} về mốc 100 ĐIỂM SÀN BAN ĐẦU không?\n\n(Toàn bộ điểm cộng và điểm trừ của giai đoạn này sẽ được làm mới về 0)`
   );
 
   if (!confirmed) return;
@@ -4499,20 +4487,20 @@ function confirmResetWeekDiscipline() {
 
   saveDataToStorage();
   refreshAllUI();
-  showToast(`─É├ú reset th├ánh c├┤ng ─æiß╗âm thi ─æua cß╗ºa ${targetDesc} vß╗ü 100 ─æiß╗âm ban ─æß║ºu!`, 'success');
+  showToast(`Đã reset thành công điểm thi đua của ${targetDesc} về 100 điểm ban đầu!`, 'success');
 }
 
 function onRoleSelectorChange(roleId) {
   if (roleId === 'member') {
     executeChangeRole('member');
-    showToast('─É├ú chuyß╗ân vß╗ü Chß║┐ ─æß╗Ö Hß╗ìc sinh (Chß╗ë xem)', 'info');
+    showToast('Đã chuyển về Chế độ Học sinh (Chỉ xem)', 'info');
     return;
   }
 
   if (isRoleAuthenticated(roleId)) {
     executeChangeRole(roleId);
   } else {
-    // Tß║ím thß╗¥i trß║ú lß║íi gi├í trß╗ï c┼⌐ cß╗ºa dropdown
+    // Tạm thời trả lại giá trị cũ của dropdown
     const sel = document.getElementById('header-user-role-selector');
     if (sel) sel.value = appState.currentUserRole || 'member';
     openRolePinModal(roleId);
@@ -4531,17 +4519,17 @@ function openRolePinModal(targetRoleId) {
   const inputEl = document.getElementById('input-role-pin');
   const errEl = document.getElementById('modal-pin-error');
 
-  if (titleEl) titleEl.textContent = `X├íc Thß╗▒c Quyß╗ün: ${roleMeta.label}`;
-  if (subtitleEl) subtitleEl.textContent = isGVCN ? 'Cß║ºn m├ú PIN Gi├ío vi├¬n chß╗º nhiß╗çm ─æß╗â tiß║┐p tß╗Ñc' : 'Cß║ºn m├ú PIN C├ín sß╗▒ (Lß╗¢p tr╞░ß╗ƒng / Tß╗ò tr╞░ß╗ƒng)';
+  if (titleEl) titleEl.textContent = `Xác Thực Quyền: ${roleMeta.label}`;
+  if (subtitleEl) subtitleEl.textContent = isGVCN ? 'Cần mã PIN Giáo viên chủ nhiệm để tiếp tục' : 'Cần mã PIN Cán sự (Lớp trưởng / Tổ trưởng)';
   if (bodyEl) {
     bodyEl.textContent = isGVCN 
-      ? 'Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ to├án quyß╗ün chß║Ñm ─æiß╗âm, kh├│a sß╗ò ─æiß╗âm v├á reset ─æiß╗âm thi ─æua.' 
-      : `Bß║ín ─æang chß╗ìn chuyß╗ân sang vai tr├▓ ${roleMeta.label} ─æß╗â chß║Ñm ─æiß╗âm thi ─æua. Vui l├▓ng nhß║¡p m├ú PIN x├íc thß╗▒c.`;
+      ? 'Chỉ Giáo viên chủ nhiệm mới có toàn quyền chấm điểm, khóa sổ điểm và reset điểm thi đua.' 
+      : `Bạn đang chọn chuyển sang vai trò ${roleMeta.label} để chấm điểm thi đua. Vui lòng nhập mã PIN xác thực.`;
   }
   if (hintEl) {
     hintEl.innerHTML = isGVCN 
-      ? '* M├ú PIN GVCN mß║╖c ─æß╗ïnh: <strong>1030</strong>' 
-      : '* M├ú PIN C├ín sß╗▒ mß║╖c ─æß╗ïnh: <strong>10a3</strong> (hoß║╖c d├╣ng PIN GVCN <strong>1030</strong>)';
+      ? '* Mã PIN GVCN mặc định: <strong>1030</strong>' 
+      : '* Mã PIN Cán sự mặc định: <strong>10a3</strong> (hoặc dùng PIN GVCN <strong>1030</strong>)';
   }
 
   if (inputEl) {
@@ -4599,7 +4587,7 @@ function submitRolePin() {
 
   if (!isValid) {
     if (errEl) errEl.classList.remove('hidden');
-    if (errText) errText.textContent = isGVCN ? 'Sai m├ú PIN GVCN! Vui l├▓ng nhß║¡p ─æ├║ng PIN 1030.' : 'Sai m├ú PIN! Vui l├▓ng nhß║¡p ─æ├║ng PIN 10a3 hoß║╖c PIN GVCN 1030.';
+    if (errText) errText.textContent = isGVCN ? 'Sai mã PIN GVCN! Vui lòng nhập đúng PIN 1030.' : 'Sai mã PIN! Vui lòng nhập đúng PIN 10a3 hoặc PIN GVCN 1030.';
     if (input) {
       input.classList.add('border-rose-500');
       input.focus();
@@ -4608,7 +4596,7 @@ function submitRolePin() {
     return;
   }
 
-  // ─É├║ng PIN
+  // Đúng PIN
   const remember = document.getElementById('checkbox-remember-pin')?.checked !== false;
   if (remember) {
     if (pinVal === DEFAULT_PINS.gvcn) {
@@ -4621,7 +4609,7 @@ function submitRolePin() {
   const roleMeta = ROLES[targetRole] || ROLES.gvcn;
   closeRolePinModal();
   executeChangeRole(targetRole);
-  showToast(`≡ƒÄë X├íc thß╗▒c th├ánh c├┤ng! ─É├ú k├¡ch hoß║ít vai tr├▓: ${roleMeta.label}`, 'success');
+  showToast(`🎉 Xác thực thành công! Đã kích hoạt vai trò: ${roleMeta.label}`, 'success');
 }
 
 function executeChangeRole(roleId) {
@@ -4640,37 +4628,37 @@ function executeChangeRole(roleId) {
   const roleBadge = document.getElementById('header-role-badge');
   if (roleBadge) {
     if (roleMeta.canScore) {
-      roleBadge.textContent = '─É╞░ß╗úc chß║Ñm';
+      roleBadge.textContent = 'Được chấm';
       roleBadge.className = 'px-1.5 py-0.5 rounded font-black text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
     } else {
-      roleBadge.textContent = 'Chß╗ë xem';
+      roleBadge.textContent = 'Chỉ xem';
       roleBadge.className = 'px-1.5 py-0.5 rounded font-black text-[10px] bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
     }
   }
 
-  // N├║t ─æ─âng xuß║Ñt vai tr├▓ trong header
+  // Nút đăng xuất vai trò trong header
   const logoutBtn = document.getElementById('btn-header-logout-role');
   if (logoutBtn) {
     if (roleId !== 'member') logoutBtn.classList.remove('hidden');
     else logoutBtn.classList.add('hidden');
   }
 
-  // Nß║┐u l├á Tß╗ò tr╞░ß╗ƒng, tß╗▒ ─æß╗Öng chß╗ìn ng╞░ß╗¥i ghi nhß║¡n v├á lß╗ìc ─æ├║ng tß╗ò m├¼nh
+  // Nếu là Tổ trưởng, tự động chọn người ghi nhận và lọc đúng tổ mình
   if (roleId.startsWith('lead_t')) {
     const groupNum = parseInt(roleId.replace('lead_t', ''), 10);
     if (!isNaN(groupNum)) {
       filterScoringGroup(groupNum);
       const recSelect = document.getElementById('score-recorder-select');
       if (recSelect) {
-        recSelect.value = `Tß╗ò tr╞░ß╗ƒng Tß╗ò ${groupNum}`;
+        recSelect.value = `Tổ trưởng Tổ ${groupNum}`;
       }
     }
   } else if (roleId === 'monitor') {
     const recSelect = document.getElementById('score-recorder-select');
-    if (recSelect) recSelect.value = 'Lß╗¢p tr╞░ß╗ƒng (Trß║ºn L├¬ Hß╗ông Nhung)';
+    if (recSelect) recSelect.value = 'Lớp trưởng (Trần Lê Hồng Nhung)';
   } else if (roleId === 'gvcn') {
     const recSelect = document.getElementById('score-recorder-select');
-    if (recSelect) recSelect.value = 'GVCN Lß╗¢p 10A3';
+    if (recSelect) recSelect.value = 'GVCN Lớp 10A3';
   }
 
   refreshAllUI();
@@ -4749,10 +4737,10 @@ function renderScoringPermissionsUI() {
     btnBonus.disabled = !canOperate;
     if (!canOperate) {
       btnBonus.classList.add('opacity-50', 'cursor-not-allowed');
-      btnBonus.title = 'Bß║ín kh├┤ng c├│ quyß╗ün chß║Ñm ─æiß╗âm (Chß║┐ ─æß╗Ö Chß╗ë Xem)';
+      btnBonus.title = 'Bạn không có quyền chấm điểm (Chế độ Chỉ Xem)';
     } else {
       btnBonus.classList.remove('opacity-50', 'cursor-not-allowed');
-      btnBonus.title = 'Ghi nhß║¡n ─æiß╗âm cß╗Öng cho c├íc hß╗ìc sinh ─æ├ú chß╗ìn';
+      btnBonus.title = 'Ghi nhận điểm cộng cho các học sinh đã chọn';
     }
   }
 
@@ -4760,10 +4748,10 @@ function renderScoringPermissionsUI() {
     btnViol.disabled = !canOperate;
     if (!canOperate) {
       btnViol.classList.add('opacity-50', 'cursor-not-allowed');
-      btnViol.title = 'Bß║ín kh├┤ng c├│ quyß╗ün chß║Ñm ─æiß╗âm (Chß║┐ ─æß╗Ö Chß╗ë Xem)';
+      btnViol.title = 'Bạn không có quyền chấm điểm (Chế độ Chỉ Xem)';
     } else {
       btnViol.classList.remove('opacity-50', 'cursor-not-allowed');
-      btnViol.title = 'Ghi nhß║¡n ─æiß╗âm trß╗½ cho c├íc hß╗ìc sinh ─æ├ú chß╗ìn';
+      btnViol.title = 'Ghi nhận điểm trừ cho các học sinh đã chọn';
     }
   }
 
@@ -4771,25 +4759,25 @@ function renderScoringPermissionsUI() {
     if (!roleMeta.canScore) {
       submitBtn.disabled = true;
       submitBtn.className = 'px-5 py-2.5 bg-slate-400 text-slate-800 rounded-xl font-bold text-xs cursor-not-allowed opacity-75';
-      submitBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i><span>Chß╗ë Xem (Ch╞░a ─æ╞░ß╗úc cß║Ñp quyß╗ün chß║Ñm)</span>';
+      submitBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i><span>Chỉ Xem (Chưa được cấp quyền chấm)</span>';
     } else if (weekLocked) {
       submitBtn.disabled = true;
       submitBtn.className = 'px-5 py-2.5 bg-amber-600 text-white rounded-xl font-bold text-xs cursor-not-allowed opacity-80';
-      submitBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i><span>Tuß║ºn N├áy ─É├ú Kh├│a Sß╗ò ─Éiß╗âm</span>';
+      submitBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i><span>Tuần Này Đã Khóa Sổ Điểm</span>';
     } else {
       submitBtn.disabled = false;
       submitBtn.className = 'px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:scale-95 font-black text-xs text-slate-950 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition cursor-pointer whitespace-nowrap';
-      submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk text-sm mr-1.5"></i><span>X├üC NHß║¼N GHI ─ÉIß╗éM NGAY</span>';
+      submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk text-sm mr-1.5"></i><span>XÁC NHẬN GHI ĐIỂM NGAY</span>';
     }
   }
 }
 
-// ==================== C├üC H├ÇM Xß╗¼ L├¥ RESET ─ÉIß╗éM THI ─ÉUA ====================
+// ==================== CÁC HÀM XỬ LÝ RESET ĐIỂM THI ĐUA ====================
 
 function openResetDisciplineModal() {
   const currentRole = appState.currentUserRole || 'member';
   if (currentRole !== 'gvcn') {
-    showToast('Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ quyß╗ün mß╗ƒ c├┤ng cß╗Ñ Reset ─æiß╗âm thi ─æua!', 'error');
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền mở công cụ Reset điểm thi đua!', 'error');
     return;
   }
 
@@ -4812,7 +4800,7 @@ function closeResetDisciplineModal() {
 
 function executeResetWeekOnly(weekVal) {
   if (appState.currentUserRole !== 'gvcn') {
-    showToast('Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ quyß╗ün Reset ─æiß╗âm thi ─æua!', 'error');
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Reset điểm thi đua!', 'error');
     return;
   }
   const wStr = String(weekVal || appState.activeLeaderboardWeek || '9');
@@ -4825,12 +4813,12 @@ function executeResetWeekOnly(weekVal) {
   refreshAllUI();
   closeResetDisciplineModal();
 
-  showToast(`─É├ú reset sß║ích sß║╜ ─æiß╗âm Tuß║ºn ${wStr}! Tß║Ñt cß║ú 45 hß╗ìc sinh ß╗ƒ Tuß║ºn ${wStr} ─æ├ú vß╗ü ─æ├║ng 100 ─æiß╗âm ban ─æß║ºu (─æ├ú x├│a ${deletedCount} l╞░ß╗út ─æiß╗âm).`, 'success');
+  showToast(`Đã reset sạch sẽ điểm Tuần ${wStr}! Tất cả 45 học sinh ở Tuần ${wStr} đã về đúng 100 điểm ban đầu (đã xóa ${deletedCount} lượt điểm).`, 'success');
 }
 
 function executeResetAllToBaseline() {
   if (appState.currentUserRole !== 'gvcn') {
-    showToast('Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ quyß╗ün Reset ─æiß╗âm thi ─æua!', 'error');
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền Reset điểm thi đua!', 'error');
     return;
   }
   const countBefore = appState.dailyLogs.length;
@@ -4841,12 +4829,12 @@ function executeResetAllToBaseline() {
   refreshAllUI();
   closeResetDisciplineModal();
 
-  showToast(`─É├ú x├│a sß║ích to├án bß╗Ö ${countBefore} l╞░ß╗út ─æiß╗âm c┼⌐! Tß║Ñt cß║ú 45 hß╗ìc sinh ─æ├ú trß╗ƒ vß╗ü ─æ├║ng 100 ─æiß╗âm s├án ban ─æß║ºu ─æß╗â bß║»t ─æß║ºu tß╗½ Tuß║ºn 9.`, 'success');
+  showToast(`Đã xóa sạch toàn bộ ${countBefore} lượt điểm cũ! Tất cả 45 học sinh đã trở về đúng 100 điểm sàn ban đầu để bắt đầu từ Tuần 9.`, 'success');
 }
 
 function executeLoadSampleLogs() {
   if (appState.currentUserRole !== 'gvcn') {
-    showToast('Chß╗ë Gi├ío vi├¬n chß╗º nhiß╗çm mß╗¢i c├│ quyß╗ün nß║íp dß╗» liß╗çu mß║½u!', 'error');
+    showToast('Chỉ Giáo viên chủ nhiệm mới có quyền nạp dữ liệu mẫu!', 'error');
     return;
   }
   appState.dailyLogs = seedHistoricalWeeklyLogs();
@@ -4854,7 +4842,7 @@ function executeLoadSampleLogs() {
   refreshAllUI();
   closeResetDisciplineModal();
 
-  showToast(`─É├ú nß║íp th├ánh c├┤ng bß╗Ö dß╗» liß╗çu thi ─æua mß║½u ─æß╗â tham khß║úo!`, 'info');
+  showToast(`Đã nạp thành công bộ dữ liệu thi đua mẫu để tham khảo!`, 'info');
 }
 
 // ==================== PWA INSTALL & SERVICE WORKER LOGIC ====================
@@ -4864,10 +4852,10 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then((reg) => {
-        console.log('[PWA] Service Worker ─æ─âng k├╜ th├ánh c├┤ng vß╗¢i scope:', reg.scope);
+        console.log('[PWA] Service Worker đăng ký thành công với scope:', reg.scope);
       })
       .catch((err) => {
-        console.warn('[PWA] Kh├┤ng thß╗â ─æ─âng k├╜ Service Worker:', err);
+        console.warn('[PWA] Không thể đăng ký Service Worker:', err);
       });
   });
 }
@@ -4886,18 +4874,18 @@ function promptPWAInstall() {
     deferredPWAInstallPrompt.prompt();
     deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        showToast('─Éang c├ái ─æß║╖t ß╗¿ng dß╗Ñng Lß╗¢p 10A3 v├áo m├íy...', 'success');
+        showToast('Đang cài đặt Ứng dụng Lớp 10A3 vào máy...', 'success');
       }
       deferredPWAInstallPrompt = null;
     });
   } else {
-    // Modal h╞░ß╗¢ng dß║½n c├ái ─æß║╖t chi tiß║┐t cho tß╗½ng loß║íi thiß║┐t bß╗ï (iPhone, Android, Windows)
+    // Modal hướng dẫn cài đặt chi tiết cho từng loại thiết bị (iPhone, Android, Windows)
     showPWAInstallGuideModal();
   }
 }
 
 window.addEventListener('appinstalled', () => {
-  showToast('─É├ú c├ái ─æß║╖t th├ánh c├┤ng ß╗¿ng dß╗Ñng Lß╗¢p 10A3! Bß║ín c├│ thß╗â mß╗ƒ trß╗▒c tiß║┐p tß╗½ m├án h├¼nh ch├¡nh.', 'success');
+  showToast('Đã cài đặt thành công Ứng dụng Lớp 10A3! Bạn có thể mở trực tiếp từ màn hình chính.', 'success');
 });
 
 function showPWAInstallGuideModal() {
@@ -4908,36 +4896,36 @@ function showPWAInstallGuideModal() {
   if (isIOS) {
     instructions = `
       <div class="space-y-3 text-slate-700 dark:text-slate-200">
-        <p class="font-bold text-blue-600 dark:text-blue-400">≡ƒô▒ H╞░ß╗¢ng dß║½n c├ái tr├¬n iPhone / iPad (Safari):</p>
+        <p class="font-bold text-blue-600 dark:text-blue-400">📱 Hướng dẫn cài trên iPhone / iPad (Safari):</p>
         <ol class="list-decimal list-inside space-y-2 text-xs">
-          <li>Bß║Ñm v├áo n├║t <strong>Chia sß║╗ (Share)</strong> ß╗ƒ thanh d╞░ß╗¢i c├╣ng Safari (biß╗âu t╞░ß╗úng <i class="fa-solid fa-arrow-up-from-bracket text-blue-500"></i> h├¼nh vu├┤ng c├│ m┼⌐i t├¬n l├¬n).</li>
-          <li>Cuß╗Ön xuß╗æng v├á chß╗ìn <strong>"Th├¬m v├áo MH ch├¡nh"</strong> (hoß║╖c <em>"Add to Home Screen"</em> <i class="fa-solid fa-plus-square text-blue-500"></i>).</li>
-          <li>Bß║Ñm <strong>"Th├¬m" (Add)</strong> ß╗ƒ g├│c tr├¬n b├¬n phß║úi.</li>
-          <li>Xong! Icon <strong>Lß╗¢p 10A3</strong> sß║╜ xuß║Ñt hiß╗çn ngo├ái m├án h├¼nh ch├¡nh ─æß╗â mß╗ƒ to├án m├án h├¼nh nh╞░ App thß║¡t.</li>
+          <li>Bấm vào nút <strong>Chia sẻ (Share)</strong> ở thanh dưới cùng Safari (biểu tượng <i class="fa-solid fa-arrow-up-from-bracket text-blue-500"></i> hình vuông có mũi tên lên).</li>
+          <li>Cuộn xuống và chọn <strong>"Thêm vào MH chính"</strong> (hoặc <em>"Add to Home Screen"</em> <i class="fa-solid fa-plus-square text-blue-500"></i>).</li>
+          <li>Bấm <strong>"Thêm" (Add)</strong> ở góc trên bên phải.</li>
+          <li>Xong! Icon <strong>Lớp 10A3</strong> sẽ xuất hiện ngoài màn hình chính để mở toàn màn hình như App thật.</li>
         </ol>
       </div>
     `;
   } else if (isAndroid) {
     instructions = `
       <div class="space-y-3 text-slate-700 dark:text-slate-200">
-        <p class="font-bold text-emerald-600 dark:text-emerald-400">≡ƒñû H╞░ß╗¢ng dß║½n c├ái tr├¬n Android (Chrome):</p>
+        <p class="font-bold text-emerald-600 dark:text-emerald-400">🤖 Hướng dẫn cài trên Android (Chrome):</p>
         <ol class="list-decimal list-inside space-y-2 text-xs">
-          <li>Bß║Ñm v├áo biß╗âu t╞░ß╗úng <strong>3 dß║Ñu chß║Ñm ─æß╗⌐ng (Γï«)</strong> ß╗ƒ g├│c tr├¬n c├╣ng b├¬n phß║úi Chrome.</li>
-          <li>Chß╗ìn d├▓ng <strong>"C├ái ─æß║╖t ß╗⌐ng dß╗Ñng"</strong> (hoß║╖c <em>"Th├¬m v├áo M├án h├¼nh ch├¡nh"</em>).</li>
-          <li>Bß║Ñm <strong>"C├ái ─æß║╖t"</strong> ─æß╗â x├íc nhß║¡n.</li>
-          <li>Xong! App Lß╗¢p 10A3 sß║╜ xuß║Ñt hiß╗çn tr├¬n m├án h├¼nh ─æiß╗çn thoß║íi.</li>
+          <li>Bấm vào biểu tượng <strong>3 dấu chấm đứng (⋮)</strong> ở góc trên cùng bên phải Chrome.</li>
+          <li>Chọn dòng <strong>"Cài đặt ứng dụng"</strong> (hoặc <em>"Thêm vào Màn hình chính"</em>).</li>
+          <li>Bấm <strong>"Cài đặt"</strong> để xác nhận.</li>
+          <li>Xong! App Lớp 10A3 sẽ xuất hiện trên màn hình điện thoại.</li>
         </ol>
       </div>
     `;
   } else {
     instructions = `
       <div class="space-y-3 text-slate-700 dark:text-slate-200">
-        <p class="font-bold text-blue-600 dark:text-blue-400">≡ƒÆ╗ H╞░ß╗¢ng dß║½n c├ái tr├¬n M├íy t├¡nh (Chrome / Edge / Cß╗æc Cß╗æc):</p>
+        <p class="font-bold text-blue-600 dark:text-blue-400">💻 Hướng dẫn cài trên Máy tính (Chrome / Edge / Cốc Cốc):</p>
         <ol class="list-decimal list-inside space-y-2 text-xs">
-          <li>Nh├¼n l├¬n thanh nhß║¡p ─æß╗ïa chß╗ë web (URL) ß╗ƒ tr├¬n c├╣ng.</li>
-          <li>Bß║Ñm v├áo biß╗âu t╞░ß╗úng <strong>C├ái ─æß║╖t (Install App <i class="fa-solid fa-download text-blue-500"></i>)</strong> ß╗ƒ g├│c phß║úi thanh ─æß╗ïa chß╗ë.</li>
-          <li>Bß║Ñm n├║t <strong>"C├ái ─æß║╖t"</strong>.</li>
-          <li>App sß║╜ tß╗▒ ─æß╗Öng mß╗ƒ th├ánh mß╗Öt cß╗¡a sß╗ò phß║ºn mß╗üm ─æß╗Öc lß║¡p v├á tß║ío icon ngo├ái Desktop Windows.</li>
+          <li>Nhìn lên thanh nhập địa chỉ web (URL) ở trên cùng.</li>
+          <li>Bấm vào biểu tượng <strong>Cài đặt (Install App <i class="fa-solid fa-download text-blue-500"></i>)</strong> ở góc phải thanh địa chỉ.</li>
+          <li>Bấm nút <strong>"Cài đặt"</strong>.</li>
+          <li>App sẽ tự động mở thành một cửa sổ phần mềm độc lập và tạo icon ngoài Desktop Windows.</li>
         </ol>
       </div>
     `;
@@ -4951,7 +4939,7 @@ function showPWAInstallGuideModal() {
             <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-sm">
               <i class="fa-solid fa-mobile-screen-button"></i>
             </div>
-            <h3 class="font-black text-sm text-slate-900 dark:text-white">C├ái ─Éß║╖t App Lß╗¢p 10A3</h3>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">Cài Đặt App Lớp 10A3</h3>
           </div>
           <button onclick="document.getElementById('modal-pwa-guide').remove()" class="text-slate-400 hover:text-slate-600 p-1">
             <i class="fa-solid fa-xmark text-lg"></i>
@@ -4960,7 +4948,7 @@ function showPWAInstallGuideModal() {
         ${instructions}
         <div class="pt-2 flex justify-end">
           <button onclick="document.getElementById('modal-pwa-guide').remove()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition">
-            ─É├ú Hiß╗âu
+            Đã Hiểu
           </button>
         </div>
       </div>
@@ -4974,225 +4962,225 @@ function showPWAInstallGuideModal() {
 
 
 
-// ==================== QUß║óN L├¥ NHIß╗åM Vß╗ñ BAN C├üN Sß╗░ & Tß╗░ QUß║óN (XUß║ñT WORD / IN A4) ====================
+// ==================== QUẢN LÝ NHIỆM VỤ BAN CÁN SỰ & TỰ QUẢN (XUẤT WORD / IN A4) ====================
 
 const CADRE_DUTIES_DATA = [
   {
     stt: 1,
     category: 'leadership',
-    role: 'Lß╗¢p tr╞░ß╗ƒng',
-    studentId: 'hs_10a3_27', // Trß║ºn L├¬ Hß╗ông Nhung
+    role: 'Lớp trưởng',
+    studentId: 'hs_10a3_27', // Trần Lê Hồng Nhung
     badgeColor: 'amber',
     icon: 'fa-solid fa-crown',
-    permissions: 'To├án quyß╗ün ─æiß╗üu h├ánh hß╗ìc sinh ΓÇó Chß║Ñm ─æiß╗âm thi ─æua to├án lß╗¢p ΓÇó Quß║ún l├╜ m├ú PIN Lß╗¢p tr╞░ß╗ƒng',
+    permissions: 'Toàn quyền điều hành học sinh • Chấm điểm thi đua toàn lớp • Quản lý mã PIN Lớp trưởng',
     duties: [
-      'Chß╗ïu tr├ích nhiß╗çm to├án diß╗çn tr╞░ß╗¢c GVCN v├á Ban Gi├ím hiß╗çu vß╗ü mß╗ìi mß║╖t nß╗ü nß║┐p hß╗ìc tß║¡p, kß╗╖ luß║¡t v├á phong tr├áo cß╗ºa lß╗¢p 10A3.',
-      '─Éß║íi diß╗çn tiß║┐ng n├│i cß╗ºa tß║¡p thß╗â lß╗¢p; tiß║┐p nhß║¡n c├íc kß║┐ hoß║ích, chß╗ë ─æß║ío tß╗½ nh├á tr╞░ß╗¥ng v├á GVCN ─æß╗â qu├ín triß╗çt, ─æ├┤n ─æß╗æc lß╗¢p thß╗▒c hiß╗çn.',
-      '─Éiß╗üu h├ánh 15 ph├║t truy b├ái ─æß║ºu giß╗¥ mß╗ùi ng├áy v├á chß╗º tr├¼ tiß║┐t Sinh hoß║ít lß╗¢p v├áo cuß╗æi tuß║ºn.',
-      'Phß╗æi hß╗úp vß╗¢i Lß╗¢p ph├│, 6 Tß╗ò tr╞░ß╗ƒng, B├¡ th╞░ v├á Sao ─æß╗Å duy tr├¼ trß║¡t tß╗▒; xß╗¡ l├╜ b╞░ß╗¢c ─æß║ºu c├íc bß║Ñt ─æß╗ông nß╗Öi bß╗Ö; b├ío c├ío ngay cho GVCN t├¼nh huß╗æng ph├ít sinh v╞░ß╗út thß║⌐m quyß╗ün.',
-      'Thß╗▒c hiß╗çn chß║Ñm ─æiß╗âm thi ─æua kh├ích quan v├á bß║úo mß║¡t m├ú PIN ─æiß╗üu h├ánh.'
+      'Chịu trách nhiệm toàn diện trước GVCN và Ban Giám hiệu về mọi mặt nề nếp học tập, kỷ luật và phong trào của lớp 10A3.',
+      'Đại diện tiếng nói của tập thể lớp; tiếp nhận các kế hoạch, chỉ đạo từ nhà trường và GVCN để quán triệt, đôn đốc lớp thực hiện.',
+      'Điều hành 15 phút truy bài đầu giờ mỗi ngày và chủ trì tiết Sinh hoạt lớp vào cuối tuần.',
+      'Phối hợp với Lớp phó, 6 Tổ trưởng, Bí thư và Sao đỏ duy trì trật tự; xử lý bước đầu các bất đồng nội bộ; báo cáo ngay cho GVCN tình huống phát sinh vượt thẩm quyền.',
+      'Thực hiện chấm điểm thi đua khách quan và bảo mật mã PIN điều hành.'
     ]
   },
   {
     stt: 2,
     category: 'leadership',
-    role: 'Lß╗¢p ph├│ Hß╗ìc tß║¡p & CS Vß║¡t l├╜',
-    studentId: 'hs_10a3_42', // L├¬ V─ân V┼⌐
+    role: 'Lớp phó Học tập & CS Vật lý',
+    studentId: 'hs_10a3_42', // Lê Văn Vũ
     badgeColor: 'blue',
     icon: 'fa-solid fa-book-open-reader',
-    permissions: 'Quß║ún l├╜ 15p truy b├ái ΓÇó Chß╗ë ─æß║ío C├ín sß╗▒ bß╗Ö m├┤n ΓÇó M├┤ h├¼nh ─É├┤i bß║ín c├╣ng tiß║┐n',
+    permissions: 'Quản lý 15p truy bài • Chỉ đạo Cán sự bộ môn • Mô hình Đôi bạn cùng tiến',
     duties: [
-      'Phß╗Ñ tr├ích nß╗ü nß║┐p hß╗ìc tß║¡p, chuß║⌐n bß╗ï b├ái tß║¡p vß╗ü nh├á v├á kiß╗âm tra b├ái c┼⌐ 15 ph├║t ─æß║ºu giß╗¥.',
-      'Quß║ún l├╜, ─æ├┤n ─æß╗æc mß║íng l╞░ß╗¢i C├ín sß╗▒ c├íc bß╗Ö m├┤n (To├ín, L├╜, H├│a, Sinh, V─ân, Sß╗¡, ─Éß╗ïa, Anh...); kiß╗âm tra sß╗ò ─æß║ºu b├ái sau mß╗ùi buß╗òi hß╗ìc.',
-      'X├óy dß╗▒ng v├á theo d├╡i m├┤ h├¼nh "─É├┤i bß║ín c├╣ng tiß║┐n", ph├ón c├┤ng c├íc bß║ín hß╗ìc tß╗æt hß╗ù trß╗ú bß║ín gß║╖p kh├│ kh─ân kiß║┐n thß╗⌐c.',
-      'Trß╗▒c tiß║┐p phß╗Ñ tr├ích bß╗Ö m├┤n Vß║¡t l├╜: chuß║⌐n bß╗ï dß╗Ñng cß╗Ñ th├¡ nghiß╗çm, hß╗ù trß╗ú gi├ío vi├¬n bß╗Ö m├┤n ph├ít/thu ─æß╗ü c╞░╞íng.',
-      'Thay mß║╖t Lß╗¢p tr╞░ß╗ƒng ─æiß╗üu h├ánh lß╗¢p khi Lß╗¢p tr╞░ß╗ƒng vß║»ng mß║╖t.'
+      'Phụ trách nề nếp học tập, chuẩn bị bài tập về nhà và kiểm tra bài cũ 15 phút đầu giờ.',
+      'Quản lý, đôn đốc mạng lưới Cán sự các bộ môn (Toán, Lý, Hóa, Sinh, Văn, Sử, Địa, Anh...); kiểm tra sổ đầu bài sau mỗi buổi học.',
+      'Xây dựng và theo dõi mô hình "Đôi bạn cùng tiến", phân công các bạn học tốt hỗ trợ bạn gặp khó khăn kiến thức.',
+      'Trực tiếp phụ trách bộ môn Vật lý: chuẩn bị dụng cụ thí nghiệm, hỗ trợ giáo viên bộ môn phát/thu đề cương.',
+      'Thay mặt Lớp trưởng điều hành lớp khi Lớp trưởng vắng mặt.'
     ]
   },
   {
     stt: 3,
     category: 'leadership',
-    role: 'Lß╗¢p ph├│ Lao ─æß╗Öng',
-    studentId: 'hs_10a3_11', // Nguyß╗àn Quß╗æc Huy
+    role: 'Lớp phó Lao động',
+    studentId: 'hs_10a3_11', // Nguyễn Quốc Huy
     badgeColor: 'emerald',
     icon: 'fa-solid fa-broom',
-    permissions: 'Ph├ón c├┤ng & kiß╗âm tra trß╗▒c nhß║¡t ΓÇó Quß║ún l├╜ c╞í sß╗ƒ vß║¡t chß║Ñt, hß╗ç thß╗æng ─æiß╗çn quß║ít',
+    permissions: 'Phân công & kiểm tra trực nhật • Quản lý cơ sở vật chất, hệ thống điện quạt',
     duties: [
-      'Phß╗Ñ tr├ích to├án bß╗Ö c├┤ng t├íc vß╗ç sinh, cß║únh quan ph├▓ng hß╗ìc v├á nß║┐p sß╗æng v─ân minh hß╗ìc ─æ╞░ß╗¥ng.',
-      'Lß║¡p lß╗ïch v├á kiß╗âm tra tß╗ò trß╗▒c nhß║¡t mß╗ùi ng├áy (qu├⌐t lß╗¢p, lau bß║úng, ─æß╗ò r├íc, chuß║⌐n bß╗ï n╞░ß╗¢c uß╗æng v├á kh─ân lau b├án gi├ío vi├¬n).',
-      'Kiß╗âm tra v├á chß╗ïu tr├ích nhiß╗çm tß║»t to├án bß╗Ö ─æ├¿n, quß║ít, m├íy chiß║┐u/tivi, ─æ├│ng then cß╗¡a sß╗ò v├á kh├│a cß╗¡a ph├▓ng hß╗ìc khi tan tr╞░ß╗¥ng.',
-      'Quß║ún l├╜, ─æiß╗üu h├ánh lß╗▒c l╞░ß╗úng lß╗¢p tham gia c├íc ─æß╗út lao ─æß╗Öng to├án tr╞░ß╗¥ng do ─Éo├án tr╞░ß╗¥ng hoß║╖c GVCN ph├ón c├┤ng.',
-      'Kß╗ïp thß╗¥i ph├ít hiß╗çn v├á b├ío c├ío GVCN c├íc h╞░ hß╗Ång vß╗ü c╞í sß╗ƒ vß║¡t chß║Ñt (b├án ghß║┐, b├│ng ─æiß╗çn, quß║ít, cß╗¡a k├¡nh).'
+      'Phụ trách toàn bộ công tác vệ sinh, cảnh quan phòng học và nếp sống văn minh học đường.',
+      'Lập lịch và kiểm tra tổ trực nhật mỗi ngày (quét lớp, lau bảng, đổ rác, chuẩn bị nước uống và khăn lau bàn giáo viên).',
+      'Kiểm tra và chịu trách nhiệm tắt toàn bộ đèn, quạt, máy chiếu/tivi, đóng then cửa sổ và khóa cửa phòng học khi tan trường.',
+      'Quản lý, điều hành lực lượng lớp tham gia các đợt lao động toàn trường do Đoàn trường hoặc GVCN phân công.',
+      'Kịp thời phát hiện và báo cáo GVCN các hư hỏng về cơ sở vật chất (bàn ghế, bóng điện, quạt, cửa kính).'
     ]
   },
   {
     stt: 4,
     category: 'leadership',
-    role: 'B├¡ th╞░ Chi ─æo├án',
-    studentId: 'hs_10a3_07', // Tß║í Thanh Ngß╗ìc Gi├áu
+    role: 'Bí thư Chi đoàn',
+    studentId: 'hs_10a3_07', // Tạ Thanh Ngọc Giàu
     badgeColor: 'rose',
     icon: 'fa-solid fa-flag',
-    permissions: 'L├únh ─æß║ío Chi ─æo├án TNCS ΓÇó C├┤ng t├íc ─Éo├án tr╞░ß╗¥ng ΓÇó Phong tr├áo thanh ni├¬n xung k├¡ch',
+    permissions: 'Lãnh đạo Chi đoàn TNCS • Công tác Đoàn trường • Phong trào thanh niên xung kích',
     duties: [
-      'L├únh ─æß║ío Chi ─æo├án TNCS Hß╗ô Ch├¡ Minh Lß╗¢p 10A3; trß╗▒c tiß║┐p li├¬n hß╗ç v├á chß╗ïu sß╗▒ chß╗ë ─æß║ío cß╗ºa Ban Chß║Ñp h├ánh ─Éo├án tr╞░ß╗¥ng v├á GVCN.',
-      'Tß╗ò chß╗⌐c sinh hoß║ít Chi ─æo├án ─æß╗ïnh kß╗│, ph├ít ─æß╗Öng c├íc phong tr├áo xung k├¡ch, v─ân h├│a v─ân nghß╗ç, thß╗â dß╗Ñc thß╗â thao, ─æß╗ün ╞ín ─æ├íp ngh─⌐a.',
-      'Quß║ún l├╜ sß╗ò Chi ─æo├án, sß╗ò ─Éo├án vi├¬n, thu nß╗Öp ─æo├án ph├¡ ─æß╗ïnh kß╗│ ─æ├║ng hß║ín.',
-      'Theo d├╡i, ph├ít hiß╗çn v├á bß╗ôi d╞░ß╗íng thanh ni├¬n ╞░u t├║ trong lß╗¢p ─æß╗â giß╗¢i thiß╗çu kß║┐t nß║íp ─Éo├án.',
-      'C├╣ng Lß╗¢p tr╞░ß╗ƒng v├á Sao ─æß╗Å uß╗æn nß║»n t├íc phong, ─æß║ío ─æß╗⌐c, x├óy dß╗▒ng v─ân h├│a ß╗⌐ng xß╗¡ l├ánh mß║ính, kh├┤ng bß║ío lß╗▒c hß╗ìc ─æ╞░ß╗¥ng.'
+      'Lãnh đạo Chi đoàn TNCS Hồ Chí Minh Lớp 10A3; trực tiếp liên hệ và chịu sự chỉ đạo của Ban Chấp hành Đoàn trường và GVCN.',
+      'Tổ chức sinh hoạt Chi đoàn định kỳ, phát động các phong trào xung kích, văn hóa văn nghệ, thể dục thể thao, đền ơn đáp nghĩa.',
+      'Quản lý sổ Chi đoàn, sổ Đoàn viên, thu nộp đoàn phí định kỳ đúng hạn.',
+      'Theo dõi, phát hiện và bồi dưỡng thanh niên ưu tú trong lớp để giới thiệu kết nạp Đoàn.',
+      'Cùng Lớp trưởng và Sao đỏ uốn nắn tác phong, đạo đức, xây dựng văn hóa ứng xử lành mạnh, không bạo lực học đường.'
     ]
   },
   {
     stt: 5,
     category: 'leadership',
-    role: 'Thß╗º quß╗╣ & CS Lß╗ïch sß╗¡',
-    studentId: 'hs_10a3_03', // Tß╗½ Diß╗çu Y├¬n Diß╗àm
+    role: 'Thủ quỹ & CS Lịch sử',
+    studentId: 'hs_10a3_03', // Từ Diệu Yên Diễm
     badgeColor: 'cyan',
     icon: 'fa-solid fa-coins',
-    permissions: 'Quß║ún l├╜ thu - chi quß╗╣ lß╗¢p c├┤ng khai ΓÇó Quyß║┐t to├ín h├áng th├íng ΓÇó Ki├¬m CS m├┤n Sß╗¡',
+    permissions: 'Quản lý thu - chi quỹ lớp công khai • Quyết toán hàng tháng • Kiêm CS môn Sử',
     duties: [
-      'Quß║ún l├╜ thu ΓÇô chi quß╗╣ lß╗¢p theo nguy├¬n tß║»c c├┤ng khai, minh bß║ích, tiß║┐t kiß╗çm v├á ─æ├║ng quy ─æß╗ïnh.',
-      'Chi ti├¬u cho c├íc hoß║ít ─æß╗Öng thiß║┐t yß║┐u: n╞░ß╗¢c uß╗æng ─æ├│ng b├¼nh, phß║Ñn viß║┐t, giß║╗ lau, dß╗Ñng cß╗Ñ vß╗ç sinh, photo t├ái liß╗çu, th─âm hß╗Åi bß║ín b├¿ ß╗æm ─æau, khen th╞░ß╗ƒng thi ─æua tuß║ºn.',
-      'Ghi ch├⌐p sß╗ò quß╗╣ chi tiß║┐t tß╗½ng khoß║ún thu - chi (c├│ ng├áy th├íng, chß╗» k├╜ ng╞░ß╗¥i nhß║¡n hoß║╖c h├│a ─æ╞ín k├¿m theo).',
-      'B├ío c├ío c├┤ng khai t├ái ch├¡nh ─æß╗ïnh kß╗│ h├áng th├íng tr╞░ß╗¢c tß║¡p thß╗â lß╗¢p v├á nß╗Öp b├ío c├ío cho GVCN ph├¬ duyß╗çt.',
-      'Ki├¬m phß╗Ñ tr├ích m├┤n Lß╗ïch sß╗¡: nhß║»c nhß╗ƒ ├┤n b├ái, tß╗òng hß╗úp thß║»c mß║»c kiß║┐n thß╗⌐c lß╗ïch sß╗¡ gß╗¡i gi├ío vi├¬n.'
+      'Quản lý thu – chi quỹ lớp theo nguyên tắc công khai, minh bạch, tiết kiệm và đúng quy định.',
+      'Chi tiêu cho các hoạt động thiết yếu: nước uống đóng bình, phấn viết, giẻ lau, dụng cụ vệ sinh, photo tài liệu, thăm hỏi bạn bè ốm đau, khen thưởng thi đua tuần.',
+      'Ghi chép sổ quỹ chi tiết từng khoản thu - chi (có ngày tháng, chữ ký người nhận hoặc hóa đơn kèm theo).',
+      'Báo cáo công khai tài chính định kỳ hàng tháng trước tập thể lớp và nộp báo cáo cho GVCN phê duyệt.',
+      'Kiêm phụ trách môn Lịch sử: nhắc nhở ôn bài, tổng hợp thắc mắc kiến thức lịch sử gửi giáo viên.'
     ]
   },
   {
     stt: 6,
     category: 'team_leaders',
-    role: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 1',
-    studentId: 'hs_10a3_43', // D╞░╞íng Lß╗Ñc Yß║┐n Vy
+    role: 'Tổ trưởng Tổ 1',
+    studentId: 'hs_10a3_43', // Dương Lục Yến Vy
     badgeColor: 'teal',
     icon: 'fa-solid fa-users',
-    permissions: 'Chß║Ñm ─æiß╗âm thi ─æua Tß╗ò 1 (m├ú PIN T1) ΓÇó Quß║ún l├╜ nß╗ü nß║┐p & chuy├¬n cß║ºn 8 th├ánh vi├¬n Tß╗ò 1',
+    permissions: 'Chấm điểm thi đua Tổ 1 (mã PIN T1) • Quản lý nề nếp & chuyên cần 8 thành viên Tổ 1',
     duties: [
-      'Quß║ún l├╜ nß╗ü nß║┐p, chuy├¬n cß║ºn, trang phß╗Ñc cß╗ºa 8 th├ánh vi├¬n Tß╗ò 1; ─æiß╗âm danh ─æß║ºu giß╗¥ b├ío Lß╗¢p tr╞░ß╗ƒng.',
-      'Chß║Ñm ─æiß╗âm thi ─æua h├áng ng├áy cho tß╗ò vi├¬n tr├¬n hß╗ç thß╗æng Dashboard (─æ╞░ß╗úc cß║Ñp m├ú PIN Tß╗ò 1).',
-      'Kiß╗âm tra s├ích vß╗ƒ, b├ái tß║¡p vß╗ü nh├á cß╗ºa th├ánh vi├¬n trong tß╗ò trong 15 ph├║t ─æß║ºu giß╗¥.',
-      'Ph├ón c├┤ng v├á gi├ím s├ít c├íc bß║ín trong tß╗ò thß╗▒c hiß╗çn trß╗▒c nhß║¡t khi ─æß║┐n l╞░ß╗út Tß╗ò 1.',
-      'B├ío c├ío tß╗òng kß║┐t thi ─æua, nhß║¡n x├⌐t sß╗▒ tiß║┐n bß╗Ö cß╗ºa c├íc th├ánh vi├¬n tß╗ò trong tiß║┐t sinh hoß║ít cuß╗æi tuß║ºn.'
+      'Quản lý nề nếp, chuyên cần, trang phục của 8 thành viên Tổ 1; điểm danh đầu giờ báo Lớp trưởng.',
+      'Chấm điểm thi đua hàng ngày cho tổ viên trên hệ thống Dashboard (được cấp mã PIN Tổ 1).',
+      'Kiểm tra sách vở, bài tập về nhà của thành viên trong tổ trong 15 phút đầu giờ.',
+      'Phân công và giám sát các bạn trong tổ thực hiện trực nhật khi đến lượt Tổ 1.',
+      'Báo cáo tổng kết thi đua, nhận xét sự tiến bộ của các thành viên tổ trong tiết sinh hoạt cuối tuần.'
     ]
   },
   {
     stt: 7,
     category: 'team_leaders',
-    role: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 2 & CS H├│a hß╗ìc',
-    studentId: 'hs_10a3_25', // Nguyß╗àn Ho├áng Gia Nguy├¬n
+    role: 'Tổ trưởng Tổ 2 & CS Hóa học',
+    studentId: 'hs_10a3_25', // Nguyễn Hoàng Gia Nguyên
     badgeColor: 'teal',
     icon: 'fa-solid fa-flask',
-    permissions: 'Chß║Ñm ─æiß╗âm thi ─æua Tß╗ò 2 (m├ú PIN T2) ΓÇó Quß║ún l├╜ 7 th├ánh vi├¬n Tß╗ò 2 ΓÇó Ki├¬m CS m├┤n H├│a',
+    permissions: 'Chấm điểm thi đua Tổ 2 (mã PIN T2) • Quản lý 7 thành viên Tổ 2 • Kiêm CS môn Hóa',
     duties: [
-      'Bao qu├ít nß╗ü nß║┐p, chuy├¬n cß║ºn v├á th├íi ─æß╗Ö hß╗ìc tß║¡p cß╗ºa 7 th├ánh vi├¬n Tß╗ò 2; chß║Ñm ─æiß╗âm thi ─æua tß╗ò h├áng ng├áy.',
-      'Ki├¬m phß╗Ñ tr├ích m├┤n H├│a hß╗ìc: li├¬n hß╗ç gi├ío vi├¬n bß╗Ö m├┤n chuß║⌐n bß╗ï tiß║┐t th├¡ nghiß╗çm, kiß╗âm tra b├ái tß║¡p H├│a cß╗ºa lß╗¢p tr╞░ß╗¢c giß╗¥ hß╗ìc.',
-      '─É├┤n ─æß╗æc, hß╗ù trß╗ú c├íc th├ánh vi├¬n hß╗ìc tß║¡p v├á r├¿n luyß╗çn; ph├ón c├┤ng trß╗▒c nhß║¡t chu ─æ├ío khi ─æß║┐n phi├¬n Tß╗ò 2.',
-      'B├ío c├ío kß║┐t quß║ú r├¿n luyß╗çn tß╗ò v├á g╞░╞íng tiß║┐n bß╗Ö cho GVCN.'
+      'Bao quát nề nếp, chuyên cần và thái độ học tập của 7 thành viên Tổ 2; chấm điểm thi đua tổ hàng ngày.',
+      'Kiêm phụ trách môn Hóa học: liên hệ giáo viên bộ môn chuẩn bị tiết thí nghiệm, kiểm tra bài tập Hóa của lớp trước giờ học.',
+      'Đôn đốc, hỗ trợ các thành viên học tập và rèn luyện; phân công trực nhật chu đáo khi đến phiên Tổ 2.',
+      'Báo cáo kết quả rèn luyện tổ và gương tiến bộ cho GVCN.'
     ]
   },
   {
     stt: 8,
     category: 'team_leaders',
-    role: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 3',
-    studentId: 'hs_10a3_36', // L├¬ Thß╗ï Kim Tr├║c
+    role: 'Tổ trưởng Tổ 3',
+    studentId: 'hs_10a3_36', // Lê Thị Kim Trúc
     badgeColor: 'teal',
     icon: 'fa-solid fa-users',
-    permissions: 'Chß║Ñm ─æiß╗âm thi ─æua Tß╗ò 3 (m├ú PIN T3) ΓÇó Quß║ún l├╜ 8 th├ánh vi├¬n Tß╗ò 3 (B├án 9-12 D├úy 1)',
+    permissions: 'Chấm điểm thi đua Tổ 3 (mã PIN T3) • Quản lý 8 thành viên Tổ 3 (Bàn 9-12 Dãy 1)',
     duties: [
-      'Quß║ún l├╜ nß╗ü nß║┐p, trß║¡t tß╗▒, t├íc phong cß╗ºa 8 th├ánh vi├¬n Tß╗ò 3; chß║Ñm ─æiß╗âm thi ─æua h├áng ng├áy bß║▒ng m├ú PIN Tß╗ò 3.',
-      '─É├┤n ─æß╗æc tß╗ò vi├¬n hß╗ìc b├ái, l├ám b├ái nghi├¬m t├║c; quß║ún l├╜ c├íc bß║ín ngß╗ôi tß║íi D├úy 1 (B├án 9 ─æß║┐n B├án 12).',
-      '─Éiß╗üu phß╗æi tß╗ò vi├¬n trß╗▒c nhß║¡t vß╗ç sinh sß║ích sß║╜, giß╗» g├¼n khu vß╗▒c b├án ghß║┐ ng─ân nß║»p.',
-      'Tß╗òng kß║┐t ─æiß╗âm sß╗æ, xß║┐p hß║íng thi ─æua nß╗Öi bß╗Ö tß╗ò v├á ph├ít biß╗âu nhß║¡n x├⌐t cuß╗æi tuß║ºn.'
+      'Quản lý nề nếp, trật tự, tác phong của 8 thành viên Tổ 3; chấm điểm thi đua hàng ngày bằng mã PIN Tổ 3.',
+      'Đôn đốc tổ viên học bài, làm bài nghiêm túc; quản lý các bạn ngồi tại Dãy 1 (Bàn 9 đến Bàn 12).',
+      'Điều phối tổ viên trực nhật vệ sinh sạch sẽ, giữ gìn khu vực bàn ghế ngăn nắp.',
+      'Tổng kết điểm số, xếp hạng thi đua nội bộ tổ và phát biểu nhận xét cuối tuần.'
     ]
   },
   {
     stt: 9,
     category: 'team_leaders',
-    role: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 4 & CS Tiß║┐ng Anh',
-    studentId: 'hs_10a3_15', // V├╡ Quß╗æc Duy Kh├┤i
+    role: 'Tổ trưởng Tổ 4 & CS Tiếng Anh',
+    studentId: 'hs_10a3_15', // Võ Quốc Duy Khôi
     badgeColor: 'teal',
     icon: 'fa-solid fa-language',
-    permissions: 'Chß║Ñm ─æiß╗âm thi ─æua Tß╗ò 4 (m├ú PIN T4) ΓÇó Quß║ún l├╜ 8 th├ánh vi├¬n Tß╗ò 4 ΓÇó Ki├¬m CS Tiß║┐ng Anh',
+    permissions: 'Chấm điểm thi đua Tổ 4 (mã PIN T4) • Quản lý 8 thành viên Tổ 4 • Kiêm CS Tiếng Anh',
     duties: [
-      'Quß║ún l├╜ nß╗ü nß║┐p v├á chß║Ñm ─æiß╗âm thi ─æua 8 th├ánh vi├¬n Tß╗ò 4 h├áng ng├áy; nhß║»c nhß╗ƒ giß╗» trß║¡t tß╗▒ v├á chuy├¬n cß║ºn.',
-      'Ki├¬m phß╗Ñ tr├ích m├┤n Tiß║┐ng Anh: hß╗ù trß╗ú c├íc bß║ín ├┤n tß╗½ vß╗▒ng, ngß╗» ph├íp, ph├ít ─æß╗ü kiß╗âm tra, ─æ├┤n ─æß╗æc chuß║⌐n bß╗ï b├ái tr╞░ß╗¢c khi gi├ío vi├¬n v├áo lß╗¢p.',
-      'Chß╗ë ─æß║ío tß╗ò vi├¬n trß╗▒c nhß║¡t ─æ├║ng quy ─æß╗ïnh; b├ío c├ío kß╗ïp thß╗¥i c├íc tr╞░ß╗¥ng hß╗úp vi phß║ím nß╗ü nß║┐p cho GVCN.'
+      'Quản lý nề nếp và chấm điểm thi đua 8 thành viên Tổ 4 hàng ngày; nhắc nhở giữ trật tự và chuyên cần.',
+      'Kiêm phụ trách môn Tiếng Anh: hỗ trợ các bạn ôn từ vựng, ngữ pháp, phát đề kiểm tra, đôn đốc chuẩn bị bài trước khi giáo viên vào lớp.',
+      'Chỉ đạo tổ viên trực nhật đúng quy định; báo cáo kịp thời các trường hợp vi phạm nề nếp cho GVCN.'
     ]
   },
   {
     stt: 10,
     category: 'team_leaders',
-    role: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 5 & CS Ngß╗» v─ân',
-    studentId: 'hs_10a3_35', // Nguyß╗àn Ngß╗ìc Trinh
+    role: 'Tổ trưởng Tổ 5 & CS Ngữ văn',
+    studentId: 'hs_10a3_35', // Nguyễn Ngọc Trinh
     badgeColor: 'teal',
     icon: 'fa-solid fa-feather-pointed',
-    permissions: 'Chß║Ñm ─æiß╗âm thi ─æua Tß╗ò 5 (m├ú PIN T5) ΓÇó Quß║ún l├╜ 7 th├ánh vi├¬n Tß╗ò 5 ΓÇó Ki├¬m CS Ngß╗» v─ân',
+    permissions: 'Chấm điểm thi đua Tổ 5 (mã PIN T5) • Quản lý 7 thành viên Tổ 5 • Kiêm CS Ngữ văn',
     duties: [
-      'Quß║ún l├╜ nß╗ü nß║┐p, chuy├¬n cß║ºn v├á chß║Ñm ─æiß╗âm thi ─æua 7 th├ánh vi├¬n Tß╗ò 5 h├áng ng├áy.',
-      'Ki├¬m phß╗Ñ tr├ích m├┤n Ngß╗» v─ân: nhß║»c nhß╗ƒ soß║ín b├ái, ─æß╗ìc t├íc phß║⌐m, thu vß╗ƒ b├ái tß║¡p nß╗Öp cho gi├ío vi├¬n Ngß╗» v─ân ─æ├║ng hß║ín.',
-      'Ph├ón c├┤ng tß╗ò vi├¬n trß╗▒c nhß║¡t; theo d├╡i, ─æß╗Öng vi├¬n c├íc bß║ín hß╗ìc sinh c├│ ─æiß╗âm r├¿n luyß╗çn thß║Ñp v╞░╞ín l├¬n.'
+      'Quản lý nề nếp, chuyên cần và chấm điểm thi đua 7 thành viên Tổ 5 hàng ngày.',
+      'Kiêm phụ trách môn Ngữ văn: nhắc nhở soạn bài, đọc tác phẩm, thu vở bài tập nộp cho giáo viên Ngữ văn đúng hạn.',
+      'Phân công tổ viên trực nhật; theo dõi, động viên các bạn học sinh có điểm rèn luyện thấp vươn lên.'
     ]
   },
   {
     stt: 11,
     category: 'team_leaders',
-    role: 'Tß╗ò tr╞░ß╗ƒng Tß╗ò 6 & CS Sinh hß╗ìc',
-    studentId: 'hs_10a3_23', // Tr╞░╞íng Thß╗ï Mß╗╣ Ng├ón
+    role: 'Tổ trưởng Tổ 6 & CS Sinh học',
+    studentId: 'hs_10a3_23', // Trương Thị Mỹ Ngân
     badgeColor: 'teal',
     icon: 'fa-solid fa-dna',
-    permissions: 'Chß║Ñm ─æiß╗âm thi ─æua Tß╗ò 6 (m├ú PIN T6) ΓÇó Quß║ún l├╜ 7 th├ánh vi├¬n Tß╗ò 6 ΓÇó Ki├¬m CS Sinh hß╗ìc',
+    permissions: 'Chấm điểm thi đua Tổ 6 (mã PIN T6) • Quản lý 7 thành viên Tổ 6 • Kiêm CS Sinh học',
     duties: [
-      'Bao qu├ít nß╗ü nß║┐p, t├íc phong v├á chß║Ñm ─æiß╗âm thi ─æua 7 th├ánh vi├¬n Tß╗ò 6; quß║ún l├╜ trß║¡t tß╗▒ khu vß╗▒c cuß╗æi D├úy 2.',
-      'Ki├¬m phß╗Ñ tr├ích m├┤n Sinh hß╗ìc: li├¬n hß╗ç gi├ío vi├¬n chuß║⌐n bß╗ï tranh ß║únh, mß║½u vß║¡t, ─æ├┤n ─æß╗æc l├ám b├ái tß║¡p Sinh hß╗ìc.',
-      'Ph├ón c├┤ng trß╗▒c nhß║¡t nghi├¬m t├║c khi ─æß║┐n l╞░ß╗út Tß╗ò 6; nhß║¡n x├⌐t thi ─æua tß╗ò v├áo tiß║┐t sinh hoß║ít cuß╗æi tuß║ºn.'
+      'Bao quát nề nếp, tác phong và chấm điểm thi đua 7 thành viên Tổ 6; quản lý trật tự khu vực cuối Dãy 2.',
+      'Kiêm phụ trách môn Sinh học: liên hệ giáo viên chuẩn bị tranh ảnh, mẫu vật, đôn đốc làm bài tập Sinh học.',
+      'Phân công trực nhật nghiêm túc khi đến lượt Tổ 6; nhận xét thi đua tổ vào tiết sinh hoạt cuối tuần.'
     ]
   },
   {
     stt: 12,
     category: 'red_star',
-    role: '─Éß╗Öi ng┼⌐ Sao ─æß╗Å (Trß╗▒c tuß║ºn thi ─æua)',
-    studentId: ['hs_10a3_28', 'hs_10a3_37'], // Trß║ºn Thß╗ï Ngß╗ìc Ph├║c & V├╡ B├ích T├╣ng
-    assignedNames: '1. Trß║ºn Thß╗ï Ngß╗ìc Ph├║c (Tß╗ò 1)\n2. V├╡ B├ích T├╣ng (Tß╗ò 3)',
+    role: 'Đội ngũ Sao đỏ (Trực tuần thi đua)',
+    studentId: ['hs_10a3_28', 'hs_10a3_37'], // Trần Thị Ngọc Phúc & Võ Bách Tùng
+    assignedNames: '1. Trần Thị Ngọc Phúc (Tổ 1)\n2. Võ Bách Tùng (Tổ 3)',
     badgeColor: 'rose',
     icon: 'fa-solid fa-star',
-    permissions: 'Kiß╗âm tra t├íc phong, ─æß╗ông phß╗Ñc, nß╗ü nß║┐p ΓÇó Trß╗▒c ban ch├⌐o theo ─Éo├án tr╞░ß╗¥ng',
+    permissions: 'Kiểm tra tác phong, đồng phục, nề nếp • Trực ban chéo theo Đoàn trường',
     duties: [
-      'Kiß╗âm tra nß╗ü nß║┐p t├íc phong ─æß║ºu giß╗¥ cß╗ºa lß╗¢p: ─æß╗ông phß╗Ñc ├ío trß║»ng/├ío thß╗â dß╗Ñc, ph├╣ hiß╗çu, d├⌐p quai hß║¡u/gi├áy, ─æi hß╗ìc ─æ├║ng giß╗¥.',
-      'Theo d├╡i, ph├ít hiß╗çn c├íc tr╞░ß╗¥ng hß╗úp sß╗¡ dß╗Ñng ─æiß╗çn thoß║íi sai mß╗Ñc ─æ├¡ch, ─ân qu├á vß║╖t, l├ám viß╗çc ri├¬ng trong giß╗¥ hß╗ìc.',
-      'Thß╗▒c hiß╗çn nhiß╗çm vß╗Ñ chß║Ñm ─æiß╗âm trß╗▒c ban ch├⌐o giß╗»a c├íc chi ─æo├án theo lß╗ïch ph├ón c├┤ng cß╗ºa Ban Thi ─æua ─Éo├án tr╞░ß╗¥ng (─æß║úm bß║úo c├┤ng t├óm, ch├¡nh x├íc, trung thß╗▒c).',
-      'Ghi ch├⌐p g╞░╞íng ng╞░ß╗¥i tß╗æt, viß╗çc tß╗æt (nhß║╖t cß╗ºa r╞íi, gi├║p ─æß╗í bß║ín) ─æß╗â ─æß╗ü xuß║Ñt tuy├¬n d╞░╞íng, cß╗Öng ─æiß╗âm thi ─æua.'
+      'Kiểm tra nề nếp tác phong đầu giờ của lớp: đồng phục áo trắng/áo thể dục, phù hiệu, dép quai hậu/giày, đi học đúng giờ.',
+      'Theo dõi, phát hiện các trường hợp sử dụng điện thoại sai mục đích, ăn quà vặt, làm việc riêng trong giờ học.',
+      'Thực hiện nhiệm vụ chấm điểm trực ban chéo giữa các chi đoàn theo lịch phân công của Ban Thi đua Đoàn trường (đảm bảo công tâm, chính xác, trung thực).',
+      'Ghi chép gương người tốt, việc tốt (nhặt của rơi, giúp đỡ bạn) để đề xuất tuyên dương, cộng điểm thi đua.'
     ]
   },
   {
     stt: 13,
     category: 'subject_cadres',
-    role: 'Mß║íng l╞░ß╗¢i C├ín sß╗▒ c├íc Bß╗Ö m├┤n',
+    role: 'Mạng lưới Cán sự các Bộ môn',
     studentId: null,
-    assignedNames: 'ΓÇó To├ín: L├¬ Tuß║Ñn Ph├ít T├ái\nΓÇó L├╜: L├¬ V─ân V┼⌐\nΓÇó H├│a: Nguyß╗àn Ho├áng Gia Nguy├¬n\nΓÇó Sinh: Tr╞░╞íng Thß╗ï Mß╗╣ Ng├ón\nΓÇó V─ân: Nguyß╗àn Ngß╗ìc Trinh / Kim B╞í\nΓÇó Sß╗¡: Tß╗½ Diß╗çu Y├¬n Diß╗àm\nΓÇó Anh: V├╡ Quß╗æc Duy Kh├┤i\nΓÇó ─Éß╗ïa, Tin, GDCD: Ph├ón c├┤ng ki├¬m nhiß╗çm',
+    assignedNames: '• Toán: Lê Tuấn Phát Tài\n• Lý: Lê Văn Vũ\n• Hóa: Nguyễn Hoàng Gia Nguyên\n• Sinh: Trương Thị Mỹ Ngân\n• Văn: Nguyễn Ngọc Trinh / Kim Bơ\n• Sử: Từ Diệu Yên Diễm\n• Anh: Võ Quốc Duy Khôi\n• Địa, Tin, GDCD: Phân công kiêm nhiệm',
     badgeColor: 'purple',
     icon: 'fa-solid fa-shapes',
-    permissions: 'Cß║ºu nß╗æi giß╗»a GV bß╗Ö m├┤n v├á lß╗¢p ΓÇó Quß║ún l├╜ b├ái tß║¡p, sß╗ò vß╗ƒ ΓÇó Chuß║⌐n bß╗ï ─æß╗ô d├╣ng, ph├▓ng thß╗▒c h├ánh',
+    permissions: 'Cầu nối giữa GV bộ môn và lớp • Quản lý bài tập, sổ vở • Chuẩn bị đồ dùng, phòng thực hành',
     duties: [
-      'L├á cß║ºu nß╗æi th├┤ng tin giß╗»a thß║ºy/c├┤ gi├ío bß╗Ö m├┤n v├á tß║¡p thß╗â hß╗ìc sinh lß╗¢p 10A3.',
-      'Nhß║»c nhß╗ƒ cß║ú lß╗¢p chuß║⌐n bß╗ï ─æß╗ô d├╣ng, s├ích vß╗ƒ, ho├án th├ánh b├ái tß║¡p vß╗ü nh├á tr╞░ß╗¢c mß╗ùi tiß║┐t hß╗ìc chuy├¬n m├┤n.',
-      'Thu nhß║¡n, kiß╗âm ─æß║┐m v├á b├án giao b├ái kiß╗âm tra, vß╗ƒ b├ái tß║¡p cho thß║ºy/c├┤ bß╗Ö m├┤n ─æ├║ng thß╗¥i hß║ín.',
-      'Hß╗ù trß╗ú gi├ío vi├¬n chuß║⌐n bß╗ï m├íy chiß║┐u, ph├▓ng th├¡ nghiß╗çm thß╗▒c h├ánh, thiß║┐t bß╗ï dß║íy hß╗ìc chuy├¬n dß╗Ñng.',
-      'Nhiß╗çt t├¼nh h╞░ß╗¢ng dß║½n, giß║úi ─æ├íp cho c├íc bß║ín c├▓n v╞░ß╗¢ng mß║»c kiß║┐n thß╗⌐c m├┤n hß╗ìc m├¼nh phß╗Ñ tr├ích.'
+      'Là cầu nối thông tin giữa thầy/cô giáo bộ môn và tập thể học sinh lớp 10A3.',
+      'Nhắc nhở cả lớp chuẩn bị đồ dùng, sách vở, hoàn thành bài tập về nhà trước mỗi tiết học chuyên môn.',
+      'Thu nhận, kiểm đếm và bàn giao bài kiểm tra, vở bài tập cho thầy/cô bộ môn đúng thời hạn.',
+      'Hỗ trợ giáo viên chuẩn bị máy chiếu, phòng thí nghiệm thực hành, thiết bị dạy học chuyên dụng.',
+      'Nhiệt tình hướng dẫn, giải đáp cho các bạn còn vướng mắc kiến thức môn học mình phụ trách.'
     ]
   },
   {
     stt: 14,
     category: 'members',
-    role: 'To├án thß╗â Hß╗ìc sinh (Th├ánh vi├¬n Lß╗¢p 10A3)',
+    role: 'Toàn thể Học sinh (Thành viên Lớp 10A3)',
     studentId: null,
-    assignedNames: 'Tß║¡p thß╗â 45 hß╗ìc sinh Lß╗¢p 10A3',
+    assignedNames: 'Tập thể 45 học sinh Lớp 10A3',
     badgeColor: 'slate',
     icon: 'fa-solid fa-user-group',
-    permissions: 'Chß║Ñp h├ánh nß╗Öi quy ΓÇó Tham gia hß╗ìc tß║¡p & thi ─æua ΓÇó X├óy dß╗▒ng Lß╗¢p hß╗ìc Hß║ính ph├║c',
+    permissions: 'Chấp hành nội quy • Tham gia học tập & thi đua • Xây dựng Lớp học Hạnh phúc',
     duties: [
-      'Chß║Ñp h├ánh nghi├¬m t├║c ─Éiß╗üu lß╗ç tr╞░ß╗¥ng THPT, nß╗Öi quy nh├á tr╞░ß╗¥ng v├á Quy chß║┐ thi ─æua nß╗Öi bß╗Ö lß╗¢p 10A3.',
-      '─Éi hß╗ìc ─æ├║ng giß╗¥ (c├│ mß║╖t tr╞░ß╗¢c 15 ph├║t), mß║╖c ─æß╗ông phß╗Ñc chß╗ënh tß╗ü, giß╗» lß╗à ph├⌐p vß╗¢i thß║ºy c├┤ v├á ng╞░ß╗¥i lß╗¢n tuß╗òi.',
-      'Trung thß╗▒c trong hß╗ìc tß║¡p v├á thi cß╗¡; t├¡ch cß╗▒c thß║úo luß║¡n, ph├ít biß╗âu x├óy dß╗▒ng b├ái trong c├íc tiß║┐t hß╗ìc.',
-      'C├│ ├╜ thß╗⌐c giß╗» g├¼n vß╗ç sinh chung, trß╗▒c nhß║¡t ─æ├║ng lß╗ïch, bß║úo quß║ún b├án ghß║┐ v├á t├ái sß║ún ph├▓ng hß╗ìc.',
-      '─Éo├án kß║┐t, y├¬u th╞░╞íng, gi├║p ─æß╗í lß║½n nhau; kh├┤ng tham gia bß║ío lß╗▒c hß╗ìc ─æ╞░ß╗¥ng; cam kß║┐t tiß║┐n bß╗Ö tß╗½ng b╞░ß╗¢c nhß╗Å (Baby Steps).'
+      'Chấp hành nghiêm túc Điều lệ trường THPT, nội quy nhà trường và Quy chế thi đua nội bộ lớp 10A3.',
+      'Đi học đúng giờ (có mặt trước 15 phút), mặc đồng phục chỉnh tề, giữ lễ phép với thầy cô và người lớn tuổi.',
+      'Trung thực trong học tập và thi cử; tích cực thảo luận, phát biểu xây dựng bài trong các tiết học.',
+      'Có ý thức giữ gìn vệ sinh chung, trực nhật đúng lịch, bảo quản bàn ghế và tài sản phòng học.',
+      'Đoàn kết, yêu thương, giúp đỡ lẫn nhau; không tham gia bạo lực học đường; cam kết tiến bộ từng bước nhỏ (Baby Steps).'
     ]
   }
 ];
@@ -5205,15 +5193,15 @@ function getCadreStudentInfo(item) {
     const s = appState.students.find(st => st.id === item.studentId);
     if (s) {
       // Find seat info
-      let seatDesc = `Tß╗ò ${s.groupNumber}`;
+      let seatDesc = `Tổ ${s.groupNumber}`;
       if (appState.seating && Array.isArray(appState.seating)) {
         for (const tbl of appState.seating) {
           if (tbl.leftSeat && tbl.leftSeat.studentId === s.id) {
-            seatDesc += ` ΓÇó ${tbl.title} (${tbl.tableId.includes('d1') ? 'D├úy 1 - Tr├íi' : 'D├úy 2 - Tr├íi'})`;
+            seatDesc += ` • ${tbl.title} (${tbl.tableId.includes('d1') ? 'Dãy 1 - Trái' : 'Dãy 2 - Trái'})`;
             break;
           }
           if (tbl.rightSeat && tbl.rightSeat.studentId === s.id) {
-            seatDesc += ` ΓÇó ${tbl.title} (${tbl.tableId.includes('d1') ? 'D├úy 1 - Phß║úi' : 'D├úy 2 - Phß║úi'})`;
+            seatDesc += ` • ${tbl.title} (${tbl.tableId.includes('d1') ? 'Dãy 1 - Phải' : 'Dãy 2 - Phải'})`;
             break;
           }
         }
@@ -5229,22 +5217,22 @@ function getCadreStudentInfo(item) {
   } else if (Array.isArray(item.studentId)) {
     const names = item.studentId.map(id => {
       const s = appState.students.find(st => st.id === id);
-      return s ? `${s.fullName} (Tß╗ò ${s.groupNumber})` : id;
-    }).join(' ΓÇó ');
+      return s ? `${s.fullName} (Tổ ${s.groupNumber})` : id;
+    }).join(' • ');
     return {
       fullName: names,
       code: '',
       group: '',
-      seatDesc: '─Éß╗Öi Sao ─Éß╗Å Trß╗▒c Ban To├án Tr╞░ß╗¥ng',
+      seatDesc: 'Đội Sao Đỏ Trực Ban Toàn Trường',
       rawStudent: null
     };
   }
 
   return {
-    fullName: item.assignedNames || 'Tß║¡p thß╗â Lß╗¢p 10A3',
+    fullName: item.assignedNames || 'Tập thể Lớp 10A3',
     code: '',
     group: '',
-    seatDesc: item.category === 'members' ? 'To├án bß╗Ö 45 hß╗ìc sinh' : 'C├ín sß╗▒ bß╗Ö m├┤n',
+    seatDesc: item.category === 'members' ? 'Toàn bộ 45 học sinh' : 'Cán sự bộ môn',
     rawStudent: null
   };
 }
@@ -5276,7 +5264,7 @@ function renderCadreDuties() {
     container.innerHTML = `
       <div class="col-span-full py-12 text-center text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
         <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
-        <p class="text-sm font-semibold">Kh├┤ng t├¼m thß║Ñy chß╗⌐c vß╗Ñ hoß║╖c nhiß╗çm vß╗Ñ ph├╣ hß╗úp vß╗¢i tß╗½ kh├│a.</p>
+        <p class="text-sm font-semibold">Không tìm thấy chức vụ hoặc nhiệm vụ phù hợp với từ khóa.</p>
       </div>
     `;
     return;
@@ -5319,14 +5307,14 @@ function renderCadreDuties() {
                 </span>
               </div>
             </div>
-            <button type="button" onclick="copySingleCadreDuty(${item.stt})" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 transition rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="Sao ch├⌐p nhiß╗çm vß╗Ñ n├áy ─æß╗â gß╗¡i ri├¬ng cho hß╗ìc sinh">
+            <button type="button" onclick="copySingleCadreDuty(${item.stt})" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 transition rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="Sao chép nhiệm vụ này để gửi riêng cho học sinh">
               <i class="fa-solid fa-copy text-xs"></i>
             </button>
           </div>
 
           <!-- Assignee Name & Seat -->
           <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
-            <div class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Hß╗ìc sinh ─æß║úm nhiß╗çm:</div>
+            <div class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Học sinh đảm nhiệm:</div>
             <div class="font-black text-slate-900 dark:text-white text-sm whitespace-pre-line leading-snug">
               ${escapeHtml(info.fullName)}
             </div>
@@ -5339,13 +5327,13 @@ function renderCadreDuties() {
           <!-- Permissions Badge -->
           <div class="text-[11px] px-2.5 py-1.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900/50 text-blue-800 dark:text-blue-300 font-medium">
             <i class="fa-solid fa-shield-halved text-blue-600 dark:text-blue-400 mr-1"></i>
-            <strong>Quyß╗ün hß║ín:</strong> ${escapeHtml(item.permissions)}
+            <strong>Quyền hạn:</strong> ${escapeHtml(item.permissions)}
           </div>
 
           <!-- Duties Bullet List -->
           <div>
             <div class="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-              Nhiß╗çm vß╗Ñ & Chß╗⌐c tr├ích cß╗Ñ thß╗â:
+              Nhiệm vụ & Chức trách cụ thể:
             </div>
             <ul class="space-y-1.5 pl-0.5">
               ${dutiesListHtml}
@@ -5356,10 +5344,10 @@ function renderCadreDuties() {
         <!-- Card Footer -->
         <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
           <span class="text-slate-400 dark:text-slate-500">
-            <i class="fa-solid fa-star text-amber-500 mr-1"></i>Th╞░ß╗ƒng: +10 - 20─æ/tuß║ºn
+            <i class="fa-solid fa-star text-amber-500 mr-1"></i>Thưởng: +10 - 20đ/tuần
           </span>
           <button type="button" onclick="copySingleCadreDuty(${item.stt})" class="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center space-x-1">
-            <span>Sao ch├⌐p</span>
+            <span>Sao chép</span>
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
         </div>
@@ -5388,18 +5376,18 @@ function searchCadreDuties(keyword) {
   renderCadreDuties();
 }
 
-// Sao ch├⌐p nhanh to├án bß╗Ö bß║úng ph├ón c├┤ng nhiß╗çm vß╗Ñ ─æß╗â gß╗¡i Zalo lß╗¢p
+// Sao chép nhanh toàn bộ bảng phân công nhiệm vụ để gửi Zalo lớp
 function copyCadreDutiesForZalo() {
-  let text = `≡ƒôï Bß║óNG PH├éN C├öNG CHß╗¿C TR├üCH & NHIß╗åM Vß╗ñ BAN C├üN Sß╗░ Lß╗ÜP 10A3\n`;
-  text += `N─âm hß╗ìc 2026 ΓÇô 2027 ΓÇó GVCN Lß╗¢p 10A3\n`;
+  let text = `📋 BẢNG PHÂN CÔNG CHỨC TRÁCH & NHIỆM VỤ BAN CÁN SỰ LỚP 10A3\n`;
+  text += `Năm học 2026 – 2027 • GVCN Lớp 10A3\n`;
   text += `=========================================\n\n`;
 
   CADRE_DUTIES_DATA.forEach(item => {
     const info = getCadreStudentInfo(item);
-    text += `≡ƒö╣ ${item.stt}. ${item.role.toUpperCase()}: ${info.fullName}\n`;
-    text += `   ΓÇó ─É╞ín vß╗ï: ${info.seatDesc}\n`;
-    text += `   ΓÇó Quyß╗ün hß║ín: ${item.permissions}\n`;
-    text += `   ΓÇó Nhiß╗çm vß╗Ñ trß╗ìng t├óm:\n`;
+    text += `🔹 ${item.stt}. ${item.role.toUpperCase()}: ${info.fullName}\n`;
+    text += `   • Đơn vị: ${info.seatDesc}\n`;
+    text += `   • Quyền hạn: ${item.permissions}\n`;
+    text += `   • Nhiệm vụ trọng tâm:\n`;
     item.duties.forEach(d => {
       text += `     - ${d}\n`;
     });
@@ -5407,45 +5395,45 @@ function copyCadreDutiesForZalo() {
   });
 
   text += `=========================================\n`;
-  text += `≡ƒÄü CHß║╛ ─Éß╗ÿ ─É├âI NGß╗ÿ & ─ÉIß╗éM TH╞»ß╗₧NG:\n`;
-  text += `+ C├ín sß╗▒ ho├án th├ánh tß╗æt nhiß╗çm vß╗Ñ: Cß╗Öng +10 ─æß║┐n +20 ─æiß╗âm thi ─æua/tuß║ºn.\n`;
-  text += `+ ╞»u ti├¬n xß║┐p loß║íi R├¿n luyß╗çn Tß╗æt/Xuß║Ñt sß║»c v├á phß║ºn th╞░ß╗ƒng danh dß╗▒ tß╗½ Quß╗╣ lß╗¢p.\n`;
-  text += `+ Ban c├ín sß╗▒ cam kß║┐t n├¬u g╞░╞íng, ─æo├án kß║┐t, trung thß╗▒c v├¼ mß╗Öt tß║¡p thß╗â 10A3 vß╗»ng mß║ính!\n`;
+  text += `🎁 CHẾ ĐỘ ĐÃI NGỘ & ĐIỂM THƯỞNG:\n`;
+  text += `+ Cán sự hoàn thành tốt nhiệm vụ: Cộng +10 đến +20 điểm thi đua/tuần.\n`;
+  text += `+ Ưu tiên xếp loại Rèn luyện Tốt/Xuất sắc và phần thưởng danh dự từ Quỹ lớp.\n`;
+  text += `+ Ban cán sự cam kết nêu gương, đoàn kết, trung thực vì một tập thể 10A3 vững mạnh!\n`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast('─É├ú sao ch├⌐p nß╗Öi dung bß║úng ph├ón c├┤ng ─æß╗â gß╗¡i Zalo lß╗¢p!', 'success');
+      showToast('Đã sao chép nội dung bảng phân công để gửi Zalo lớp!', 'success');
     }).catch(() => {
-      fallbackCopyText(text, '─É├ú sao ch├⌐p nß╗Öi dung bß║úng ph├ón c├┤ng ─æß╗â gß╗¡i Zalo lß╗¢p!');
+      fallbackCopyText(text, 'Đã sao chép nội dung bảng phân công để gửi Zalo lớp!');
     });
   } else {
-    fallbackCopyText(text, '─É├ú sao ch├⌐p nß╗Öi dung bß║úng ph├ón c├┤ng ─æß╗â gß╗¡i Zalo lß╗¢p!');
+    fallbackCopyText(text, 'Đã sao chép nội dung bảng phân công để gửi Zalo lớp!');
   }
 }
 
-// Sao ch├⌐p nhiß╗çm vß╗Ñ cß╗ºa 1 c├í nh├ón
+// Sao chép nhiệm vụ của 1 cá nhân
 function copySingleCadreDuty(stt) {
   const item = CADRE_DUTIES_DATA.find(d => d.stt === stt);
   if (!item) return;
 
   const info = getCadreStudentInfo(item);
-  let text = `≡ƒôî NHIß╗åM Vß╗ñ Cß╗ªA ${item.role.toUpperCase()}: ${info.fullName}\n`;
-  text += `Vß╗ï tr├¡: ${info.seatDesc}\n`;
-  text += `Quyß╗ün hß║ín: ${item.permissions}\n`;
-  text += `Chß╗⌐c tr├ích & Nhiß╗çm vß╗Ñ cß╗Ñ thß╗â:\n`;
+  let text = `📌 NHIỆM VỤ CỦA ${item.role.toUpperCase()}: ${info.fullName}\n`;
+  text += `Vị trí: ${info.seatDesc}\n`;
+  text += `Quyền hạn: ${item.permissions}\n`;
+  text += `Chức trách & Nhiệm vụ cụ thể:\n`;
   item.duties.forEach((d, idx) => {
     text += `${idx + 1}. ${d}\n`;
   });
-  text += `\nThß║ºy/C├┤ GVCN tin t╞░ß╗ƒng v├á ch├║c em ho├án th├ánh xuß║Ñt sß║»c nhiß╗çm vß╗Ñ!`;
+  text += `\nThầy/Cô GVCN tin tưởng và chúc em hoàn thành xuất sắc nhiệm vụ!`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast(`─É├ú sao ch├⌐p nhiß╗çm vß╗Ñ cß╗ºa ${item.role}!`, 'success');
+      showToast(`Đã sao chép nhiệm vụ của ${item.role}!`, 'success');
     }).catch(() => {
-      fallbackCopyText(text, `─É├ú sao ch├⌐p nhiß╗çm vß╗Ñ cß╗ºa ${item.role}!`);
+      fallbackCopyText(text, `Đã sao chép nhiệm vụ của ${item.role}!`);
     });
   } else {
-    fallbackCopyText(text, `─É├ú sao ch├⌐p nhiß╗çm vß╗Ñ cß╗ºa ${item.role}!`);
+    fallbackCopyText(text, `Đã sao chép nhiệm vụ của ${item.role}!`);
   }
 }
 
@@ -5461,15 +5449,15 @@ function fallbackCopyText(text, successMsg) {
     document.execCommand('copy');
     showToast(successMsg, 'success');
   } catch (err) {
-    showToast('Kh├┤ng thß╗â sao ch├⌐p v─ân bß║ún tß╗▒ ─æß╗Öng!', 'error');
+    showToast('Không thể sao chép văn bản tự động!', 'error');
   }
   document.body.removeChild(textarea);
 }
 
-// ==================== XUß║ñT FILE WORD (.DOC) CHUß║¿N THß╗é THß╗¿C H├ÇNH CH├ìNH ====================
+// ==================== XUẤT FILE WORD (.DOC) CHUẨN THỂ THỨC HÀNH CHÍNH ====================
 function exportCadreDutiesToWord() {
   try {
-    showToast('─Éang tß║ío file Word Bß║úng Ph├ón C├┤ng Nhiß╗çm Vß╗Ñ...', 'info');
+    showToast('Đang tạo file Word Bảng Phân Công Nhiệm Vụ...', 'info');
 
     let tableRowsHtml = '';
     CADRE_DUTIES_DATA.forEach(item => {
@@ -5477,7 +5465,7 @@ function exportCadreDutiesToWord() {
       const isEven = item.stt % 2 === 0;
       const bg = isEven ? '#f8fafc' : '#ffffff';
 
-      const dutiesHtml = item.duties.map(d => `<div style="margin-bottom: 3pt;">ΓÇó ${escapeHtml(d)}</div>`).join('');
+      const dutiesHtml = item.duties.map(d => `<div style="margin-bottom: 3pt;">• ${escapeHtml(d)}</div>`).join('');
 
       tableRowsHtml += `
         <tr style="background-color: ${bg};">
@@ -5486,7 +5474,7 @@ function exportCadreDutiesToWord() {
           <td style="font-weight: bold; padding: 6pt; border: 1px solid #1e3a8a; color: #1e3a8a;">${escapeHtml(info.fullName).replace(/\n/g, '<br>')}</td>
           <td style="text-align: center; font-style: italic; padding: 6pt; border: 1px solid #1e3a8a;">${escapeHtml(info.seatDesc)}</td>
           <td style="padding: 6pt; border: 1px solid #1e3a8a; font-size: 10pt; line-height: 1.25;">
-            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 2pt;">Quyß╗ün hß║ín: ${escapeHtml(item.permissions)}</div>
+            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 2pt;">Quyền hạn: ${escapeHtml(item.permissions)}</div>
             ${dutiesHtml}
           </td>
         </tr>
@@ -5499,7 +5487,7 @@ function exportCadreDutiesToWord() {
             xmlns="http://www.w3.org/TR/REC-html40">
       <head>
       <meta charset="utf-8">
-      <title>Bß║úng Ph├ón C├┤ng Nhiß╗çm Vß╗Ñ Ban C├ín Sß╗▒ Lß╗¢p 10A3</title>
+      <title>Bảng Phân Công Nhiệm Vụ Ban Cán Sự Lớp 10A3</title>
       <!--[if gte mso 9]>
       <xml>
         <w:WordDocument>
@@ -5512,7 +5500,7 @@ function exportCadreDutiesToWord() {
       <style>
         @page Section1 {
           size: 595.3pt 841.9pt; /* A4: 210mm x 297mm */
-          margin: 56.7pt 42.5pt 56.7pt 70.8pt; /* Tr├¬n 2cm, D╞░ß╗¢i 2cm, Tr├íi 2.5cm, Phß║úi 1.5cm */
+          margin: 56.7pt 42.5pt 56.7pt 70.8pt; /* Trên 2cm, Dưới 2cm, Trái 2.5cm, Phải 1.5cm */
           mso-header-margin: 36pt;
           mso-footer-margin: 36pt;
           mso-paper-source: 0;
@@ -5557,46 +5545,46 @@ function exportCadreDutiesToWord() {
       </head>
       <body>
       <div class="Section1">
-        <!-- Quß╗æc hiß╗çu & T├¬n tr╞░ß╗¥ng -->
+        <!-- Quốc hiệu & Tên trường -->
         <table class="header-tbl" style="width: 100%; margin-bottom: 10pt;">
           <tr>
             <td style="width: 45%; text-align: center; vertical-align: top;">
-              <div style="font-size: 10pt; font-weight: bold;">Sß╗₧ GI├üO Dß╗ñC V├Ç ─É├ÇO Tß║áO</div>
-              <div style="font-size: 10.5pt; font-weight: bold;">TR╞»ß╗£NG THPT NGUYß╗äN Bß╗êNH KHI├èM</div>
-              <div style="font-size: 11pt; font-weight: bold; color: #1e3a8a; margin-top: 2pt;">Tß║¼P THß╗é Lß╗ÜP 10A3</div>
+              <div style="font-size: 10pt; font-weight: bold;">SỞ GIÁO DỤC VÀ ĐÀO TẠO</div>
+              <div style="font-size: 10.5pt; font-weight: bold;">TRƯỜNG THPT NGUYỄN BỈNH KHIÊM</div>
+              <div style="font-size: 11pt; font-weight: bold; color: #1e3a8a; margin-top: 2pt;">TẬP THỂ LỚP 10A3</div>
               <div style="font-weight: bold;">***</div>
             </td>
             <td style="width: 55%; text-align: center; vertical-align: top;">
-              <div style="font-size: 10.5pt; font-weight: bold;">Cß╗ÿNG H├ÆA X├â Hß╗ÿI CHß╗ª NGH─¿A VIß╗åT NAM</div>
-              <div style="font-size: 11pt; font-weight: bold; font-style: italic;">─Éß╗Öc lß║¡p ΓÇô Tß╗▒ do ΓÇô Hß║ính ph├║c</div>
+              <div style="font-size: 10.5pt; font-weight: bold;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+              <div style="font-size: 11pt; font-weight: bold; font-style: italic;">Độc lập – Tự do – Hạnh phúc</div>
               <div style="margin-top: 2pt;">-----------------------</div>
             </td>
           </tr>
         </table>
 
         <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 8pt;">
-          Lß╗¢p 10A3, ng├áy 09 th├íng 11 n─âm 2026
+          Lớp 10A3, ngày 09 tháng 11 năm 2026
         </div>
 
         <div style="text-align: center; margin-bottom: 4pt;">
-          <h1 style="font-size: 15pt; font-weight: bold; color: #0f172a; margin: 0;">Bß║óNG PH├éN C├öNG CHß╗¿C TR├üCH & NHIß╗åM Vß╗ñ</h1>
-          <div style="font-size: 11.5pt; font-weight: bold; color: #1e3a8a; margin-top: 3pt;">BAN C├üN Sß╗░ & ─Éß╗ÿI NG┼¿ Tß╗░ QUß║óN Lß╗ÜP 10A3 - N─éM Hß╗îC 2026 ΓÇô 2027</div>
-          <div style="font-size: 10.5pt; font-style: italic; color: #475569;">(Ban h├ánh k├¿m theo Quy chß║┐ thi ─æua nß╗Öi bß╗Ö & Ch╞░╞íng tr├¼nh GDPT 2018)</div>
+          <h1 style="font-size: 15pt; font-weight: bold; color: #0f172a; margin: 0;">BẢNG PHÂN CÔNG CHỨC TRÁCH & NHIỆM VỤ</h1>
+          <div style="font-size: 11.5pt; font-weight: bold; color: #1e3a8a; margin-top: 3pt;">BAN CÁN SỰ & ĐỘI NGŨ TỰ QUẢN LỚP 10A3 - NĂM HỌC 2026 – 2027</div>
+          <div style="font-size: 10.5pt; font-style: italic; color: #475569;">(Ban hành kèm theo Quy chế thi đua nội bộ & Chương trình GDPT 2018)</div>
         </div>
 
         <p style="text-align: justify; text-indent: 20pt; margin-top: 10pt; margin-bottom: 8pt; font-size: 11pt;">
-          Nhß║▒m x├óy dß╗▒ng tß║¡p thß╗â Lß╗¢p 10A3 kß╗╖ c╞░╞íng, ─æo├án kß║┐t, hß╗ìc tß║¡p tß╗æt, h╞░ß╗¢ng tß╗¢i m├┤ h├¼nh Tr╞░ß╗¥ng hß╗ìc hß║ính ph├║c; ph├ít huy t├¡nh tß╗▒ gi├íc, tinh thß║ºn tr├ích nhiß╗çm v├á kß╗╣ n─âng l├únh ─æß║ío bß║ún th├ón cß╗ºa tß╗½ng hß╗ìc sinh; Gi├ío vi├¬n chß╗º nhiß╗çm c├┤ng bß╗æ v├á ph├ón c├┤ng chß╗⌐c tr├ích, nhiß╗çm vß╗Ñ cß╗Ñ thß╗â cho tß╗½ng th├ánh vi├¬n Ban C├ín Sß╗▒, ─æß╗Öi ng┼⌐ tß╗▒ quß║ún v├á to├án thß╗â hß╗ìc sinh lß╗¢p 10A3 nh╞░ sau:
+          Nhằm xây dựng tập thể Lớp 10A3 kỷ cương, đoàn kết, học tập tốt, hướng tới mô hình Trường học hạnh phúc; phát huy tính tự giác, tinh thần trách nhiệm và kỹ năng lãnh đạo bản thân của từng học sinh; Giáo viên chủ nhiệm công bố và phân công chức trách, nhiệm vụ cụ thể cho từng thành viên Ban Cán Sự, đội ngũ tự quản và toàn thể học sinh lớp 10A3 như sau:
         </p>
 
-        <!-- Bß║úng danh s├ích nhiß╗çm vß╗Ñ -->
+        <!-- Bảng danh sách nhiệm vụ -->
         <table>
           <thead>
             <tr>
               <th style="width: 5%;">STT</th>
-              <th style="width: 17%;">Chß╗⌐c Vß╗Ñ</th>
-              <th style="width: 18%;">Hß╗ì V├á T├¬n Hß╗ìc Sinh</th>
-              <th style="width: 12%;">─É╞ín Vß╗ï / Vß╗ï Tr├¡</th>
-              <th style="width: 48%;">Chß╗⌐c Tr├ích & Nhiß╗çm Vß╗Ñ Trß╗ìng T├óm</th>
+              <th style="width: 17%;">Chức Vụ</th>
+              <th style="width: 18%;">Họ Và Tên Học Sinh</th>
+              <th style="width: 12%;">Đơn Vị / Vị Trí</th>
+              <th style="width: 48%;">Chức Trách & Nhiệm Vụ Trọng Tâm</th>
             </tr>
           </thead>
           <tbody>
@@ -5604,45 +5592,45 @@ function exportCadreDutiesToWord() {
           </tbody>
         </table>
 
-        <!-- Chß║┐ ─æß╗Ö khen th╞░ß╗ƒng -->
+        <!-- Chế độ khen thưởng -->
         <div style="margin-top: 12pt; margin-bottom: 8pt;">
           <div style="font-size: 11.5pt; font-weight: bold; color: #1e3a8a; margin-bottom: 4pt;">
-            CHß║╛ ─Éß╗ÿ KHEN TH╞»ß╗₧NG, ─É├âI NGß╗ÿ & Xß╗¼ L├¥ TR├üCH NHIß╗åM
+            CHẾ ĐỘ KHEN THƯỞNG, ĐÃI NGỘ & XỬ LÝ TRÁCH NHIỆM
           </div>
           <div style="font-size: 10.5pt; margin-bottom: 3pt; text-align: justify;">
-            <strong>1. Khen th╞░ß╗ƒng ─æß╗ïnh kß╗│:</strong> C├ín sß╗▒ lß╗¢p, Tß╗ò tr╞░ß╗ƒng, Sao ─æß╗Å v├á C├ín sß╗▒ bß╗Ö m├┤n ho├án th├ánh xuß║Ñt sß║»c nhiß╗çm vß╗Ñ trong tuß║ºn/th├íng sß║╜ ─æ╞░ß╗úc cß╗Öng ─æiß╗âm thi ─æua c├í nh├ón (+10 ─æß║┐n +20 ─æiß╗âm), ─æ╞░ß╗úc ╞░u ti├¬n xß║┐p loß║íi R├¿n luyß╗çn Xuß║Ñt sß║»c/Tß╗æt cuß╗æi hß╗ìc kß╗│ v├á ─æ╞░ß╗úc nhß║¡n phß║ºn th╞░ß╗ƒng danh dß╗▒ tß╗½ Quß╗╣ lß╗¢p.
+            <strong>1. Khen thưởng định kỳ:</strong> Cán sự lớp, Tổ trưởng, Sao đỏ và Cán sự bộ môn hoàn thành xuất sắc nhiệm vụ trong tuần/tháng sẽ được cộng điểm thi đua cá nhân (+10 đến +20 điểm), được ưu tiên xếp loại Rèn luyện Xuất sắc/Tốt cuối học kỳ và được nhận phần thưởng danh dự từ Quỹ lớp.
           </div>
           <div style="font-size: 10.5pt; margin-bottom: 3pt; text-align: justify;">
-            <strong>2. Quyß╗ün hß║ín tß╗▒ quß║ún:</strong> Ban C├ín Sß╗▒ v├á Tß╗ò tr╞░ß╗ƒng c├│ to├án quyß╗ün ghi nhß║¡n, chß║Ñm ─æiß╗âm thi ─æua th├ánh vi├¬n theo thang ─æiß╗âm quy ─æß╗ïnh; c├│ quyß╗ün nhß║»c nhß╗ƒ v├á ─æß╗ü xuß║Ñt GVCN biß╗âu d╞░╞íng hoß║╖c kiß╗âm ─æiß╗âm c├íc tr╞░ß╗¥ng hß╗úp cß╗Ñ thß╗â.
+            <strong>2. Quyền hạn tự quản:</strong> Ban Cán Sự và Tổ trưởng có toàn quyền ghi nhận, chấm điểm thi đua thành viên theo thang điểm quy định; có quyền nhắc nhở và đề xuất GVCN biểu dương hoặc kiểm điểm các trường hợp cụ thể.
           </div>
           <div style="font-size: 10.5pt; margin-bottom: 6pt; text-align: justify;">
-            <strong>3. Xß╗¡ l├╜ tr├ích nhiß╗çm:</strong> Nß║┐u c├ín sß╗▒ bao che khuyß║┐t ─æiß╗âm, thiß║┐u g╞░╞íng mß║½u hoß║╖c kh├┤ng ho├án th├ánh nhiß╗çm vß╗Ñ ─æ╞░ß╗úc giao qu├í 02 tuß║ºn li├¬n tiß║┐p, lß╗¢p sß║╜ tiß║┐n h├ánh g├│p ├╜ trong tiß║┐t sinh hoß║ít v├á GVCN sß║╜ xem x├⌐t miß╗àn nhiß╗çm, ─æiß╗üu chuyß╗ân vß╗ï tr├¡ ph├╣ hß╗úp.
+            <strong>3. Xử lý trách nhiệm:</strong> Nếu cán sự bao che khuyết điểm, thiếu gương mẫu hoặc không hoàn thành nhiệm vụ được giao quá 02 tuần liên tiếp, lớp sẽ tiến hành góp ý trong tiết sinh hoạt và GVCN sẽ xem xét miễn nhiệm, điều chuyển vị trí phù hợp.
           </div>
         </div>
 
-        <!-- Chß╗» k├╜ -->
+        <!-- Chữ ký -->
         <table class="sign-tbl" style="width: 100%; margin-top: 15pt;">
           <tr>
             <td style="width: 33%; font-weight: bold; font-size: 10.5pt;">
-              ─Éß║áI DIß╗åN CHI ─ÉO├ÇN<br>
-              B├ì TH╞»<br>
-              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</span>
+              ĐẠI DIỆN CHI ĐOÀN<br>
+              BÍ THƯ<br>
+              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(Ký và ghi rõ họ tên)</span>
               <br><br><br><br>
-              Tß║í Thanh Ngß╗ìc Gi├áu
+              Tạ Thanh Ngọc Giàu
             </td>
             <td style="width: 34%; font-weight: bold; font-size: 10.5pt;">
-              ─Éß║áI DIß╗åN BAN C├üN Sß╗░<br>
-              Lß╗ÜP TR╞»ß╗₧NG<br>
-              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</span>
+              ĐẠI DIỆN BAN CÁN SỰ<br>
+              LỚP TRƯỞNG<br>
+              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(Ký và ghi rõ họ tên)</span>
               <br><br><br><br>
-              Trß║ºn L├¬ Hß╗ông Nhung
+              Trần Lê Hồng Nhung
             </td>
             <td style="width: 33%; font-weight: bold; font-size: 10.5pt; color: #b91c1c;">
-              DUYß╗åT Cß╗ªA GVCN<br>
-              GI├üO VI├èN CHß╗ª NHIß╗åM<br>
-              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</span>
+              DUYỆT CỦA GVCN<br>
+              GIÁO VIÊN CHỦ NHIỆM<br>
+              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(Ký và ghi rõ họ tên)</span>
               <br><br><br><br>
-              Thß║ºy/C├┤ Chß╗º Nhiß╗çm 10A3
+              Thầy/Cô Chủ Nhiệm 10A3
             </td>
           </tr>
         </table>
@@ -5661,14 +5649,14 @@ function exportCadreDutiesToWord() {
     document.body.removeChild(link);
     URL.revokeObjectURL(downloadUrl);
 
-    showToast('Xuß║Ñt th├ánh c├┤ng file Word Bß║úng Ph├ón C├┤ng Nhiß╗çm Vß╗Ñ!', 'success');
+    showToast('Xuất thành công file Word Bảng Phân Công Nhiệm Vụ!', 'success');
   } catch (error) {
-    console.error('Lß╗ùi khi xuß║Ñt Word:', error);
-    showToast('Lß╗ùi khi tß║ío file Word: ' + error.message, 'error');
+    console.error('Lỗi khi xuất Word:', error);
+    showToast('Lỗi khi tạo file Word: ' + error.message, 'error');
   }
 }
 
-// ==================== IN V├Ç PREVIEW Bß║óNG PH├éN C├öNG NHIß╗åM Vß╗ñ (A4) ====================
+// ==================== IN VÀ PREVIEW BẢNG PHÂN CÔNG NHIỆM VỤ (A4) ====================
 function openPrintDutiesModal() {
   const modal = document.getElementById('modal-print-duties');
   const content = document.getElementById('print-duties-content');
@@ -5694,7 +5682,7 @@ function generatePrintDutiesHTML() {
     const isEven = item.stt % 2 === 0;
     const bg = isEven ? '#f8fafc' : '#ffffff';
 
-    const dutiesHtml = item.duties.map(d => `<div class="mb-1 text-[11px] leading-tight">ΓÇó ${escapeHtml(d)}</div>`).join('');
+    const dutiesHtml = item.duties.map(d => `<div class="mb-1 text-[11px] leading-tight">• ${escapeHtml(d)}</div>`).join('');
 
     tableRowsHtml += `
       <tr style="background-color: ${bg};" class="border-b border-slate-300">
@@ -5703,7 +5691,7 @@ function generatePrintDutiesHTML() {
         <td class="font-bold p-2 border border-slate-400 text-xs text-blue-900 whitespace-pre-line">${escapeHtml(info.fullName)}</td>
         <td class="text-center italic p-2 border border-slate-400 text-[11px] text-slate-600">${escapeHtml(info.seatDesc)}</td>
         <td class="p-2 border border-slate-400 text-xs">
-          <div class="font-bold text-blue-800 text-[11px] mb-1">Quyß╗ün hß║ín: ${escapeHtml(item.permissions)}</div>
+          <div class="font-bold text-blue-800 text-[11px] mb-1">Quyền hạn: ${escapeHtml(item.permissions)}</div>
           ${dutiesHtml}
         </td>
       </tr>
@@ -5715,31 +5703,31 @@ function generatePrintDutiesHTML() {
       <!-- Header -->
       <div class="flex justify-between items-start mb-4 border-b pb-3 border-slate-300">
         <div class="text-center w-5/12">
-          <div class="text-xs font-bold uppercase">Sß╗₧ GI├üO Dß╗ñC V├Ç ─É├ÇO Tß║áO</div>
-          <div class="text-xs font-bold uppercase">TR╞»ß╗£NG THPT NGUYß╗äN Bß╗êNH KHI├èM</div>
-          <div class="text-sm font-black text-blue-900 mt-1 uppercase">Tß║¼P THß╗é Lß╗ÜP 10A3</div>
+          <div class="text-xs font-bold uppercase">SỞ GIÁO DỤC VÀ ĐÀO TẠO</div>
+          <div class="text-xs font-bold uppercase">TRƯỜNG THPT NGUYỄN BỈNH KHIÊM</div>
+          <div class="text-sm font-black text-blue-900 mt-1 uppercase">TẬP THỂ LỚP 10A3</div>
           <div class="text-xs font-bold mt-0.5">***</div>
         </div>
         <div class="text-center w-7/12">
-          <div class="text-xs font-bold uppercase">Cß╗ÿNG H├ÆA X├â Hß╗ÿI CHß╗ª NGH─¿A VIß╗åT NAM</div>
-          <div class="text-xs font-bold italic">─Éß╗Öc lß║¡p ΓÇô Tß╗▒ do ΓÇô Hß║ính ph├║c</div>
+          <div class="text-xs font-bold uppercase">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+          <div class="text-xs font-bold italic">Độc lập – Tự do – Hạnh phúc</div>
           <div class="text-xs font-bold mt-1">-----------------------</div>
         </div>
       </div>
 
       <div class="text-right italic text-xs mb-3 text-slate-600">
-        Lß╗¢p 10A3, ng├áy 09 th├íng 11 n─âm 2026
+        Lớp 10A3, ngày 09 tháng 11 năm 2026
       </div>
 
       <!-- Title -->
       <div class="text-center mb-5">
-        <h2 class="text-lg font-black text-slate-900 uppercase tracking-wide">Bß║óNG PH├éN C├öNG CHß╗¿C TR├üCH & NHIß╗åM Vß╗ñ</h2>
-        <div class="text-sm font-bold text-blue-900 mt-1">BAN C├üN Sß╗░ & ─Éß╗ÿI NG┼¿ Tß╗░ QUß║óN Lß╗ÜP 10A3 - N─éM Hß╗îC 2026 ΓÇô 2027</div>
-        <div class="text-xs italic text-slate-500 mt-0.5">(Ban h├ánh k├¿m theo Quy chß║┐ thi ─æua nß╗Öi bß╗Ö & Ch╞░╞íng tr├¼nh GDPT 2018)</div>
+        <h2 class="text-lg font-black text-slate-900 uppercase tracking-wide">BẢNG PHÂN CÔNG CHỨC TRÁCH & NHIỆM VỤ</h2>
+        <div class="text-sm font-bold text-blue-900 mt-1">BAN CÁN SỰ & ĐỘI NGŨ TỰ QUẢN LỚP 10A3 - NĂM HỌC 2026 – 2027</div>
+        <div class="text-xs italic text-slate-500 mt-0.5">(Ban hành kèm theo Quy chế thi đua nội bộ & Chương trình GDPT 2018)</div>
       </div>
 
       <p class="text-justify indent-6 text-xs leading-relaxed mb-4 text-slate-700">
-        Nhß║▒m x├óy dß╗▒ng tß║¡p thß╗â Lß╗¢p 10A3 kß╗╖ c╞░╞íng, ─æo├án kß║┐t, hß╗ìc tß║¡p tß╗æt, h╞░ß╗¢ng tß╗¢i m├┤ h├¼nh Tr╞░ß╗¥ng hß╗ìc hß║ính ph├║c; ph├ít huy t├¡nh tß╗▒ gi├íc, tinh thß║ºn tr├ích nhiß╗çm v├á kß╗╣ n─âng l├únh ─æß║ío bß║ún th├ón cß╗ºa tß╗½ng hß╗ìc sinh; Gi├ío vi├¬n chß╗º nhiß╗çm c├┤ng bß╗æ v├á ph├ón c├┤ng chß╗⌐c tr├ích, nhiß╗çm vß╗Ñ cß╗Ñ thß╗â cho tß╗½ng th├ánh vi├¬n Ban C├ín Sß╗▒, ─æß╗Öi ng┼⌐ tß╗▒ quß║ún v├á to├án thß╗â hß╗ìc sinh lß╗¢p 10A3 nh╞░ sau:
+        Nhằm xây dựng tập thể Lớp 10A3 kỷ cương, đoàn kết, học tập tốt, hướng tới mô hình Trường học hạnh phúc; phát huy tính tự giác, tinh thần trách nhiệm và kỹ năng lãnh đạo bản thân của từng học sinh; Giáo viên chủ nhiệm công bố và phân công chức trách, nhiệm vụ cụ thể cho từng thành viên Ban Cán Sự, đội ngũ tự quản và toàn thể học sinh lớp 10A3 như sau:
       </p>
 
       <!-- Table -->
@@ -5747,10 +5735,10 @@ function generatePrintDutiesHTML() {
         <thead>
           <tr class="bg-blue-900 text-white text-xs font-bold">
             <th class="p-2 border border-slate-400 text-center w-[5%]">STT</th>
-            <th class="p-2 border border-slate-400 w-[18%]">Chß╗⌐c Vß╗Ñ</th>
-            <th class="p-2 border border-slate-400 w-[19%]">Hß╗ì V├á T├¬n Hß╗ìc Sinh</th>
-            <th class="p-2 border border-slate-400 text-center w-[13%]">Vß╗ï Tr├¡ / Tß╗ò</th>
-            <th class="p-2 border border-slate-400 w-[45%]">Chß╗⌐c Tr├ích & Nhiß╗çm Vß╗Ñ Trß╗ìng T├óm</th>
+            <th class="p-2 border border-slate-400 w-[18%]">Chức Vụ</th>
+            <th class="p-2 border border-slate-400 w-[19%]">Họ Và Tên Học Sinh</th>
+            <th class="p-2 border border-slate-400 text-center w-[13%]">Vị Trí / Tổ</th>
+            <th class="p-2 border border-slate-400 w-[45%]">Chức Trách & Nhiệm Vụ Trọng Tâm</th>
           </tr>
         </thead>
         <tbody>
@@ -5760,31 +5748,31 @@ function generatePrintDutiesHTML() {
 
       <!-- Rules -->
       <div class="text-xs space-y-1.5 mb-6 text-slate-800">
-        <div class="font-bold text-blue-900 uppercase">Chß║┐ ─æß╗Ö khen th╞░ß╗ƒng, ─æ├úi ngß╗Ö & xß╗¡ l├╜ tr├ích nhiß╗çm:</div>
-        <p class="leading-relaxed"><strong>1. Khen th╞░ß╗ƒng ─æß╗ïnh kß╗│:</strong> C├ín sß╗▒ ho├án th├ánh tß╗æt nhiß╗çm vß╗Ñ ─æ╞░ß╗úc cß╗Öng +10 ─æß║┐n +20 ─æiß╗âm thi ─æua/tuß║ºn, ╞░u ti├¬n xß║┐p loß║íi R├¿n luyß╗çn Tß╗æt/Xuß║Ñt sß║»c v├á nhß║¡n qu├á biß╗âu d╞░╞íng tß╗½ Quß╗╣ lß╗¢p.</p>
-        <p class="leading-relaxed"><strong>2. Quyß╗ün hß║ín tß╗▒ quß║ún:</strong> Ban C├ín Sß╗▒ ─æ╞░ß╗úc cß║Ñp m├ú PIN bß║úo mß║¡t ri├¬ng ─æß╗â chß║Ñm ─æiß╗âm thi ─æua th├ánh vi├¬n, ─æ├┤n ─æß╗æc nß╗ü nß║┐p v├á ─æß╗ü xuß║Ñt GVCN tuy├¬n d╞░╞íng hoß║╖c nhß║»c nhß╗ƒ.</p>
-        <p class="leading-relaxed"><strong>3. Xß╗¡ l├╜ tr├ích nhiß╗çm:</strong> C├ín sß╗▒ vi phß║ím kß╗╖ luß║¡t, bao che hoß║╖c bß╗Å b├¬ nhiß╗çm vß╗Ñ qu├í 02 tuß║ºn li├¬n tiß║┐p sß║╜ bß╗ï g├│p ├╜ v├á xem x├⌐t ─æiß╗üu chuyß╗ân hoß║╖c miß╗àn nhiß╗çm.</p>
+        <div class="font-bold text-blue-900 uppercase">Chế độ khen thưởng, đãi ngộ & xử lý trách nhiệm:</div>
+        <p class="leading-relaxed"><strong>1. Khen thưởng định kỳ:</strong> Cán sự hoàn thành tốt nhiệm vụ được cộng +10 đến +20 điểm thi đua/tuần, ưu tiên xếp loại Rèn luyện Tốt/Xuất sắc và nhận quà biểu dương từ Quỹ lớp.</p>
+        <p class="leading-relaxed"><strong>2. Quyền hạn tự quản:</strong> Ban Cán Sự được cấp mã PIN bảo mật riêng để chấm điểm thi đua thành viên, đôn đốc nề nếp và đề xuất GVCN tuyên dương hoặc nhắc nhở.</p>
+        <p class="leading-relaxed"><strong>3. Xử lý trách nhiệm:</strong> Cán sự vi phạm kỷ luật, bao che hoặc bỏ bê nhiệm vụ quá 02 tuần liên tiếp sẽ bị góp ý và xem xét điều chuyển hoặc miễn nhiệm.</p>
       </div>
 
       <!-- Signatures -->
       <div class="grid grid-cols-3 gap-4 text-center text-xs mt-6 pt-2">
         <div>
-          <div class="font-bold uppercase">─Éß║áI DIß╗åN CHI ─ÉO├ÇN<br>B├ì TH╞»</div>
-          <div class="text-[10px] italic text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</div>
+          <div class="font-bold uppercase">ĐẠI DIỆN CHI ĐOÀN<br>BÍ THƯ</div>
+          <div class="text-[10px] italic text-slate-500">(Ký và ghi rõ họ tên)</div>
           <div class="h-16"></div>
-          <div class="font-bold text-slate-900">Tß║í Thanh Ngß╗ìc Gi├áu</div>
+          <div class="font-bold text-slate-900">Tạ Thanh Ngọc Giàu</div>
         </div>
         <div>
-          <div class="font-bold uppercase">─Éß║áI DIß╗åN BAN C├üN Sß╗░<br>Lß╗ÜP TR╞»ß╗₧NG</div>
-          <div class="text-[10px] italic text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</div>
+          <div class="font-bold uppercase">ĐẠI DIỆN BAN CÁN SỰ<br>LỚP TRƯỞNG</div>
+          <div class="text-[10px] italic text-slate-500">(Ký và ghi rõ họ tên)</div>
           <div class="h-16"></div>
-          <div class="font-bold text-slate-900">Trß║ºn L├¬ Hß╗ông Nhung</div>
+          <div class="font-bold text-slate-900">Trần Lê Hồng Nhung</div>
         </div>
         <div>
-          <div class="font-bold uppercase text-rose-700">DUYß╗åT Cß╗ªA GVCN<br>GI├üO VI├èN CHß╗ª NHIß╗åM</div>
-          <div class="text-[10px] italic text-slate-500">(K├╜ v├á ghi r├╡ hß╗ì t├¬n)</div>
+          <div class="font-bold uppercase text-rose-700">DUYỆT CỦA GVCN<br>GIÁO VIÊN CHỦ NHIỆM</div>
+          <div class="text-[10px] italic text-slate-500">(Ký và ghi rõ họ tên)</div>
           <div class="h-16"></div>
-          <div class="font-bold text-slate-900">Thß║ºy/C├┤ Chß╗º Nhiß╗çm 10A3</div>
+          <div class="font-bold text-slate-900">Thầy/Cô Chủ Nhiệm 10A3</div>
         </div>
       </div>
     </div>

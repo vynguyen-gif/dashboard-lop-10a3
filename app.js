@@ -2075,16 +2075,22 @@ function saveSeatingData() {
 
 /**
  * Render toàn bộ sơ đồ lớp học 24 bàn (4 bàn / tổ, 3 tổ / dãy)
+ * Chuẩn chiều theo ảnh mẫu của Thầy Nguyễn Vỹ:
+ * - Bảng đen & Bàn Giáo Viên & Cửa Vào nằm ở DƯỚI CÙNG
+ * - Hàng 1 (sát Bảng) ở DƯỚI, Hàng 6 (cuối lớp) ở TRÊN
+ * - Dãy 2 (Cửa vào: Tổ 6, 5, 4) ở BÊN TRÁI
+ * - Dãy 1 (Bàn GV: Tổ 3, 2, 1) ở BÊN PHẢI
+ * - Giữ nguyên vị trí chỗ ngồi 100% của từng học sinh
  */
 function renderSeatingPlan() {
   if (!appState.seating || appState.seating.length !== 24) {
     loadSeatingData();
   }
 
-  // Cập nhật giao diện theo hướng góc nhìn (Bàn Giáo Viên 180° vs Học Sinh 0°)
-  updateSeatingOrientationUI();
-
-  // Render 6 tổ: Mỗi tổ có 4 bàn, GHÉP ĐÔI thành 2 Cụm Bàn Ghép (Mỗi cụm gồm 2 bàn kê sát nhau = 4 học sinh)
+  // Render 6 tổ: Mỗi tổ có 4 bàn.
+  // Chiều chuẩn theo Thầy Vỹ: Bảng ở DƯỚI CÙNG.
+  // Vì vậy: Cụm 2 (Hàng sau, Bàn 3+4 hoặc 7+8 hoặc 11+12) ở TRÊN.
+  // Cụm 1 (Hàng trước, Bàn 1+2 hoặc 5+6 hoặc 9+10) ở DƯỚI (sát phía Bảng).
   for (let g = 1; g <= 6; g++) {
     const container = document.getElementById(`group-${g}-tables`);
     if (!container) continue;
@@ -2092,16 +2098,16 @@ function renderSeatingPlan() {
     const groupTables = appState.seating.filter(t => t.groupNumber === g);
     container.innerHTML = '';
 
-    // CỤM 1: Bàn 1 ghép Bàn 2 (hoặc Bàn 5 ghép Bàn 6, Bàn 9 ghép Bàn 10)
-    if (groupTables.length >= 2) {
-      const pair1El = renderPairedDesksCluster(groupTables[0], groupTables[1], g);
-      container.appendChild(pair1El);
-    }
-
-    // CỤM 2: Bàn 3 ghép Bàn 4 (hoặc Bàn 7 ghép Bàn 8, Bàn 11 ghép Bàn 12)
+    // CỤM 2: Hàng sau (xa Bảng hơn, hiển thị ở trên)
     if (groupTables.length >= 4) {
       const pair2El = renderPairedDesksCluster(groupTables[2], groupTables[3], g);
       container.appendChild(pair2El);
+    }
+
+    // CỤM 1: Hàng trước (sát Bảng hơn, hiển thị ở dưới)
+    if (groupTables.length >= 2) {
+      const pair1El = renderPairedDesksCluster(groupTables[0], groupTables[1], g);
+      container.appendChild(pair1El);
     }
   }
 
@@ -2110,229 +2116,43 @@ function renderSeatingPlan() {
 }
 
 /**
- * Cập nhật giao diện phương hướng và vị trí theo góc nhìn (Bàn Giáo Viên 180° hoặc Học Sinh 0°)
+ * Cập nhật nhãn trạng thái sơ đồ lớp
  */
 function updateSeatingOrientationUI() {
-  const isTeacherView = (appState.seatingOrientation || 'teacher') === 'teacher';
-
-  // Cập nhật nhãn nút trên toolbar
   const btnText = document.getElementById('btn-orientation-text');
   if (btnText) {
-    btnText.textContent = isTeacherView ? 'Góc Nhìn: Bàn GV (180°)' : 'Góc Nhìn: Học Sinh (0°)';
+    btnText.textContent = 'Sơ Đồ Chuẩn (Mẫu Thầy Vỹ)';
   }
-  const btnToggle = document.getElementById('btn-toggle-orientation');
-  if (btnToggle) {
-    btnToggle.title = isTeacherView ? 
-      'Hiện tại: Góc nhìn từ Bàn Giáo Viên (180°). Bấm để chuyển sang Góc nhìn Học sinh.' :
-      'Hiện tại: Góc nhìn Học sinh từ dưới lớp (0°). Bấm để chuyển sang Góc nhìn Bàn Giáo Viên.';
-  }
-
-  // Cập nhật nút trong Modal Print Preview
   const btnPrintText = document.getElementById('btn-print-orientation-text');
   if (btnPrintText) {
-    btnPrintText.textContent = isTeacherView ? 'Góc Nhìn: Bàn GV (180°)' : 'Góc Nhìn: Học Sinh (0°)';
+    btnPrintText.textContent = 'Sơ Đồ Chuẩn (Mẫu Thầy Vỹ)';
   }
-
-  // Đảo thứ tự 2 dãy bàn (Dãy 2 bên trái, Dãy 1 bên phải khi ở góc nhìn GV)
-  const columnsGrid = document.getElementById('seating-columns-grid');
-  if (columnsGrid) {
-    if (isTeacherView) {
-      columnsGrid.classList.remove('lg:flex-row');
-      columnsGrid.classList.add('lg:flex-row-reverse');
-    } else {
-      columnsGrid.classList.remove('lg:flex-row-reverse');
-      columnsGrid.classList.add('lg:flex-row');
-    }
-  }
-
-  // Cập nhật tiêu đề 2 dãy
-  const d1Title = document.getElementById('seating-col-d1-title');
-  if (d1Title) {
-    d1Title.textContent = isTeacherView ? 'DÃY 1 (Phía Cửa Sổ - Bên Phải GV)' : 'DÃY 1 (Phía Cửa Sổ)';
-  }
-  const d2Title = document.getElementById('seating-col-d2-title');
-  if (d2Title) {
-    d2Title.textContent = isTeacherView ? 'DÃY 2 (Phía Cửa Ra Vào - Bên Trái GV)' : 'DÃY 2 (Phía Cửa Ra Vào)';
-  }
-
-  // Cập nhật Khu Vực Bục Giảng (Bàn GV, Bảng Đen, Cửa Ra Vào)
-  const podiumArea = document.getElementById('seating-podium-area');
-  if (podiumArea) {
-    if (isTeacherView) {
-      podiumArea.innerHTML = `
-        <div class="grid grid-cols-12 gap-4 items-center">
-          <!-- Cửa Ra Vào / Hành Lang (Bên Trái GV) -->
-          <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
-            <div class="flex items-center space-x-2.5">
-              <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-door-open"></i>
-              </span>
-              <div>
-                <span class="font-bold text-slate-800 block text-xs">Cửa Chính Ra Vào</span>
-                <span class="text-[10px] text-slate-500">Phía Dãy 2 (Bên Trái GV)</span>
-              </div>
-            </div>
-            <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200">Lối vào</span>
-          </div>
-
-          <!-- BẢNG ĐEN TRUNG TÂM -->
-          <div class="col-span-12 md:col-span-6 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 rounded-2xl border-4 border-amber-900 shadow-md text-center text-white relative">
-            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-800 text-[9px] font-black tracking-widest uppercase px-3 py-0.5 rounded-full text-amber-200 border border-amber-700 shadow-xs">
-              Góc nhìn: Bàn Giáo Viên (180°)
-            </div>
-            <h3 class="text-sm md:text-base font-black tracking-wider text-emerald-400 font-serif">
-              BẢNG ĐEN LỚP 10A3
-            </h3>
-            <p class="text-[11px] text-slate-300 italic tracking-wide mt-0.5">
-              &ldquo;Tiên Học Lễ &mdash; Hậu Học Văn&rdquo;
-            </p>
-          </div>
-
-          <!-- Bàn Giáo Viên & Bục Giảng (Bên Phải GV) -->
-          <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border-2 border-amber-300/80 shadow-sm flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-chalkboard-user"></i>
-            </div>
-            <div>
-              <span class="text-[10px] uppercase font-black tracking-wider text-amber-700 block">Bục Giảng</span>
-              <p class="text-xs font-black text-slate-800">Bàn Giáo Viên Chủ Nhiệm</p>
-              <p class="text-[10px] text-slate-500">Phía Dãy 1 (Bên Phải GV)</p>
-            </div>
-          </div>
-        </div>
-      `;
-    } else {
-      podiumArea.innerHTML = `
-        <div class="grid grid-cols-12 gap-4 items-center">
-          <!-- Bàn Giáo Viên & Bục Giảng (Góc Trái) -->
-          <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border-2 border-amber-300/80 shadow-sm flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-chalkboard-user"></i>
-            </div>
-            <div>
-              <span class="text-[10px] uppercase font-black tracking-wider text-amber-700 block">Bục Giảng</span>
-              <p class="text-xs font-black text-slate-800">Bàn Giáo Viên Chủ Nhiệm</p>
-              <p class="text-[10px] text-slate-500">Sổ điểm • Giáo án • Laptop</p>
-            </div>
-          </div>
-
-          <!-- BẢNG ĐEN TRUNG TÂM -->
-          <div class="col-span-12 md:col-span-6 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 rounded-2xl border-4 border-amber-900 shadow-md text-center text-white relative">
-            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-800 text-[9px] font-black tracking-widest uppercase px-3 py-0.5 rounded-full text-amber-200 border border-amber-700 shadow-xs">
-              Góc nhìn: Học sinh (0°)
-            </div>
-            <h3 class="text-sm md:text-base font-black tracking-wider text-emerald-400 font-serif">
-              BẢNG ĐEN LỚP 10A3
-            </h3>
-            <p class="text-[11px] text-slate-300 italic tracking-wide mt-0.5">
-              &ldquo;Tiên Học Lễ &mdash; Hậu Học Văn&rdquo;
-            </p>
-          </div>
-
-          <!-- Cửa Ra Vào / Hành Lang (Góc Phải) -->
-          <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
-            <div class="flex items-center space-x-2.5">
-              <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-door-open"></i>
-              </span>
-              <div>
-                <span class="font-bold text-slate-800 block text-xs">Cửa Chính Ra Vào</span>
-                <span class="text-[10px] text-slate-500">Dãy 2 (Bên Phải)</span>
-              </div>
-            </div>
-            <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200">Lối vào</span>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  // Cập nhật dòng phương hướng
-  const directionRow = document.getElementById('seating-direction-row');
-  if (directionRow) {
-    if (isTeacherView) {
-      directionRow.innerHTML = `
-        <span class="flex items-center space-x-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>DÃY 2: TỔ 4 • TỔ 5 • TỔ 6 (Phía Cửa Ra Vào - Bên Trái GV)</span>
-        </span>
-        <span class="text-slate-400 font-mono tracking-widest uppercase text-[10px]">
-          <i class="fa-solid fa-arrows-left-right mx-1"></i> Lối Đi Giữa 2 Dãy Bàn <i class="fa-solid fa-arrows-left-right mx-1"></i>
-        </span>
-        <span class="flex items-center space-x-1 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-          <span>DÃY 1: TỔ 1 • TỔ 2 • TỔ 3 (Phía Cửa Sổ - Bên Phải GV)</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </span>
-      `;
-    } else {
-      directionRow.innerHTML = `
-        <span class="flex items-center space-x-1 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>DÃY 1: TỔ 1 • TỔ 2 • TỔ 3 (Phía Cửa Sổ)</span>
-        </span>
-        <span class="text-slate-400 font-mono tracking-widest uppercase text-[10px]">
-          <i class="fa-solid fa-arrows-left-right mx-1"></i> Lối Đi Giữa 2 Dãy Bàn <i class="fa-solid fa-arrows-left-right mx-1"></i>
-        </span>
-        <span class="flex items-center space-x-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-          <span>DÃY 2: TỔ 4 • TỔ 5 • TỔ 6 (Phía Cửa Ra Vào)</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </span>
-      `;
-    }
-  }
-}
-
-/**
- * Đổi góc nhìn sơ đồ lớp học giữa Bàn Giáo Viên (180°) và Học Sinh (0°)
- */
-function toggleSeatingOrientation() {
-  appState.seatingOrientation = (appState.seatingOrientation === 'student') ? 'teacher' : 'student';
-  localStorage.setItem('dashboard10a3_seating_orientation', appState.seatingOrientation);
-  renderSeatingPlan();
-
-  // Nếu Modal Xem trước bản in A4 đang mở thì cập nhật lại nội dung in
-  const printModal = document.getElementById('modal-print-preview');
-  if (printModal && !printModal.classList.contains('hidden')) {
-    const printContent = document.getElementById('print-preview-content');
-    if (printContent) {
-      printContent.innerHTML = generatePrintSeatingHTML();
-    }
-  }
-
-  const viewName = appState.seatingOrientation === 'teacher' ? 'Bàn Giáo Viên (180°)' : 'Học Sinh (0°)';
-  showToast(`Đã chuyển sơ đồ sang: Góc Nhìn ${viewName}`, 'info');
 }
 
 /**
  * Tạo phần tử DOM cho 1 Cụm Bàn Ghép (2 bàn kê ghép sát nhau: Bàn 1 + Bàn 2; Bàn 3 + Bàn 4...)
+ * Giữ nguyên bàn 1 bên trái, bàn 2 bên phải
  */
 function renderPairedDesksCluster(table1, table2, groupNumber) {
-  // Cụm 2 bàn ghép lại: Tạo thành 1 hàng bàn sạch sẽ, không có chữ tiêu đề thừa
   const cluster = document.createElement('div');
   cluster.className = 'paired-desk-cluster bg-white p-2 sm:p-2.5 rounded-2xl border-2 border-slate-200 hover:border-teal-400 transition shadow-xs';
 
-  // Lưới chứa 2 bàn ghép sát nhau
   const desksGrid = document.createElement('div');
   desksGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2 items-stretch';
 
   const desk1 = renderDeskElement(table1);
   const desk2 = renderDeskElement(table2);
 
-  const isTeacherView = (appState.seatingOrientation || 'teacher') === 'teacher';
-  if (isTeacherView) {
-    desksGrid.appendChild(desk2);
-    desksGrid.appendChild(desk1);
-  } else {
-    desksGrid.appendChild(desk1);
-    desksGrid.appendChild(desk2);
-  }
+  desksGrid.appendChild(desk1);
+  desksGrid.appendChild(desk2);
   cluster.appendChild(desksGrid);
 
   return cluster;
 }
 
 /**
- * Tạo phần tử DOM cho 1 bàn học (gồm 2 chỗ ngồi, chỉ để lại tên học sinh)
+ * Tạo phần tử DOM cho 1 bàn học (gồm 2 chỗ ngồi)
+ * Giữ nguyên ghế trái bên trái, ghế phải bên phải
  */
 function renderDeskElement(table) {
   const desk = document.createElement('div');
@@ -2346,14 +2166,8 @@ function renderDeskElement(table) {
   const leftSeatEl = renderSeatSlot(table, table.leftSeat);
   const rightSeatEl = renderSeatSlot(table, table.rightSeat);
 
-  const isTeacherView = (appState.seatingOrientation || 'teacher') === 'teacher';
-  if (isTeacherView) {
-    seatsContainer.appendChild(rightSeatEl);
-    seatsContainer.appendChild(leftSeatEl);
-  } else {
-    seatsContainer.appendChild(leftSeatEl);
-    seatsContainer.appendChild(rightSeatEl);
-  }
+  seatsContainer.appendChild(leftSeatEl);
+  seatsContainer.appendChild(rightSeatEl);
   desk.appendChild(seatsContainer);
 
   return desk;
@@ -2808,7 +2622,7 @@ function confirmResetDefaultSeating() {
  * In sơ đồ lớp học ra file A4
  */
 /**
- * Sinh mã HTML cho Bản In Sơ Đồ Lớp Học Chuẩn A4 Khổ Ngang (Fit 1 Trang 100%)
+ * Sinh mã HTML cho Bản In Sơ Đồ Lớp Học Chuẩn A4 Khổ Ngang theo đúng mẫu Thầy Nguyễn Vỹ (Fit 1 Trang 100%)
  */
 function generatePrintSeatingHTML() {
   if (!appState.seating || appState.seating.length !== 24) {
@@ -2820,186 +2634,156 @@ function generatePrintSeatingHTML() {
       return '';
     }
     const tags = [];
-    if (student.role.includes('Lớp trưởng')) tags.push('LT');
-    if (student.role.includes('Lớp phó Lao động')) tags.push('LP LĐ');
-    else if (student.role.includes('Lớp phó')) tags.push('LP');
-    if (student.role.includes('Bí thư')) tags.push('BT');
+    if (student.role.includes('Lớp trưởng')) tags.push('Lớp trưởng');
+    else if (student.role.includes('Lớp phó Lao động')) tags.push('LPLĐ');
+    else if (student.role.includes('Lớp phó')) tags.push('LPHT');
+    if (student.role.includes('Bí thư')) tags.push('Bí thư');
     if (student.role.includes('Tổ trưởng')) tags.push('TT');
-    if (student.role.includes('Sao đỏ')) tags.push('SĐ');
+    if (student.role.includes('Sao đỏ')) tags.push('Sao đỏ');
     if (student.role.includes('Toán')) tags.push('CS Toán');
     if (student.role.includes('Lý')) tags.push('CS Lý');
     if (student.role.includes('Hóa')) tags.push('CS Hóa');
     if (student.role.includes('Anh')) tags.push('CS Anh');
     if (student.role.includes('Sinh')) tags.push('CS Sinh');
     if (student.role.includes('Văn')) tags.push('CS Văn');
-    const roleStr = tags.length > 0 ? ` (${tags.join(', ')})` : '';
-    return roleStr;
+    if (student.role.includes('Sử')) tags.push('TQ');
+    return tags.length > 0 ? ` (${tags.join(', ')})` : '';
   };
 
   // Ô ghế ngồi: Nếu ghế trống, để trắng hoàn toàn (không in chữ "(Trống)")
   const renderPrintSeat = (seat) => {
     if (!seat || !seat.studentId) {
-      return `<div class="print-seat-cell flex items-center justify-center p-1 border border-slate-300 min-h-[32px] rounded bg-white"></div>`;
+      return `<div class="print-seat-cell flex items-center justify-center p-1 border-2 border-slate-700 min-h-[34px] rounded bg-white"></div>`;
     }
     const student = appState.students.find(s => s.id === seat.studentId);
     if (!student) {
-      return `<div class="print-seat-cell flex items-center justify-center p-1 border border-slate-300 min-h-[32px] rounded bg-white"></div>`;
+      return `<div class="print-seat-cell flex items-center justify-center p-1 border-2 border-slate-700 min-h-[34px] rounded bg-white"></div>`;
     }
     const roleTag = getStudentRoleTag(student);
     return `
-      <div class="print-seat-cell flex flex-col justify-center items-center text-center p-1 border border-black min-h-[32px] rounded bg-white">
-        <span class="font-bold text-[11px] leading-tight text-black">${student.fullName}${roleTag ? `<span class="text-[9px] text-blue-900 font-semibold">${roleTag}</span>` : ''}</span>
+      <div class="print-seat-cell flex flex-col justify-center items-center text-center p-1 border-2 border-slate-800 min-h-[34px] rounded bg-white shadow-2xs">
+        <span class="font-bold text-[11px] leading-tight text-black">${student.fullName}${roleTag ? `<span class="text-[9px] text-blue-900 font-semibold block">${roleTag}</span>` : ''}</span>
       </div>
     `;
   };
 
-  const isTeacherView = (appState.seatingOrientation || 'teacher') === 'teacher';
-
-  const renderPrintCluster = (table1, table2) => {
-    if (isTeacherView) {
-      // Góc nhìn Bàn Giáo Viên (180°): Bàn bên trái GV là table2, bên phải là table1.
-      // Trong mỗi bàn, ghế bên trái GV là rightSeat, ghế bên phải GV là leftSeat.
-      return `
-        <div class="grid grid-cols-4 gap-1.5 w-full">
-          ${renderPrintSeat(table2.rightSeat)}
-          ${renderPrintSeat(table2.leftSeat)}
-          ${renderPrintSeat(table1.rightSeat)}
-          ${renderPrintSeat(table1.leftSeat)}
-        </div>
-      `;
-    }
+  const renderClusterRow = (t1, t2) => {
     return `
       <div class="grid grid-cols-4 gap-1.5 w-full">
-        ${renderPrintSeat(table1.leftSeat)}
-        ${renderPrintSeat(table1.rightSeat)}
-        ${renderPrintSeat(table2.leftSeat)}
-        ${renderPrintSeat(table2.rightSeat)}
+        ${renderPrintSeat(t1.leftSeat)}
+        ${renderPrintSeat(t1.rightSeat)}
+        ${renderPrintSeat(t2.leftSeat)}
+        ${renderPrintSeat(t2.rightSeat)}
       </div>
     `;
   };
 
-  // Hộp Tổ: Chỉ hiển thị tên Tổ (TỔ 1, TỔ 2...), bỏ các dòng chữ (Bàn 1 + 2...) và (8 HS / 7 HS + 1 Trống)
-  const renderPrintGroup = (gNum, groupTitle) => {
-    const groupTables = appState.seating.filter(t => t.groupNumber === gNum);
-    if (groupTables.length < 4) return '';
-    return `
-      <div class="border border-slate-400 rounded p-1.5 bg-white space-y-1">
-        <div class="text-[11px] font-bold border-b border-slate-300 pb-0.5 text-black uppercase tracking-wide">
-          ${groupTitle}
-        </div>
-        <!-- Hàng 1 -->
-        ${renderPrintCluster(groupTables[0], groupTables[1])}
-        <!-- Hàng 2 -->
-        ${renderPrintCluster(groupTables[2], groupTables[3])}
-      </div>
-    `;
-  };
+  const g1 = appState.seating.filter(t => t.groupNumber === 1);
+  const g2 = appState.seating.filter(t => t.groupNumber === 2);
+  const g3 = appState.seating.filter(t => t.groupNumber === 3);
+  const g4 = appState.seating.filter(t => t.groupNumber === 4);
+  const g5 = appState.seating.filter(t => t.groupNumber === 5);
+  const g6 = appState.seating.filter(t => t.groupNumber === 6);
 
   return `
-    <div class="print-page-box bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[280mm] mx-auto p-2">
-      <!-- QUỐC HIỆU & TIÊU NGỮ -->
-      <div class="grid grid-cols-12 items-start pb-1 border-b-2 border-black mb-1.5">
-        <div class="col-span-5 text-center">
-          <p class="text-[10px] uppercase font-bold text-slate-700">SỞ GD&ĐT LÂM ĐỒNG</p>
-          <p class="text-[11px] uppercase font-bold text-black tracking-wide">TRƯỜNG THPT BÙI THỊ XUÂN - MŨI NÉ</p>
-        </div>
-        <div class="col-span-7 text-center">
-          <p class="text-[11px] uppercase font-bold text-black tracking-wide">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
-          <p class="text-[10px] italic font-semibold text-slate-800">Độc lập &mdash; Tự do &mdash; Hạnh phúc</p>
-        </div>
-      </div>
-
-      <!-- TIÊU ĐỀ SƠ ĐỒ LỚP: Gọn gàng, trang trọng -->
-      <div class="text-center my-1">
-        <h1 class="text-base font-black tracking-wider uppercase text-black">
-          SƠ ĐỒ CHỖ NGỒI HỌC SINH &mdash; LỚP 10A3
+    <div class="print-page-box bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[285mm] mx-auto p-2">
+      <!-- HEADER CHUẨN THEO ẢNH GVCN THẦY NGUYỄN VỸ -->
+      <div class="text-center pb-2">
+        <h1 class="text-sm md:text-base font-extrabold uppercase tracking-wide text-black">
+          GVCN: Thầy Nguyễn Vỹ | Năm học: 2026 – 2027
         </h1>
-        <p class="text-[10px] italic text-slate-700">
-          Năm học: 2026 - 2027 &bull; Sĩ số: 45 học sinh
+        <p class="text-xs italic font-semibold text-blue-900 mt-0.5">
+          &ldquo;Kỷ luật tạo sức mạnh - Tri thức dẫn tương lai&rdquo;
         </p>
       </div>
 
-      <!-- PHÍA TRƯỚC LỚP HỌC: BÀN GV & BẢNG ĐEN -->
-      <div class="grid grid-cols-12 gap-2 items-center my-1 py-1 px-2 border border-black rounded bg-slate-100 text-center text-[10px]">
-        ${isTeacherView ? `
-          <div class="col-span-3 border border-black bg-white py-0.5 rounded font-bold">
-            [ CỬA CHÍNH RA VÀO ]
+      <!-- SƠ ĐỒ CHỖ NGỒI: 6 HÀNG XẾP TỪ TRÊN (CUỐI LỚP) XUỐNG DƯỚI (SÁT BẢNG) -->
+      <div class="space-y-2 my-2">
+
+        <!-- KHỐI 3: TỔ 6 (BÊN TRÁI) & TỔ 3 (BÊN PHẢI) - HÀNG 6 & HÀNG 5 (CUỐI LỚP) -->
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <div class="col-span-5 space-y-1.5">
+            ${renderClusterRow(g6[2], g6[3])} <!-- Hàng 6 (Bàn 11+12) -->
+            ${renderClusterRow(g6[0], g6[1])} <!-- Hàng 5 (Bàn 9+10) -->
           </div>
-          <div class="col-span-6 bg-slate-800 text-white py-0.5 rounded font-bold uppercase tracking-wider">
-            BẢNG ĐEN LỚP 10A3 ("Tiên Học Lễ &mdash; Hậu Học Văn")
+          <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
+            <span>Tổ 6</span>
+            <span class="text-lg text-slate-600 font-serif font-black">}</span>
+            <span class="text-lg text-slate-600 font-serif font-black">{</span>
+            <span>Tổ 3</span>
           </div>
-          <div class="col-span-3 border border-black bg-white py-0.5 rounded font-bold text-amber-900 bg-amber-50">
-            [ BÀN GIÁO VIÊN ]
+          <div class="col-span-5 space-y-1.5">
+            ${renderClusterRow(g3[2], g3[3])} <!-- Hàng 6 (Bàn 11+12) -->
+            ${renderClusterRow(g3[0], g3[1])} <!-- Hàng 5 (Bàn 9+10) -->
           </div>
-        ` : `
-          <div class="col-span-3 border border-black bg-white py-0.5 rounded font-bold text-amber-900 bg-amber-50">
-            [ BÀN GIÁO VIÊN ]
+        </div>
+
+        <!-- KHỐI 2: TỔ 5 (BÊN TRÁI) & TỔ 2 (BÊN PHẢI) - HÀNG 4 & HÀNG 3 (GIỮA LỚP) -->
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <div class="col-span-5 space-y-1.5">
+            ${renderClusterRow(g5[2], g5[3])} <!-- Hàng 4 (Bàn 7+8) -->
+            ${renderClusterRow(g5[0], g5[1])} <!-- Hàng 3 (Bàn 5+6) -->
           </div>
-          <div class="col-span-6 bg-slate-800 text-white py-0.5 rounded font-bold uppercase tracking-wider">
-            BẢNG ĐEN LỚP 10A3 ("Tiên Học Lễ &mdash; Hậu Học Văn")
+          <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
+            <span>Tổ 5</span>
+            <span class="text-lg text-slate-600 font-serif font-black">}</span>
+            <span class="text-lg text-slate-600 font-serif font-black">{</span>
+            <span>Tổ 2</span>
           </div>
-          <div class="col-span-3 border border-black bg-white py-0.5 rounded font-bold">
-            [ CỬA CHÍNH RA VÀO ]
+          <div class="col-span-5 space-y-1.5">
+            ${renderClusterRow(g2[2], g2[3])} <!-- Hàng 4 (Bàn 7+8) -->
+            ${renderClusterRow(g2[0], g2[1])} <!-- Hàng 3 (Bàn 5+6) -->
           </div>
-        `}
+        </div>
+
+        <!-- KHỐI 1: TỔ 4 (BÊN TRÁI) & TỔ 1 (BÊN PHẢI) - HÀNG 2 & HÀNG 1 (ĐẦU LỚP, SÁT BẢNG) -->
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <div class="col-span-5 space-y-1.5">
+            ${renderClusterRow(g4[2], g4[3])} <!-- Hàng 2 (Bàn 3+4) -->
+            ${renderClusterRow(g4[0], g4[1])} <!-- Hàng 1 (Bàn 1+2) -->
+          </div>
+          <div class="col-span-2 flex items-center justify-center space-x-1 font-bold text-xs text-slate-800">
+            <span>Tổ 4</span>
+            <span class="text-lg text-slate-600 font-serif font-black">}</span>
+            <span class="text-lg text-slate-600 font-serif font-black">{</span>
+            <span>Tổ 1</span>
+          </div>
+          <div class="col-span-5 space-y-1.5">
+            ${renderClusterRow(g1[2], g1[3])} <!-- Hàng 2 (Bàn 3+4) -->
+            ${renderClusterRow(g1[0], g1[1])} <!-- Hàng 1 (Bàn 1+2) -->
+          </div>
+        </div>
+
       </div>
 
-      <!-- LƯỚI 2 DÃY BÀN HỌC ĐẶT SONG SONG -->
-      <div class="grid grid-cols-12 gap-2 items-start my-1.5">
-        ${isTeacherView ? `
-          <!-- DÃY 2: TỔ 4, TỔ 5, TỔ 6 (BÊN TRÁI - PHÍA CỬA RA VÀO THEO TẦM MẮT GV) -->
-          <div class="col-span-6 space-y-1.5">
-            <div class="text-center font-bold text-[10px] bg-slate-200 py-0.5 border border-slate-400 rounded uppercase">
-              DÃY 2 (PHÍA CỬA RA VÀO - BÊN TRÁI GV)
-            </div>
-            ${renderPrintGroup(4, 'TỔ 4')}
-            ${renderPrintGroup(5, 'TỔ 5')}
-            ${renderPrintGroup(6, 'TỔ 6')}
+      <!-- PHÍA TRƯỚC LỚP HỌC (Ở DƯỚI CÙNG): CỬA VÀO - BẢNG - BÀN GIÁO VIÊN -->
+      <div class="grid grid-cols-12 gap-3 items-center pt-2 mt-2">
+        <!-- CỬA VÀO VỚI MŨI TÊN (BÊN TRÁI) -->
+        <div class="col-span-3 flex items-center">
+          <div class="border-2 border-black bg-white font-extrabold text-xs px-3 py-2 text-center uppercase tracking-wide flex-1 flex items-center justify-center space-x-1 shadow-2xs">
+            <span>CỬA VÀO</span>
+            <span class="text-sm font-bold">&rArr;</span>
           </div>
+        </div>
 
-          <!-- DÃY 1: TỔ 1, TỔ 2, TỔ 3 (BÊN PHẢI - PHÍA CỬA SỔ THEO TẦM MẮT GV) -->
-          <div class="col-span-6 space-y-1.5">
-            <div class="text-center font-bold text-[10px] bg-slate-200 py-0.5 border border-slate-400 rounded uppercase">
-              DÃY 1 (PHÍA CỬA SỔ - BÊN PHẢI GV)
-            </div>
-            ${renderPrintGroup(1, 'TỔ 1')}
-            ${renderPrintGroup(2, 'TỔ 2')}
-            ${renderPrintGroup(3, 'TỔ 3')}
+        <!-- BẢNG ĐEN TRUNG TÂM -->
+        <div class="col-span-6">
+          <div class="border-2 border-black bg-white font-black text-sm py-2 text-center uppercase tracking-widest text-black shadow-2xs">
+            BẢNG
           </div>
-        ` : `
-          <!-- DÃY 1: TỔ 1, TỔ 2, TỔ 3 (BÊN TRÁI - PHÍA CỬA SỔ) -->
-          <div class="col-span-6 space-y-1.5">
-            <div class="text-center font-bold text-[10px] bg-slate-200 py-0.5 border border-slate-400 rounded uppercase">
-              DÃY 1 (PHÍA CỬA SỔ)
-            </div>
-            ${renderPrintGroup(1, 'TỔ 1')}
-            ${renderPrintGroup(2, 'TỔ 2')}
-            ${renderPrintGroup(3, 'TỔ 3')}
-          </div>
+        </div>
 
-          <!-- DÃY 2: TỔ 4, TỔ 5, TỔ 6 (BÊN PHẢI - PHÍA CỬA RA VÀO) -->
-          <div class="col-span-6 space-y-1.5">
-            <div class="text-center font-bold text-[10px] bg-slate-200 py-0.5 border border-slate-400 rounded uppercase">
-              DÃY 2 (PHÍA CỬA RA VÀO)
-            </div>
-            ${renderPrintGroup(4, 'TỔ 4')}
-            ${renderPrintGroup(5, 'TỔ 5')}
-            ${renderPrintGroup(6, 'TỔ 6')}
+        <!-- BÀN GIÁO VIÊN (BÊN PHẢI) -->
+        <div class="col-span-3">
+          <div class="border-2 border-black bg-white font-extrabold text-xs py-2 text-center uppercase tracking-wide text-black shadow-2xs">
+            BÀN GIÁO VIÊN
           </div>
-        `}
+        </div>
       </div>
 
-      <!-- GHI CHÚ VÀ CHỮ KÝ GVCN -->
-      <div class="grid grid-cols-12 pt-1 border-t border-slate-300 mt-1 items-end text-[10px]">
-        <div class="col-span-7 italic text-slate-700">
-          <p><strong>* Ghi chú chức danh:</strong> (LT): Lớp trưởng; (LP): Lớp phó; (BT): Bí thư; (TT): Tổ trưởng; (SĐ): Sao đỏ; (CS): Cán sự bộ môn.</p>
-          <p class="text-[9px] text-teal-800 font-semibold mt-0.5">${isTeacherView ? '* Bản in theo Góc nhìn Bàn Giáo Viên (180°): Dãy 2 bên tay trái, Dãy 1 bên tay phải GV; vị trí học sinh trùng khớp 100% khi GV nhìn từ bục giảng xuống lớp.' : '* Bản in theo Góc nhìn Học Sinh (0°): Nhìn từ cuối lớp lên bục giảng.'}</p>
-        </div>
-        <div class="col-span-5 text-center">
-          <p class="italic text-[10px]">Mũi Né, ngày ... tháng ... năm 2026</p>
-          <p class="font-bold text-[11px] uppercase mt-0.5">GIÁO VIÊN CHỦ NHIỆM</p>
-          <p class="text-[9px] italic text-slate-500 mt-6">(Ký và ghi rõ họ tên)</p>
-        </div>
+      <!-- KHUNG NHẮC NHỞ GVBM MÀU VÀNG Ở DƯỚI CÙNG CHUẨN MẪU THẦY VỸ -->
+      <div class="mt-3 py-1.5 px-3 bg-amber-50 border border-amber-300 rounded text-center text-[10.5px] font-bold text-amber-950">
+        Kính nhờ thầy cô GVBM ghi tên học sinh đổi chỗ ngồi và lỗi vi phạm vào sổ đầu bài
       </div>
     </div>
   `;

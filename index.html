@@ -1071,189 +1071,184 @@
         <!-- SƠ ĐỒ LỚP HỌC TRỰC QUAN (CLASSROOM LAYOUT) -->
         <div id="classroom-seating-container" class="bg-slate-100/70 p-4 md:p-6 rounded-3xl border border-slate-200 shadow-inner overflow-x-auto">
           
-          <!-- Phía Trước Lớp Học: Bục Giảng & Bảng Đen & Bàn Giáo Viên -->
-          <div class="max-w-5xl mx-auto mb-8">
-            <div id="seating-podium-area">
-              <div class="grid grid-cols-12 gap-4 items-center">
-                
-                <!-- Bàn Giáo Viên & Bục Giảng (Góc Trái Phía Trước) -->
-                <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border-2 border-amber-300/80 shadow-sm flex items-center space-x-3">
-                  <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                  </div>
-                  <div>
-                    <span class="text-[10px] uppercase font-black tracking-wider text-amber-700 block">Bục Giảng</span>
-                    <p class="text-xs font-black text-slate-800">Bàn Giáo Viên Chủ Nhiệm</p>
-                    <p class="text-[10px] text-slate-500">Sổ điểm • Giáo án • Laptop</p>
-                  </div>
-                </div>
-
-                <!-- BẢNG ĐEN TRUNG TÂM -->
-                <div class="col-span-12 md:col-span-6 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 rounded-2xl border-4 border-amber-900 shadow-md text-center text-white relative">
-                  <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-800 text-[9px] font-black tracking-widest uppercase px-3 py-0.5 rounded-full text-amber-200 border border-amber-700 shadow-xs">
-                    Phía Trước Lớp Học
-                  </div>
-                  <h3 class="text-sm md:text-base font-black tracking-wider text-emerald-400 font-serif">
-                    BẢNG ĐEN LỚP 10A3
-                  </h3>
-                  <p class="text-[11px] text-slate-300 italic tracking-wide mt-0.5">
-                    &ldquo;Tiên Học Lễ &mdash; Hậu Học Văn&rdquo;
-                  </p>
-                </div>
-
-                <!-- Cửa Ra Vào / Hành Lang (Góc Phải) -->
-                <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
-                  <div class="flex items-center space-x-2.5">
-                    <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
-                      <i class="fa-solid fa-door-open"></i>
-                    </span>
-                    <div>
-                      <span class="font-bold text-slate-800 block text-xs">Cửa Chính Ra Vào</span>
-                      <span class="text-[10px] text-slate-500">Dãy 2 (Bên Phải)</span>
-                    </div>
-                  </div>
-                  <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200">Lối vào</span>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Chỉ dẫn phương hướng -->
-            <div id="seating-direction-row" class="flex items-center justify-between mt-4 px-3 text-[11px] font-bold text-slate-500">
-              <span class="flex items-center space-x-1 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-                <i class="fa-solid fa-arrow-left"></i>
-                <span>DÃY 1: TỔ 1 • TỔ 2 • TỔ 3 (Phía Cửa Sổ)</span>
-              </span>
-              <span class="text-slate-400 font-mono tracking-widest uppercase text-[10px]">
-                <i class="fa-solid fa-arrows-left-right mx-1"></i> Lối Đi Giữa 2 Dãy Bàn <i class="fa-solid fa-arrows-left-right mx-1"></i>
-              </span>
-              <span class="flex items-center space-x-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                <span>DÃY 2: TỔ 4 • TỔ 5 • TỔ 6 (Phía Cửa Ra Vào)</span>
-                <i class="fa-solid fa-arrow-right"></i>
-              </span>
-            </div>
+          <!-- Tiêu Đề Sơ Đồ Lớp Chuẩn Theo Ảnh Mẫu Thầy Nguyễn Vỹ -->
+          <div class="text-center mb-6 pt-2">
+            <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-100 tracking-wide uppercase">GVCN: Thầy Nguyễn Vỹ | Năm học: 2026 – 2027</h2>
+            <p class="text-xs sm:text-sm font-semibold italic text-blue-700 dark:text-blue-400 mt-0.5">&ldquo;Kỷ luật tạo sức mạnh - Tri thức dẫn tương lai&rdquo;</p>
           </div>
 
-          <!-- LƯỚI 2 DÃY BÀN HỌC (2 COLUMNS GRID) -->
-          <div id="seating-columns-grid" class="max-w-6xl mx-auto flex flex-col lg:flex-row-reverse gap-6 xl:gap-8 items-start">
+          <!-- LƯỚI 2 DÃY BÀN HỌC (2 COLUMNS GRID: DÃY 2 BÊN TRÁI - DÃY 1 BÊN PHẢI) -->
+          <div id="seating-columns-grid" class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8 items-start">
             
-            <!-- ================= DÃY 1 (12 BÀN - TỔ 1, 2, 3) ================= -->
-            <div id="seating-col-d1" class="space-y-6 flex-1 w-full">
-              
-              <!-- Tiêu Đề Dãy 1 -->
-              <div class="p-3 bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl shadow-sm flex items-center justify-between">
-                <div class="flex items-center space-x-2.5">
-                  <span class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center font-black text-xs">1</span>
-                  <div>
-                    <h4 id="seating-col-d1-title" class="font-black text-sm">DÃY 1 (Phía Cửa Sổ - Bên Phải GV)</h4>
-                    <p class="text-[11px] text-blue-200">12 Bàn • 24 Chỗ ngồi • Gồm Tổ 1, Tổ 2, Tổ 3</p>
-                  </div>
-                </div>
-                <span class="text-xs bg-white/25 px-2.5 py-1 rounded-lg font-bold">24 / 24 HS</span>
-              </div>
-
-              <!-- KHỐI TỔ 1 (BÀN 1 -> 4) -->
-              <div class="bg-white p-4 rounded-2xl border-2 border-blue-200/90 shadow-xs space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-blue-100">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-md bg-blue-600 text-white text-xs font-black flex items-center justify-center">T1</span>
-                    <span class="font-black text-slate-800 text-xs uppercase tracking-wide">Tổ 1 (Bàn 1 &rarr; 4)</span>
-                  </div>
-                  <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">8 HS • Điểm TB: 34.44</span>
-                </div>
-                <div id="group-1-tables" class="space-y-3">
-                  <!-- Bàn 1 -> 4 Tổ 1 rendered dynamically -->
-                </div>
-              </div>
-
-              <!-- KHỐI TỔ 2 (BÀN 5 -> 8) -->
-              <div class="bg-white p-4 rounded-2xl border-2 border-teal-200/90 shadow-xs space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-teal-100">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-md bg-teal-600 text-white text-xs font-black flex items-center justify-center">T2</span>
-                    <span class="font-black text-slate-800 text-xs uppercase tracking-wide">Tổ 2 (Bàn 5 &rarr; 8)</span>
-                  </div>
-                  <span class="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">8 HS • Điểm TB: 34.50</span>
-                </div>
-                <div id="group-2-tables" class="space-y-3">
-                  <!-- Bàn 5 -> 8 Tổ 2 rendered dynamically -->
-                </div>
-              </div>
-
-              <!-- KHỐI TỔ 3 (BÀN 9 -> 12) -->
-              <div class="bg-white p-4 rounded-2xl border-2 border-purple-200/90 shadow-xs space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-purple-100">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-md bg-purple-600 text-white text-xs font-black flex items-center justify-center">T3</span>
-                    <span class="font-black text-slate-800 text-xs uppercase tracking-wide">Tổ 3 (Bàn 9 &rarr; 12)</span>
-                  </div>
-                  <span class="text-[11px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">8 HS • Điểm TB: 34.63</span>
-                </div>
-                <div id="group-3-tables" class="space-y-3">
-                  <!-- Bàn 9 -> 12 Tổ 3 rendered dynamically -->
-                </div>
-              </div>
-
-            </div>
-
-            <!-- ================= DÃY 2 (12 BÀN - TỔ 4, 5, 6) ================= -->
-            <div id="seating-col-d2" class="space-y-6 flex-1 w-full">
+            <!-- ================= DÃY 2 (BÊN TRÁI - 12 BÀN - PHÍA CỬA VÀO) ================= -->
+            <div id="seating-col-d2" class="space-y-6 w-full">
               
               <!-- Tiêu Đề Dãy 2 -->
               <div class="p-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-2xl shadow-sm flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
                   <span class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center font-black text-xs">2</span>
                   <div>
-                    <h4 id="seating-col-d2-title" class="font-black text-sm">DÃY 2 (Phía Cửa Ra Vào - Bên Trái GV)</h4>
-                    <p class="text-[11px] text-emerald-200">12 Bàn • 24 Chỗ ngồi • Gồm Tổ 4, Tổ 5, Tổ 6</p>
+                    <h4 id="seating-col-d2-title" class="font-black text-sm">DÃY 2 (Phía Cửa Ra Vào - Bên Trái)</h4>
+                    <p class="text-[11px] text-emerald-200">12 Bàn • 24 Chỗ ngồi • Gồm Tổ 6, Tổ 5, Tổ 4</p>
                   </div>
                 </div>
                 <span class="text-xs bg-white/25 px-2.5 py-1 rounded-lg font-bold">21 HS + 3 Trống</span>
               </div>
 
-              <!-- KHỐI TỔ 4 (BÀN 1 -> 4) -->
-              <div class="bg-white p-4 rounded-2xl border-2 border-amber-200/90 shadow-xs space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-amber-100">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-md bg-amber-600 text-white text-xs font-black flex items-center justify-center">T4</span>
-                    <span class="font-black text-slate-800 text-xs uppercase tracking-wide">Tổ 4 (Bàn 1 &rarr; 4)</span>
-                  </div>
-                  <span class="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">7 HS • Điểm TB: 34.71</span>
-                </div>
-                <div id="group-4-tables" class="space-y-3">
-                  <!-- Bàn 1 -> 4 Tổ 4 rendered dynamically -->
-                </div>
-              </div>
-
-              <!-- KHỐI TỔ 5 (BÀN 5 -> 8) -->
-              <div class="bg-white p-4 rounded-2xl border-2 border-rose-200/90 shadow-xs space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-rose-100">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded-md bg-rose-600 text-white text-xs font-black flex items-center justify-center">T5</span>
-                    <span class="font-black text-slate-800 text-xs uppercase tracking-wide">Tổ 5 (Bàn 5 &rarr; 8)</span>
-                  </div>
-                  <span class="text-[11px] font-semibold text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">7 HS • Điểm TB: 34.57</span>
-                </div>
-                <div id="group-5-tables" class="space-y-3">
-                  <!-- Bàn 5 -> 8 Tổ 5 rendered dynamically -->
-                </div>
-              </div>
-
-              <!-- KHỐI TỔ 6 (BÀN 9 -> 12) -->
-              <div class="bg-white p-4 rounded-2xl border-2 border-emerald-200/90 shadow-xs space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-emerald-100">
+              <!-- KHỐI TỔ 6 (BÀN 9 -> 12) - CUỐI LỚP -->
+              <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-emerald-200/90 dark:border-emerald-800 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-emerald-100 dark:border-emerald-900">
                   <div class="flex items-center space-x-2">
                     <span class="w-6 h-6 rounded-md bg-emerald-600 text-white text-xs font-black flex items-center justify-center">T6</span>
-                    <span class="font-black text-slate-800 text-xs uppercase tracking-wide">Tổ 6 (Bàn 9 &rarr; 12)</span>
+                    <span class="font-black text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wide">Tổ 6 (Bàn 9 &rarr; 12) &bull; Cuối Lớp</span>
                   </div>
-                  <span class="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">7 HS • Điểm TB: 34.57</span>
+                  <span class="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">7 HS • Điểm TB: 34.57</span>
                 </div>
                 <div id="group-6-tables" class="space-y-3">
                   <!-- Bàn 9 -> 12 Tổ 6 rendered dynamically -->
                 </div>
               </div>
 
+              <!-- KHỐI TỔ 5 (BÀN 5 -> 8) - GIỮA LỚP -->
+              <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-rose-200/90 dark:border-rose-800 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-rose-100 dark:border-rose-900">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-md bg-rose-600 text-white text-xs font-black flex items-center justify-center">T5</span>
+                    <span class="font-black text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wide">Tổ 5 (Bàn 5 &rarr; 8) &bull; Giữa Lớp</span>
+                  </div>
+                  <span class="text-[11px] font-semibold text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800">7 HS • Điểm TB: 34.57</span>
+                </div>
+                <div id="group-5-tables" class="space-y-3">
+                  <!-- Bàn 5 -> 8 Tổ 5 rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- KHỐI TỔ 4 (BÀN 1 -> 4) - ĐẦU LỚP, SÁT BẢNG -->
+              <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-amber-200/90 dark:border-amber-800 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-amber-100 dark:border-amber-900">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-md bg-amber-600 text-white text-xs font-black flex items-center justify-center">T4</span>
+                    <span class="font-black text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wide">Tổ 4 (Bàn 1 &rarr; 4) &bull; Đầu Lớp</span>
+                  </div>
+                  <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">7 HS • Điểm TB: 34.71</span>
+                </div>
+                <div id="group-4-tables" class="space-y-3">
+                  <!-- Bàn 1 -> 4 Tổ 4 rendered dynamically -->
+                </div>
+              </div>
+
             </div>
+
+            <!-- ================= DÃY 1 (BÊN PHẢI - 12 BÀN - PHÍA BÀN GIÁO VIÊN) ================= -->
+            <div id="seating-col-d1" class="space-y-6 w-full">
+              
+              <!-- Tiêu Đề Dãy 1 -->
+              <div class="p-3 bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl shadow-sm flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <span class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center font-black text-xs">1</span>
+                  <div>
+                    <h4 id="seating-col-d1-title" class="font-black text-sm">DÃY 1 (Phía Cửa Sổ - Bên Phải Bàn GV)</h4>
+                    <p class="text-[11px] text-blue-200">12 Bàn • 24 Chỗ ngồi • Gồm Tổ 3, Tổ 2, Tổ 1</p>
+                  </div>
+                </div>
+                <span class="text-xs bg-white/25 px-2.5 py-1 rounded-lg font-bold">24 / 24 HS</span>
+              </div>
+
+              <!-- KHỐI TỔ 3 (BÀN 9 -> 12) - CUỐI LỚP -->
+              <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-purple-200/90 dark:border-purple-800 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-purple-100 dark:border-purple-900">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-md bg-purple-600 text-white text-xs font-black flex items-center justify-center">T3</span>
+                    <span class="font-black text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wide">Tổ 3 (Bàn 9 &rarr; 12) &bull; Cuối Lớp</span>
+                  </div>
+                  <span class="text-[11px] font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded border border-purple-200 dark:border-purple-800">8 HS • Điểm TB: 34.63</span>
+                </div>
+                <div id="group-3-tables" class="space-y-3">
+                  <!-- Bàn 9 -> 12 Tổ 3 rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- KHỐI TỔ 2 (BÀN 5 -> 8) - GIỮA LỚP -->
+              <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-teal-200/90 dark:border-teal-800 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-teal-100 dark:border-teal-900">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-md bg-teal-600 text-white text-xs font-black flex items-center justify-center">T2</span>
+                    <span class="font-black text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wide">Tổ 2 (Bàn 5 &rarr; 8) &bull; Giữa Lớp</span>
+                  </div>
+                  <span class="text-[11px] font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/50 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800">8 HS • Điểm TB: 34.50</span>
+                </div>
+                <div id="group-2-tables" class="space-y-3">
+                  <!-- Bàn 5 -> 8 Tổ 2 rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- KHỐI TỔ 1 (BÀN 1 -> 4) - ĐẦU LỚP, SÁT BẢNG -->
+              <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border-2 border-blue-200/90 dark:border-blue-800 shadow-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-blue-100 dark:border-blue-900">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-md bg-blue-600 text-white text-xs font-black flex items-center justify-center">T1</span>
+                    <span class="font-black text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wide">Tổ 1 (Bàn 1 &rarr; 4) &bull; Đầu Lớp</span>
+                  </div>
+                  <span class="text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">8 HS • Điểm TB: 34.44</span>
+                </div>
+                <div id="group-1-tables" class="space-y-3">
+                  <!-- Bàn 1 -> 4 Tổ 1 rendered dynamically -->
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- PHÍA TRƯỚC LỚP HỌC (Ở DƯỚI CÙNG SÁT HÀNG 1): CỬA VÀO - BẢNG - BÀN GIÁO VIÊN -->
+          <div class="max-w-5xl mx-auto mt-8">
+            <div id="seating-podium-area">
+              <div class="grid grid-cols-12 gap-4 items-center">
+                
+                <!-- Cửa Ra Vào / Hành Lang (Góc Trái Phía Trước) -->
+                <div class="col-span-12 md:col-span-3 bg-white dark:bg-slate-800 p-3.5 rounded-2xl border-2 border-slate-300 dark:border-slate-700 shadow-sm flex items-center justify-between text-xs">
+                  <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-base">
+                      <i class="fa-solid fa-door-open"></i>
+                    </span>
+                    <div>
+                      <span class="font-black text-slate-800 dark:text-slate-100 block text-xs tracking-wider uppercase">CỬA VÀO &rArr;</span>
+                      <span class="text-[10px] text-slate-500">Dãy 2 (Bên Trái)</span>
+                    </div>
+                  </div>
+                  <span class="text-[10px] bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-bold px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">Lối vào</span>
+                </div>
+
+                <!-- BẢNG ĐEN TRUNG TÂM -->
+                <div class="col-span-12 md:col-span-6 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 rounded-2xl border-4 border-amber-900 shadow-md text-center text-white relative">
+                  <h3 class="text-base md:text-lg font-black tracking-widest text-emerald-400 font-serif uppercase">
+                    BẢNG
+                  </h3>
+                  <p class="text-[11px] text-slate-300 italic tracking-wide mt-0.5">
+                    &ldquo;Tiên Học Lễ &mdash; Hậu Học Văn&rdquo;
+                  </p>
+                </div>
+
+                <!-- Bàn Giáo Viên & Bục Giảng (Góc Phải Phía Trước) -->
+                <div class="col-span-12 md:col-span-3 bg-white dark:bg-slate-800 p-3.5 rounded-2xl border-2 border-amber-300/80 shadow-sm flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-black tracking-wider text-amber-700 dark:text-amber-400 block">Bục Giảng</span>
+                    <p class="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">BÀN GIÁO VIÊN</p>
+                    <p class="text-[10px] text-slate-500">Dãy 1 (Bên Phải)</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Khung nhắc nhở GVBM theo đúng ảnh mẫu của Thầy Vỹ -->
+            <div class="mt-4 p-2.5 bg-amber-100 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200 text-center font-bold text-xs rounded-xl shadow-xs">
+              Kính nhờ thầy cô GVBM ghi tên học sinh đổi chỗ ngồi và lỗi vi phạm vào sổ đầu bài
+            </div>
+          </div>
 
           </div>
 
@@ -2002,7 +1997,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="app.js?v=6.1"></script>
+  <script src="app.js?v=6.2"></script>
 
 
   <!-- ==================== MODAL RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU ==================== -->

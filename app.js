@@ -26,7 +26,7 @@ const ROLES = {
   monitor: { id: 'monitor', label: '🎖️ Lớp trưởng (Hồng Nhung)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
   lead_t1: { id: 'lead_t1', label: '👤 Tổ trưởng T1 (Yến Vy)', canScore: true, canLock: false, canReset: false, allowedGroups: [1] },
   lead_t2: { id: 'lead_t2', label: '👤 Tổ trưởng T2 (Gia Nguyên)', canScore: true, canLock: false, canReset: false, allowedGroups: [2] },
-  lead_t3: { id: 'lead_t3', label: '👤 Tổ trưởng T3 (Phi Hoàng)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
+  lead_t3: { id: 'lead_t3', label: '👤 Tổ trưởng T3 (Kim Trúc)', canScore: true, canLock: false, canReset: false, allowedGroups: [3] },
   lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Duy Khôi)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
   lead_t5: { id: 'lead_t5', label: '👤 Tổ trưởng T5 (Ngọc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
   lead_t6: { id: 'lead_t6', label: '👤 Tổ trưởng T6 (Mỹ Ngân)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Đảm bảo luôn sử dụng đúng danh sách 45 học sinh chính thức theo ảnh sổ lớp
   const hasBalancedRoster = appState.students.length === 45 && 
                             appState.students.some(s => s.fullName === 'Nguyễn Hoàng Gia Nguyên' && s.role === 'Tổ trưởng') &&
-                            appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Tổ trưởng' && s.groupNumber === 3) &&
-                            appState.students.some(s => s.id === 'hs_10a3_36' && s.role === 'Thành viên' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.id === 'hs_10a3_36' && s.role === 'Tổ trưởng' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Thành viên' && s.groupNumber === 3) &&
                             appState.students.some(s => s.id === 'hs_10a3_14' && s.groupNumber === 1) &&
                             appState.students.some(s => s.id === 'hs_10a3_07' && s.groupNumber === 4) &&
                             appState.students.some(s => s.fullName === 'Ngô Thị Diễm Hằng' && s.groupNumber === 4);
@@ -224,13 +224,17 @@ function loadDataFromStorage() {
     }
     appState.activeLeaderboardWeek = '9';
 
-    // Đồng bộ nhóm nếu Vinh Khang hoặc Ngọc Giàu chưa cập nhật nhóm mới
+    // Đồng bộ nhóm và vai trò Tổ trưởng Tổ 3 (Kim Trúc thay Phi Hoàng)
     if (appState.students && appState.students.length === 45) {
       const vk = appState.students.find(s => s.id === 'hs_10a3_14');
       const ng = appState.students.find(s => s.id === 'hs_10a3_07');
+      const ph = appState.students.find(s => s.id === 'hs_10a3_10');
+      const kt = appState.students.find(s => s.id === 'hs_10a3_36');
       let changed = false;
       if (vk && vk.groupNumber !== 1) { vk.groupNumber = 1; changed = true; }
       if (ng && ng.groupNumber !== 4) { ng.groupNumber = 4; changed = true; }
+      if (ph && ph.role === 'Tổ trưởng') { ph.role = 'Thành viên'; changed = true; }
+      if (kt && kt.role !== 'Tổ trưởng') { kt.role = 'Tổ trưởng'; changed = true; }
       if (changed) saveDataToStorage();
     }
 
@@ -1434,12 +1438,12 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
-  { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
+  { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
 
   // ===== TỔ 4 (8 học sinh • Điểm TB Lực Học: 35.31) =====
@@ -1799,7 +1803,7 @@ function getDefaultSeating() {
       title: 'Bàn 11',
       subtitle: 'Ghép Bàn 12',
       leftSeat: { seatId: 'seat_r1_g3_t3_l', position: 'left', studentId: null }, // Ghế trống dự phòng
-      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_10' } // Trần Bảo Phi Hoàng (Tổ trưởng - 39đ) [Ngồi bàn ghép sát phía trên Kim Trúc]
+      rightSeat: { seatId: 'seat_r1_g3_t3_r', position: 'right', studentId: 'hs_10a3_10' } // Trần Bảo Phi Hoàng (39đ) [Ngồi bàn ghép sát phía trên Kim Trúc]
     },
     {
       tableId: 'tbl_d1_t12',
@@ -1811,7 +1815,7 @@ function getDefaultSeating() {
       title: 'Bàn 12',
       subtitle: 'Ghép Bàn 11',
       leftSeat: { seatId: 'seat_r1_g3_t4_l', position: 'left', studentId: 'hs_10a3_04' }, // Võ Ngọc Mỹ Duyên (37đ) [Ngồi sát cạnh Kim Trúc]
-      rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (34đ)
+      rightSeat: { seatId: 'seat_r1_g3_t4_r', position: 'right', studentId: 'hs_10a3_36' } // Lê Thị Kim Trúc (Tổ trưởng T3 - 34đ)
     },
 
     // ==================== DÃY 2 (Phía Cửa Ra Vào) - 12 BÀN (TỔ 4, 5, 6) ====================

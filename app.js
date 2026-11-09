@@ -7,12 +7,12 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v33',
+  STUDENTS: 'dashboard10a3_official_45_students_v34',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v33'
+  SEATING: 'dashboard10a3_official_45_seating_v34'
 };
 
 const DEFAULT_PINS = {
@@ -1826,8 +1826,8 @@ function getDefaultSeating() {
       pairWithTable: 2,
       title: 'Bàn 1',
       subtitle: 'Ghép Bàn 2',
-      leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_22' }, // Nguyễn Hữu Đan Mạch (39đ, học giỏi, nghiêm túc)
-      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Bí thư - 26đ, nhỏ con) [Đổi chỗ với Vinh Khang - Bàn 1 Dãy 2 sát bục giảng: Đan Mạch kèm]
+      leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_07' }, // Tạ Thanh Ngọc Giàu (Bí thư - 26đ, nhỏ con) [Đổi chỗ với Đan Mạch - Bàn 1 Dãy 2 ghế trái]
+      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_22' } // Nguyễn Hữu Đan Mạch (39đ, học giỏi, nghiêm túc) [Đổi chỗ với Ngọc Giàu - Bàn 1 Dãy 2 ghế phải]
     },
     {
       tableId: 'tbl_d2_t2',
@@ -1983,14 +1983,21 @@ function loadSeatingData() {
       const parsed = JSON.parse(raw);
       // Kiểm tra tính toàn vẹn (đủ 24 bàn và chứa các học sinh của lớp)
       if (Array.isArray(parsed) && parsed.length === 24) {
-        // Tự động cập nhật nếu dữ liệu cũ còn lưu Ngọc Giàu ở Bàn 1 Dãy 1 và Vinh Khang ở Bàn 1 Dãy 2
+        let changed = false;
         const t1 = parsed.find(t => t.tableId === 'tbl_d1_t1');
         const t4 = parsed.find(t => t.tableId === 'tbl_d2_t1');
         if (t1 && t1.rightSeat.studentId === 'hs_10a3_07') {
           t1.rightSeat.studentId = 'hs_10a3_14';
-          if (t4 && t4.rightSeat.studentId === 'hs_10a3_14') {
-            t4.rightSeat.studentId = 'hs_10a3_07';
+          changed = true;
+        }
+        if (t4) {
+          if (t4.leftSeat.studentId !== 'hs_10a3_07' || t4.rightSeat.studentId !== 'hs_10a3_22') {
+            t4.leftSeat.studentId = 'hs_10a3_07';
+            t4.rightSeat.studentId = 'hs_10a3_22';
+            changed = true;
           }
+        }
+        if (changed) {
           appState.seating = parsed;
           saveSeatingData();
           return;

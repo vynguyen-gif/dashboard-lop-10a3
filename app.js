@@ -31,6 +31,8 @@ const ROLES = {
   lead_t4: { id: 'lead_t4', label: '👤 Tổ trưởng T4 (Duy Khôi)', canScore: true, canLock: false, canReset: false, allowedGroups: [4] },
   lead_t5: { id: 'lead_t5', label: '👤 Tổ trưởng T5 (Ngọc Trinh)', canScore: true, canLock: false, canReset: false, allowedGroups: [5] },
   lead_t6: { id: 'lead_t6', label: '👤 Tổ trưởng T6 (Mỹ Ngân)', canScore: true, canLock: false, canReset: false, allowedGroups: [6] },
+  redstar_phuc: { id: 'redstar_phuc', label: '⭐ Sao đỏ (Ngọc Phúc)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
+  redstar_tung: { id: 'redstar_tung', label: '⭐ Sao đỏ (Bách Tùng)', canScore: true, canLock: false, canReset: false, allowedGroups: 'all' },
   member: { id: 'member', label: '👁️ Học sinh (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
 };
 
@@ -199,8 +201,8 @@ function addAuthenticatedRole(roleId) {
     let list = getAuthenticatedRoles();
     if (!list.includes(roleId)) list.push(roleId);
     if (roleId === 'gvcn') {
-      list.push('cadre', 'monitor', 'lead_t1', 'lead_t2', 'lead_t3', 'lead_t4', 'lead_t5', 'lead_t6');
-    } else if (roleId === 'monitor' || roleId.startsWith('lead_t')) {
+      list.push('cadre', 'monitor', 'lead_t1', 'lead_t2', 'lead_t3', 'lead_t4', 'lead_t5', 'lead_t6', 'redstar_phuc', 'redstar_tung');
+    } else if (roleId === 'monitor' || roleId.startsWith('lead_t') || roleId.startsWith('redstar_')) {
       list.push('cadre');
     }
     list = Array.from(new Set(list));
@@ -250,6 +252,9 @@ function loadDataFromStorage() {
       if (kt && kt.role !== 'Tổ trưởng') { kt.role = 'Tổ trưởng'; changed = true; }
       if (hl && hl.groupNumber !== 6) { hl.groupNumber = 6; changed = true; }
       if (bt && bt.groupNumber !== 3) { bt.groupNumber = 3; changed = true; }
+      const np = appState.students.find(s => s.id === 'hs_10a3_30');
+      if (np && np.role !== 'Sao đỏ') { np.role = 'Sao đỏ'; changed = true; }
+      if (bt && bt.role !== 'Sao đỏ') { bt.role = 'Sao đỏ'; changed = true; }
       if (changed) saveDataToStorage();
     }
 
@@ -833,6 +838,9 @@ function updateSelectedCountUI() {
 
   const badge = document.getElementById('preview-students-badge');
   if (badge) badge.textContent = `${count} học sinh được chọn`;
+  if (typeof renderScoringRecentLogs === 'function') {
+    renderScoringRecentLogs();
+  }
 }
 
 function selectRule(type, ruleKey) {
@@ -1359,14 +1367,245 @@ function renderLogsTable() {
   });
 }
 
+
+// ==================== HỆ THỐNG XÓA ĐIỂM & ĐIỀU CHỈNH CHẤM NHẦM ====================
+function checkCanDeleteLog(log) {
+  const currentRole = appState.currentUserRole || 'member';
+  const roleMeta = ROLES[currentRole] || ROLES.member;
+  
+  if (!roleMeta.canScore) {
+    return { allowed: false, reason: 'Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập Cán sự hoặc GVCN để xóa/điều chỉnh điểm.' };
+  }
+  
+  if (currentRole === 'gvcn' || currentRole === 'monitor') {
+    return { allowed: true };
+  }
+
+  // Nếu là Tổ trưởng: chỉ được xóa điểm của HS trong tổ mình hoặc do chính mình ghi
+  if (currentRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(currentRole.replace('lead_t', ''), 10);
+    const stu = appState.students.find(s => s.id === log.studentId);
+    if (stu && Number(stu.groupNumber) === leaderGroup) {
+      return { allowed: true };
+    }
+    if (log.recordedBy && log.recordedBy.includes(`Tổ trưởng Tổ ${leaderGroup}`)) {
+      return { allowed: true };
+    }
+    return { allowed: false, reason: `Bạn là Tổ trưởng Tổ ${leaderGroup}, chỉ được quyền xóa/điều chỉnh điểm của học sinh Tổ ${leaderGroup}!` };
+  }
+
+  // Nếu là Sao đỏ: được xóa nếu là cán sự
+  if (currentRole === 'redstar_phuc' || currentRole === 'redstar_tung') {
+    return { allowed: true };
+  }
+
+  return { allowed: false, reason: 'Bạn không có quyền xóa bản ghi điểm này!' };
+}
+
+function deleteScoreLog(logId, silent = false) {
+  const log = appState.dailyLogs.find(l => l.id === logId);
+  if (!log) {
+    showToast('Không tìm thấy bản ghi điểm này!', 'warning');
+    return false;
+  }
+
+  const check = checkCanDeleteLog(log);
+  if (!check.allowed) {
+    showToast(check.reason, 'error');
+    if (appState.currentUserRole === 'member') {
+      openRolePinModal('gvcn');
+    }
+    return false;
+  }
+
+  const currentWeek = log.week || document.getElementById('score-input-week')?.value || '10';
+  if (isWeekLocked(currentWeek) && appState.currentUserRole !== 'gvcn') {
+    showToast(`Tuần ${currentWeek} đã chốt sổ và khóa điểm thi đua! Chỉ GVCN mới có quyền mở khóa để xóa/điều chỉnh.`, 'error');
+    return false;
+  }
+
+  const stu = appState.students.find(s => s.id === log.studentId);
+  const stuName = stu ? stu.fullName : 'Học sinh';
+  const ptsText = log.pointsChanged > 0 ? `+${log.pointsChanged}đ` : `${log.pointsChanged}đ`;
+
+  if (!silent) {
+    const confirmMsg = `XÁC NHẬN XÓA LƯỢT CHẤM ĐIỂM:\n\n• Học sinh: ${stuName}\n• Điểm số: ${ptsText} (${log.ruleLabel || 'Điểm thi đua'})\n• Người chấm: ${log.recordedBy || 'Cán sự'}\n• Ngày ghi: ${log.date}\n\nBạn có chắc chắn muốn xóa lượt chấm này không? Điểm của học sinh sẽ tự động được hoàn lại ngay lập tức.`;
+    if (!confirm(confirmMsg)) {
+      return false;
+    }
+  }
+
+  appState.dailyLogs = appState.dailyLogs.filter(l => l.id !== logId);
+  saveDataToStorage();
+  refreshAllUI();
+  showToast(`✅ Đã xóa lượt chấm (${ptsText}) và hoàn lại điểm cho ${stuName}!`, 'success');
+  return true;
+}
+
 function deleteLogEntry(logId) {
-  if (confirm('Bạn có chắc chắn muốn xóa lượt ghi nhận điểm này không? Điểm số của học sinh sẽ tự động được hoàn lại.')) {
-    appState.dailyLogs = appState.dailyLogs.filter(l => l.id !== logId);
-    saveDataToStorage();
-    refreshAllUI();
-    showToast('Đã xóa bản ghi nhật ký và hoàn lại điểm cho học sinh.', 'info');
+  return deleteScoreLog(logId);
+}
+
+function undoLastScoringEntry() {
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng nhập mã PIN Cán sự hoặc GVCN để xóa điểm.', 'warning');
+    openRolePinModal('gvcn');
+    return;
+  }
+
+  if (!appState.dailyLogs || appState.dailyLogs.length === 0) {
+    showToast('Chưa có lượt chấm điểm nào trong nhật ký để hoàn tác!', 'info');
+    return;
+  }
+
+  // Nếu đang chọn học sinh, ưu tiên xóa lượt gần nhất của học sinh đó
+  if (appState.selectedStudentIds && appState.selectedStudentIds.size > 0) {
+    const selectedIds = Array.from(appState.selectedStudentIds);
+    const candidateLog = appState.dailyLogs.find(l => selectedIds.includes(l.studentId));
+    if (candidateLog) {
+      deleteScoreLog(candidateLog.id);
+      return;
+    }
+  }
+
+  // Ngược lại xóa lượt mới nhất trong danh sách
+  const lastLog = appState.dailyLogs[0];
+  deleteScoreLog(lastLog.id);
+}
+
+function quickUndoOrDeleteMistakenScore(type) {
+  const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng nhập mã PIN Cán sự hoặc GVCN để xóa điểm.', 'warning');
+    openRolePinModal('gvcn');
+    return;
+  }
+
+  const isBonus = type === 'bonus';
+  const typeLabel = isBonus ? 'điểm cộng (+)' : 'điểm trừ (-)';
+
+  // 1. Nếu có học sinh đang được chọn, tìm lượt cộng/trừ gần nhất của học sinh đó
+  if (appState.selectedStudentIds && appState.selectedStudentIds.size > 0) {
+    const selectedIds = Array.from(appState.selectedStudentIds);
+    const candidateLog = appState.dailyLogs.find(l => {
+      const matchType = isBonus ? (l.pointsChanged > 0) : (l.pointsChanged < 0);
+      return selectedIds.includes(l.studentId) && matchType;
+    });
+
+    if (candidateLog) {
+      deleteScoreLog(candidateLog.id);
+      return;
+    } else {
+      showToast(`Học sinh đang chọn chưa có lượt ${typeLabel} nào gần đây để xóa! Bấm vào danh sách bên dưới để chọn lượt muốn xóa.`, 'warning');
+      return;
+    }
+  }
+
+  // 2. Nếu chưa chọn học sinh nào, tìm lượt cộng/trừ mới nhất của toàn lớp
+  const recentLog = appState.dailyLogs.find(l => isBonus ? (l.pointsChanged > 0) : (l.pointsChanged < 0));
+  if (recentLog) {
+    deleteScoreLog(recentLog.id);
+  } else {
+    showToast(`Hiện chưa có lượt ${typeLabel} nào trong hệ thống để xóa!`, 'info');
   }
 }
+
+function renderScoringRecentLogs() {
+  const container = document.getElementById('scoring-recent-logs-container');
+  const titleEl = document.getElementById('scoring-recent-logs-title');
+  const subtitleEl = document.getElementById('scoring-recent-logs-subtitle');
+  if (!container) return;
+
+  const currentWeek = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
+  const selectedCount = appState.selectedStudentIds ? appState.selectedStudentIds.size : 0;
+
+  let displayLogs = [];
+  if (selectedCount === 1) {
+    const singleId = Array.from(appState.selectedStudentIds)[0];
+    const stu = appState.students.find(s => s.id === singleId);
+    const stuName = stu ? stu.fullName : 'Học sinh';
+    if (titleEl) titleEl.textContent = `Lịch Sử Điểm Của ${stuName} (Tuần ${currentWeek})`;
+    if (subtitleEl) subtitleEl.textContent = `Hiển thị điểm cộng & trừ của ${stuName}. Bấm nút "Xóa điểm nhầm" màu đỏ để hủy và hoàn lại điểm ngay.`;
+
+    displayLogs = appState.dailyLogs.filter(l => l.studentId === singleId && String(l.week) === String(currentWeek));
+    if (displayLogs.length === 0) {
+      displayLogs = appState.dailyLogs.filter(l => l.studentId === singleId).slice(0, 6);
+    }
+  } else if (selectedCount > 1) {
+    const selectedIds = Array.from(appState.selectedStudentIds);
+    if (titleEl) titleEl.textContent = `Lịch Sử Điểm Của ${selectedCount} Học Sinh Đang Chọn (Tuần ${currentWeek})`;
+    if (subtitleEl) subtitleEl.textContent = `Hiển thị điểm cộng & trừ của các bạn đang chọn. Bấm "Xóa điểm nhầm" để hủy và hoàn lại điểm ngay.`;
+
+    displayLogs = appState.dailyLogs.filter(l => selectedIds.includes(l.studentId) && String(l.week) === String(currentWeek));
+    if (displayLogs.length === 0) {
+      displayLogs = appState.dailyLogs.filter(l => selectedIds.includes(l.studentId)).slice(0, 8);
+    }
+  } else {
+    if (titleEl) titleEl.textContent = `Lịch Sử Ghi Điểm Gần Đây Toàn Lớp (Tuần ${currentWeek})`;
+    if (subtitleEl) subtitleEl.textContent = `Các lượt cộng/trừ điểm mới nhất của lớp 10A3. Bấm nút "Xóa điểm nhầm" màu đỏ nếu bị nhầm để hoàn lại điểm.`;
+
+    const weekLogs = appState.dailyLogs.filter(l => String(l.week) === String(currentWeek));
+    displayLogs = weekLogs.length > 0 ? weekLogs.slice(0, 8) : appState.dailyLogs.slice(0, 8);
+  }
+
+  if (displayLogs.length === 0) {
+    container.innerHTML = `
+      <div class="p-4 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+        <i class="fa-regular fa-clipboard text-slate-300 text-lg mb-1 block"></i>
+        <span>Chưa có lượt ghi điểm nào gần đây cần xóa hoặc điều chỉnh.</span>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  displayLogs.forEach(log => {
+    const stu = appState.students.find(s => s.id === log.studentId);
+    const stuName = stu ? stu.fullName : (log.studentName || 'Học sinh');
+    const stuGroup = stu ? `Tổ ${stu.groupNumber}` : '';
+    const isBonus = log.pointsChanged > 0;
+    const badgeColor = isBonus 
+      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700' 
+      : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300 dark:border-rose-700';
+    const sign = isBonus ? `+${log.pointsChanged}` : `${log.pointsChanged}`;
+    const icon = isBonus ? 'fa-plus-circle text-emerald-600' : 'fa-minus-circle text-rose-600';
+
+    html += `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100/80 dark:hover:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-700/80 transition">
+        <div class="flex items-center space-x-3 min-w-0">
+          <span class="px-2 py-1 rounded-lg text-xs font-black border ${badgeColor} shrink-0">
+            ${sign}đ
+          </span>
+          <div class="min-w-0">
+            <div class="flex items-center space-x-1.5 flex-wrap">
+              <span class="font-extrabold text-xs text-slate-800 dark:text-slate-100">${escapeHtml(stuName)}</span>
+              ${stuGroup ? `<span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">${stuGroup}</span>` : ''}
+              <span class="text-[10px] text-slate-400">• Tuần ${log.week || '9'}</span>
+              <span class="text-[10px] text-slate-400">• ${log.date || ''}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 truncate">
+              <i class="fa-solid ${icon} mr-1 text-[10px]"></i>
+              <span>${escapeHtml(log.ruleLabel || 'Điểm thi đua')}</span>
+              ${log.note ? `<span class="italic text-slate-400 ml-1">(${escapeHtml(log.note)})</span>` : ''}
+            </p>
+            <div class="text-[10px] text-slate-400">Người ghi: <span class="font-semibold text-slate-500 dark:text-slate-400">${escapeHtml(log.recordedBy || 'Cán sự')}</span></div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+          <button type="button" onclick="deleteScoreLog('${log.id}')" title="Xóa lượt chấm này và hoàn lại điểm cho học sinh" class="px-2.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-600 dark:text-rose-400 hover:text-rose-700 border border-slate-300 dark:border-slate-600 hover:border-rose-300 dark:hover:border-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-2xs">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+            <span>Xóa điểm nhầm</span>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
 
 // ==================== MODAL CHI TIẾT HỒ SƠ 1 HỌC SINH ====================
 function openStudentDetailModal(studentId) {
@@ -1669,6 +1908,9 @@ function refreshAllUI() {
   }
   if (typeof renderCadreDuties === 'function') {
     renderCadreDuties();
+  }
+  if (typeof renderScoringRecentLogs === 'function') {
+    renderScoringRecentLogs();
   }
 
   const countDisplay = document.getElementById('storage-count');
@@ -4793,7 +5035,27 @@ function executeChangeRole(roleId) {
     }
   } else if (roleId === 'monitor') {
     const recSelect = document.getElementById('score-recorder-select');
-    if (recSelect) recSelect.value = 'Lớp trưởng (Trần Lê Hồng Nhung)';
+    if (recSelect) {
+      recSelect.value = 'Lớp trưởng (Trần Lê Hồng Nhung)';
+      const hiddenRec = document.getElementById('score-input-recorder');
+      if (hiddenRec) hiddenRec.value = 'Lớp trưởng (Trần Lê Hồng Nhung)';
+    }
+  } else if (roleId === 'redstar_phuc') {
+    const recSelect = document.getElementById('score-recorder-select');
+    if (recSelect) {
+      recSelect.value = 'Sao đỏ (Trần Thị Ngọc Phúc)';
+      const hiddenRec = document.getElementById('score-input-recorder');
+      if (hiddenRec) hiddenRec.value = 'Sao đỏ (Trần Thị Ngọc Phúc)';
+    }
+    filterScoringGroup('all');
+  } else if (roleId === 'redstar_tung') {
+    const recSelect = document.getElementById('score-recorder-select');
+    if (recSelect) {
+      recSelect.value = 'Sao đỏ (Võ Bách Tùng)';
+      const hiddenRec = document.getElementById('score-input-recorder');
+      if (hiddenRec) hiddenRec.value = 'Sao đỏ (Võ Bách Tùng)';
+    }
+    filterScoringGroup('all');
   } else if (roleId === 'gvcn') {
     const recSelect = document.getElementById('score-recorder-select');
     if (recSelect) recSelect.value = 'GVCN Lớp 10A3';
@@ -5264,7 +5526,7 @@ const CADRE_DUTIES_DATA = [
     stt: 12,
     category: 'red_star',
     role: 'Đội ngũ Sao đỏ (Trực tuần thi đua)',
-    studentId: ['hs_10a3_28', 'hs_10a3_37'], // Trần Thị Ngọc Phúc & Võ Bách Tùng
+    studentId: ['hs_10a3_30', 'hs_10a3_37'], // Trần Thị Ngọc Phúc & Võ Bách Tùng
     assignedNames: '1. Trần Thị Ngọc Phúc (Tổ 1)\n2. Võ Bách Tùng (Tổ 3)',
     badgeColor: 'rose',
     icon: 'fa-solid fa-star',

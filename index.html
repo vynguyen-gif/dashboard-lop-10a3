@@ -183,6 +183,8 @@
             <option value="lead_t4">👤 Tổ trưởng T4 (Duy Khôi)</option>
             <option value="lead_t5">👤 Tổ trưởng T5 (Ngọc Trinh)</option>
             <option value="lead_t6">👤 Tổ trưởng T6 (Mỹ Ngân)</option>
+            <option value="redstar_phuc">⭐ Sao đỏ (Ngọc Phúc)</option>
+            <option value="redstar_tung">⭐ Sao đỏ (Bách Tùng)</option>
             <option value="monitor">🎖️ Lớp trưởng (Hồng Nhung)</option>
             <option value="gvcn">👑 GVCN (Chủ nhiệm)</option>
           </select>
@@ -653,7 +655,8 @@
               <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
                 <i class="fa-solid fa-user-check text-slate-400"></i>
                 <select id="score-recorder-select" onchange="onRecorderSelectChange(this.value)" class="bg-transparent font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
-                  <option value="Sao đỏ trực nhật">Sao đỏ trực nhật</option>
+                  <option value="Sao đỏ (Trần Thị Ngọc Phúc)">⭐ Sao đỏ (Ngọc Phúc)</option>
+                  <option value="Sao đỏ (Võ Bách Tùng)">⭐ Sao đỏ (Bách Tùng)</option>
                   <option value="Tổ trưởng Tổ 1 (Dương Lục Yến Vy)">Tổ trưởng Tổ 1 (Yến Vy)</option>
                   <option value="Tổ trưởng Tổ 2 (Nguyễn Hoàng Gia Nguyên)">Tổ trưởng Tổ 2 (Gia Nguyên)</option>
                   <option value="Tổ trưởng Tổ 3 (Lê Thị Kim Trúc)">Tổ trưởng Tổ 3 (Kim Trúc)</option>
@@ -663,7 +666,7 @@
                   <option value="Lớp trưởng (Trần Lê Hồng Nhung)">Lớp trưởng (Hồng Nhung)</option>
                   <option value="GVCN Lớp 10A3">GVCN Lớp 10A3</option>
                 </select>
-                <input type="hidden" id="score-input-recorder" value="Sao đỏ trực nhật">
+                <input type="hidden" id="score-input-recorder" value="Sao đỏ (Trần Thị Ngọc Phúc)">
               </div>
             </div>
           </div>
@@ -745,10 +748,16 @@
                 </div>
 
                 <!-- Nút nhanh Áp dụng Điểm Cộng -->
-                <button id="btn-apply-bonus-score" type="button" onclick="applyDropdownScore('bonus')" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20 transition cursor-pointer">
-                  <i class="fa-solid fa-circle-check"></i>
-                  <span>Ghi Nhận Điểm Cộng Cho HS Đã Chọn</span>
-                </button>
+                <div class="space-y-2">
+                  <button id="btn-apply-bonus-score" type="button" onclick="applyDropdownScore('bonus')" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20 transition cursor-pointer">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Ghi Nhận Điểm Cộng Cho HS Đã Chọn</span>
+                  </button>
+                  <button id="btn-quick-undo-bonus" type="button" onclick="quickUndoOrDeleteMistakenScore('bonus')" class="w-full py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer" title="Xóa lượt cộng điểm vừa chấm nhầm của học sinh">
+                    <i class="fa-solid fa-rotate-left text-xs"></i>
+                    <span>Xóa Lượt Điểm Cộng Vừa Nhầm</span>
+                  </button>
+                </div>
               </div>
 
               <!-- HỘP 2: DANH SÁCH ĐIỂM TRỪ (-) -->
@@ -800,10 +809,16 @@
                 </div>
 
                 <!-- Nút nhanh Áp dụng Điểm Trừ -->
-                <button id="btn-apply-violation-score" type="button" onclick="applyDropdownScore('violation')" class="w-full py-2.5 px-3 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-xl font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-rose-600/20 transition cursor-pointer">
-                  <i class="fa-solid fa-triangle-exclamation"></i>
-                  <span>Ghi Nhận Điểm Trừ Cho HS Đã Chọn</span>
-                </button>
+                <div class="space-y-2">
+                  <button id="btn-apply-violation-score" type="button" onclick="applyDropdownScore('violation')" class="w-full py-2.5 px-3 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-xl font-black text-xs flex items-center justify-center space-x-1.5 shadow-md shadow-rose-600/20 transition cursor-pointer">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Ghi Nhận Điểm Trừ Cho HS Đã Chọn</span>
+                  </button>
+                  <button id="btn-quick-undo-violation" type="button" onclick="quickUndoOrDeleteMistakenScore('violation')" class="w-full py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/60 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 border border-rose-200 dark:border-rose-800 transition cursor-pointer" title="Xóa lượt trừ điểm vừa chấm nhầm của học sinh">
+                    <i class="fa-solid fa-rotate-left text-xs"></i>
+                    <span>Xóa Lượt Điểm Trừ Vừa Nhầm</span>
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -881,6 +896,39 @@
                 <i class="fa-solid fa-floppy-disk text-sm"></i>
                 <span>XÁC NHẬN GHI ĐIỂM NGAY</span>
               </button>
+            </div>
+          </div>
+
+          <!-- KHU VỰC QUẢN LÝ & XÓA ĐIỂM NHẦM (Zero Friction Score Adjustment) -->
+          <div id="scoring-recent-logs-panel" class="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-200 dark:border-slate-700 pb-3">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center text-sm font-bold shadow-xs">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span id="scoring-recent-logs-title">Lịch Sử Điểm Đã Chấm & Nút Xóa Điều Chỉnh Nhầm</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Hoàn lại điểm tức thì</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400" id="scoring-recent-logs-subtitle">
+                    Nếu chấm nhầm hoặc trừ nhầm điểm, bạn bấm nút "Xóa điểm nhầm" màu đỏ để hủy bỏ ngay.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Nút Hoàn tác nhanh lượt chấm vừa xong -->
+              <div class="flex items-center space-x-2 shrink-0">
+                <button type="button" onclick="undoLastScoringEntry()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-xl text-xs font-black flex items-center space-x-1.5 shadow-sm shadow-rose-600/30 transition cursor-pointer">
+                  <i class="fa-solid fa-rotate-left text-xs"></i>
+                  <span>↩️ Hoàn Tác / Xóa Lượt Vừa Chấm Xong</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Danh sách các lượt điểm gần đây của học sinh đang chọn hoặc lớp -->
+            <div id="scoring-recent-logs-container" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+              <!-- Rendered dynamically -->
             </div>
           </div>
 
@@ -1996,7 +2044,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="app.js?v=9.9"></script>
+  <script src="app.js?v=10.0"></script>
 
 
   <!-- ==================== MODAL RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU ==================== -->

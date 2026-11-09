@@ -987,6 +987,12 @@ function renderStudentsTable() {
     specialFilterWrap.style.display = isGVCN ? '' : 'none';
   }
 
+  // Ẩn/Hiện cột Theo Dõi Đặc Biệt trên tiêu đề bảng: CHỈ DUY NHẤT GVCN MỚI THẤY
+  const thSpecial = document.getElementById('th-student-special');
+  if (thSpecial) {
+    thSpecial.style.display = isGVCN ? '' : 'none';
+  }
+
   const filtered = appState.students.filter(s => {
     const matchName = s.fullName.toLowerCase().includes(searchKeyword);
     const matchGroup = filterGroup === 'all' || Number(s.groupNumber) === Number(filterGroup);
@@ -1003,7 +1009,8 @@ function renderStudentsTable() {
   tbody.innerHTML = '';
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp</td></tr>';
+    const emptyColspan = isGVCN ? 10 : 9;
+    tbody.innerHTML = `<tr><td colspan="${emptyColspan}" class="text-center py-8 text-slate-400 text-xs">Không tìm thấy học sinh nào phù hợp</td></tr>`;
     document.getElementById('students-table-summary').textContent = 'Hiển thị 0 học sinh';
     return;
   }
@@ -1107,11 +1114,12 @@ function renderStudentsTable() {
       <td class="py-3 px-4">
         ${getRoleBadgeHtml(stu.role)}
       </td>
+${isGVCN ? `
       <td class="py-3 px-4 text-center">
-        ${(isGVCN && stu.isSpecialSupport) 
-          ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"><i class="fa-solid fa-shield-heart text-amber-600 dark:text-amber-400"></i><span>Cần theo dõi</span></span>' 
+        ${stu.isSpecialSupport 
+          ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs"><i class="fa-solid fa-shield-heart text-amber-600 dark:text-amber-400"></i><span>Cần theo dõi</span></span>' 
           : '<span class="text-slate-300 dark:text-slate-600 text-xs">—</span>'}
-      </td>
+      </td>` : ''}
       <td class="py-3 px-3 text-center">
         ${bonusHtml}
       </td>
@@ -4410,8 +4418,9 @@ function renderLeaderboardTable(preloadedList) {
     if (stu.hasBabySteps) {
       progressBadges.push('<span class="text-[9px] bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 px-1.5 py-0.2 rounded font-bold border border-purple-300/60 inline-flex items-center gap-1">🪜 Baby Steps</span>');
     }
-    if (stu.isSpecialSupport) {
-      progressBadges.push('<span class="text-[9px] bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">Kèm cặp</span>');
+    const isGVCN = (appState.currentUserRole === 'gvcn');
+    if (isGVCN && stu.isSpecialSupport) {
+      progressBadges.push('<span class="text-[9px] bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded font-bold">Kèm cặp (GVCN)</span>');
     }
 
     const rowClass = isRestricted 

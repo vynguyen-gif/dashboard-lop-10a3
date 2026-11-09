@@ -7,12 +7,12 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v36',
+  STUDENTS: 'dashboard10a3_official_45_students_v37',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v36'
+  SEATING: 'dashboard10a3_official_45_seating_v37'
 };
 
 const DEFAULT_PINS = {
@@ -1870,7 +1870,7 @@ function getDefaultSeating() {
       title: 'Bàn 3',
       subtitle: 'Ghép Bàn 4',
       leftSeat: { seatId: 'seat_r2_g4_t3_l', position: 'left', studentId: 'hs_10a3_34' }, // Nguyễn Ngọc Anh Thư (Hỗ trợ - 29đ) [Đổi chỗ với Ngọc Trinh]
-      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_08' } // Ngô Thị Diễm Hằng (37đ) [Chuyển từ Bàn 6 D1 sang Bàn 3 D2 để tránh nhìn Tuấn Hưng]
+      rightSeat: { seatId: 'seat_r2_g4_t3_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đổi chỗ với Diễm Hằng]
     },
     {
       tableId: 'tbl_d2_t4',
@@ -1882,7 +1882,7 @@ function getDefaultSeating() {
       title: 'Bàn 4',
       subtitle: 'Ghép Bàn 3',
       leftSeat: { seatId: 'seat_r2_g4_t4_l', position: 'left', studentId: 'hs_10a3_15' }, // Võ Quốc Duy Khôi (Tổ trưởng T4 & CS Anh - 35đ)
-      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_44' } // Phạm Ngọc Tường Vy (34.5đ, Hỗ trợ) [Đôi bạn cùng tiến]
+      rightSeat: { seatId: 'seat_r2_g4_t4_r', position: 'right', studentId: 'hs_10a3_08' } // Ngô Thị Diễm Hằng (37đ) [Đổi chỗ với Tường Vy - ngồi cạnh Tổ trưởng Duy Khôi]
     },
 
     // --- TỔ 5 (Bàn 5 -> 8) ---
@@ -2007,6 +2007,8 @@ function loadSeatingData() {
         const t4 = parsed.find(t => t.tableId === 'tbl_d2_t1');
         const t9_d1 = parsed.find(t => t.tableId === 'tbl_d1_t9');
         const t10_d2 = parsed.find(t => t.tableId === 'tbl_d2_t10');
+        const t3_d2 = parsed.find(t => t.tableId === 'tbl_d2_t3');
+        const t4_d2 = parsed.find(t => t.tableId === 'tbl_d2_t4');
         if (t1 && t1.rightSeat.studentId === 'hs_10a3_07') {
           t1.rightSeat.studentId = 'hs_10a3_14';
           changed = true;
@@ -2014,6 +2016,11 @@ function loadSeatingData() {
         if (t1 && t1.rightSeat.studentId === 'hs_10a3_14' && t2_d1 && t2_d1.rightSeat.studentId === 'hs_10a3_25') {
           t1.rightSeat.studentId = 'hs_10a3_25';
           t2_d1.rightSeat.studentId = 'hs_10a3_14';
+          changed = true;
+        }
+        if (t3_d2 && t3_d2.rightSeat.studentId === 'hs_10a3_08' && t4_d2 && t4_d2.rightSeat.studentId === 'hs_10a3_44') {
+          t3_d2.rightSeat.studentId = 'hs_10a3_44';
+          t4_d2.rightSeat.studentId = 'hs_10a3_08';
           changed = true;
         }
         if (t4) {

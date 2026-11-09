@@ -4355,9 +4355,16 @@ function onDropdownRuleChange(type, ruleKey) {
 }
 
 function applyDropdownScore(type) {
+  const currentWeek = document.getElementById('score-input-week')?.value || appState.activeLeaderboardWeek || '10';
+  if (isWeekLocked(currentWeek)) {
+    showToast(`Tuần ${currentWeek} đã chốt sổ và khóa điểm! Vui lòng chọn tuần đang mở hoặc liên hệ GVCN mở khóa.`, 'error');
+    return;
+  }
+
   const roleMeta = ROLES[appState.currentUserRole] || ROLES.member;
   if (!roleMeta.canScore) {
-    showToast('Bạn đang ở Chế độ Chỉ Xem! Chỉ Tổ trưởng, Lớp trưởng và GVCN mới có quyền chấm điểm.', 'error');
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng nhập mã PIN GVCN hoặc Cán sự để ghi nhận điểm.', 'warning');
+    openRolePinModal('gvcn');
     return;
   }
   const selectEl = document.getElementById(type === 'bonus' ? 'select-bonus-rule' : 'select-violation-rule');
@@ -4790,33 +4797,22 @@ function renderScoringPermissionsUI() {
     }
   }
 
-  // Check button & select disabling
-  const canOperate = roleMeta.canScore && !weekLocked;
+  // MENU XỔ XUỐNG CHỌN TIÊU CHÍ ĐIỂM CỘNG & ĐIỂM TRỪ LUÔN LUÔN MỞ ĐỂ MỌI NGƯỜI XEM & TRA CỨU
+  if (bonusSelect) bonusSelect.disabled = false;
+  if (violSelect) violSelect.disabled = false;
+  if (quickSelect) quickSelect.disabled = false;
 
-  if (bonusSelect) bonusSelect.disabled = !canOperate;
-  if (violSelect) violSelect.disabled = !canOperate;
-  if (quickSelect) quickSelect.disabled = !canOperate;
-
+  // Nút ghi nhận điểm luôn cho phép bấm để nếu chưa đăng nhập thì hiển thị popup nhập PIN ngay
   if (btnBonus) {
-    btnBonus.disabled = !canOperate;
-    if (!canOperate) {
-      btnBonus.classList.add('opacity-50', 'cursor-not-allowed');
-      btnBonus.title = 'Bạn không có quyền chấm điểm (Chế độ Chỉ Xem)';
-    } else {
-      btnBonus.classList.remove('opacity-50', 'cursor-not-allowed');
-      btnBonus.title = 'Ghi nhận điểm cộng cho các học sinh đã chọn';
-    }
+    btnBonus.disabled = false;
+    btnBonus.classList.remove('opacity-50', 'cursor-not-allowed');
+    btnBonus.title = 'Ghi nhận điểm cộng cho các học sinh đã chọn';
   }
 
   if (btnViol) {
-    btnViol.disabled = !canOperate;
-    if (!canOperate) {
-      btnViol.classList.add('opacity-50', 'cursor-not-allowed');
-      btnViol.title = 'Bạn không có quyền chấm điểm (Chế độ Chỉ Xem)';
-    } else {
-      btnViol.classList.remove('opacity-50', 'cursor-not-allowed');
-      btnViol.title = 'Ghi nhận điểm trừ cho các học sinh đã chọn';
-    }
+    btnViol.disabled = false;
+    btnViol.classList.remove('opacity-50', 'cursor-not-allowed');
+    btnViol.title = 'Ghi nhận điểm trừ cho các học sinh đã chọn';
   }
 
   if (submitBtn) {

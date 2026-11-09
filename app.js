@@ -2740,7 +2740,7 @@ function generatePrintSeatingHTML() {
             </div>
           </div>
           <div class="col-span-3">
-            <div class="border-2 border-slate-800 rounded px-2.5 py-1.5 bg-white min-h-[50px] flex items-center justify-center space-x-2 shadow-2xs">
+            <div class="border-2 border-slate-800 rounded px-3 py-1.5 bg-white min-h-[50px] flex items-center justify-center space-x-2.5 shadow-2xs">
               <svg class="h-10 w-9 shrink-0 drop-shadow-xs select-none" viewBox="0 0 64 74" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="32" cy="66" rx="14" ry="3.5" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
                 <path d="M 19,43 C 15,51 16,62 19,66 C 22,68 42,68 45,66 C 48,62 49,51 45,43 C 42,39 37,38 32,38 C 27,38 22,39 19,43 Z" fill="url(#vaseGradPrint)" stroke="#334155" stroke-width="1.6"/>
@@ -2797,10 +2797,7 @@ function generatePrintSeatingHTML() {
                   </linearGradient>
                 </defs>
               </svg>
-              <div class="flex flex-col text-left">
-                <span class="font-black text-xs uppercase tracking-wide text-slate-900 leading-tight">BÀN GIÁO VIÊN</span>
-                <span class="text-[9.5px] font-extrabold text-rose-700 tracking-tight leading-none mt-0.5">🌺 Hoa Trạng Nguyên</span>
-              </div>
+              <span class="font-black text-xs uppercase tracking-wide text-slate-900">BÀN GIÁO VIÊN</span>
             </div>
           </div>
         </div>

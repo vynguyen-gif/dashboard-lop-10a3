@@ -1045,6 +1045,12 @@
               <span>Xếp Chuẩn</span>
             </button>
 
+            <!-- Nút chuyển đổi Góc nhìn Sơ đồ (Bàn GV 180° <-> Học sinh 0°) -->
+            <button id="btn-toggle-orientation" onclick="toggleSeatingOrientation()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 rounded-lg text-xs font-bold border border-indigo-200 dark:border-indigo-800 transition" title="Xoay 180 độ giữa Góc nhìn Bàn Giáo Viên và Góc nhìn Học Sinh">
+              <i class="fa-solid fa-arrows-rotate text-indigo-600"></i>
+              <span id="btn-orientation-text">Góc Nhìn: Bàn GV (180°)</span>
+            </button>
+
             <!-- Nút In Sơ Đồ Lớp -->
             <button onclick="openPrintPreviewModal()" class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold shadow-xs transition">
               <i class="fa-solid fa-print"></i>
@@ -1067,51 +1073,53 @@
           
           <!-- Phía Trước Lớp Học: Bục Giảng & Bảng Đen & Bàn Giáo Viên -->
           <div class="max-w-5xl mx-auto mb-8">
-            <div class="grid grid-cols-12 gap-4 items-center">
-              
-              <!-- Bàn Giáo Viên & Bục Giảng (Góc Trái Phía Trước) -->
-              <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border-2 border-amber-300/80 shadow-sm flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
-                  <i class="fa-solid fa-chalkboard-user"></i>
-                </div>
-                <div>
-                  <span class="text-[10px] uppercase font-black tracking-wider text-amber-700 block">Bục Giảng</span>
-                  <p class="text-xs font-black text-slate-800">Bàn Giáo Viên Chủ Nhiệm</p>
-                  <p class="text-[10px] text-slate-500">Sổ điểm • Giáo án • Laptop</p>
-                </div>
-              </div>
-
-              <!-- BẢNG ĐEN TRUNG TÂM -->
-              <div class="col-span-12 md:col-span-6 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 rounded-2xl border-4 border-amber-900 shadow-md text-center text-white relative">
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-800 text-[9px] font-black tracking-widest uppercase px-3 py-0.5 rounded-full text-amber-200 border border-amber-700 shadow-xs">
-                  Phía Trước Lớp Học
-                </div>
-                <h3 class="text-sm md:text-base font-black tracking-wider text-emerald-400 font-serif">
-                  BẢNG ĐEN LỚP 10A3
-                </h3>
-                <p class="text-[11px] text-slate-300 italic tracking-wide mt-0.5">
-                  &ldquo;Tiên Học Lễ &mdash; Hậu Học Văn&rdquo;
-                </p>
-              </div>
-
-              <!-- Cửa Ra Vào / Hành Lang (Góc Phải) -->
-              <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
-                <div class="flex items-center space-x-2.5">
-                  <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-door-open"></i>
-                  </span>
+            <div id="seating-podium-area">
+              <div class="grid grid-cols-12 gap-4 items-center">
+                
+                <!-- Bàn Giáo Viên & Bục Giảng (Góc Trái Phía Trước) -->
+                <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border-2 border-amber-300/80 shadow-sm flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                  </div>
                   <div>
-                    <span class="font-bold text-slate-800 block text-xs">Cửa Chính Ra Vào</span>
-                    <span class="text-[10px] text-slate-500">Dãy 2 (Bên Phải)</span>
+                    <span class="text-[10px] uppercase font-black tracking-wider text-amber-700 block">Bục Giảng</span>
+                    <p class="text-xs font-black text-slate-800">Bàn Giáo Viên Chủ Nhiệm</p>
+                    <p class="text-[10px] text-slate-500">Sổ điểm • Giáo án • Laptop</p>
                   </div>
                 </div>
-                <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200">Lối vào</span>
-              </div>
 
+                <!-- BẢNG ĐEN TRUNG TÂM -->
+                <div class="col-span-12 md:col-span-6 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 rounded-2xl border-4 border-amber-900 shadow-md text-center text-white relative">
+                  <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-800 text-[9px] font-black tracking-widest uppercase px-3 py-0.5 rounded-full text-amber-200 border border-amber-700 shadow-xs">
+                    Phía Trước Lớp Học
+                  </div>
+                  <h3 class="text-sm md:text-base font-black tracking-wider text-emerald-400 font-serif">
+                    BẢNG ĐEN LỚP 10A3
+                  </h3>
+                  <p class="text-[11px] text-slate-300 italic tracking-wide mt-0.5">
+                    &ldquo;Tiên Học Lễ &mdash; Hậu Học Văn&rdquo;
+                  </p>
+                </div>
+
+                <!-- Cửa Ra Vào / Hành Lang (Góc Phải) -->
+                <div class="col-span-12 md:col-span-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
+                  <div class="flex items-center space-x-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
+                      <i class="fa-solid fa-door-open"></i>
+                    </span>
+                    <div>
+                      <span class="font-bold text-slate-800 block text-xs">Cửa Chính Ra Vào</span>
+                      <span class="text-[10px] text-slate-500">Dãy 2 (Bên Phải)</span>
+                    </div>
+                  </div>
+                  <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200">Lối vào</span>
+                </div>
+
+              </div>
             </div>
 
             <!-- Chỉ dẫn phương hướng -->
-            <div class="flex items-center justify-between mt-4 px-3 text-[11px] font-bold text-slate-500">
+            <div id="seating-direction-row" class="flex items-center justify-between mt-4 px-3 text-[11px] font-bold text-slate-500">
               <span class="flex items-center space-x-1 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>DÃY 1: TỔ 1 • TỔ 2 • TỔ 3 (Phía Cửa Sổ)</span>
@@ -1127,17 +1135,17 @@
           </div>
 
           <!-- LƯỚI 2 DÃY BÀN HỌC (2 COLUMNS GRID) -->
-          <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8 items-start">
+          <div id="seating-columns-grid" class="max-w-6xl mx-auto flex flex-col lg:flex-row-reverse gap-6 xl:gap-8 items-start">
             
-            <!-- ================= DÃY 1 (BÊN TRÁI - 12 BÀN - TỔ 1, 2, 3) ================= -->
-            <div class="space-y-6">
+            <!-- ================= DÃY 1 (12 BÀN - TỔ 1, 2, 3) ================= -->
+            <div id="seating-col-d1" class="space-y-6 flex-1 w-full">
               
               <!-- Tiêu Đề Dãy 1 -->
               <div class="p-3 bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl shadow-sm flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
                   <span class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center font-black text-xs">1</span>
                   <div>
-                    <h4 class="font-black text-sm">DÃY 1 (Phía Cửa Sổ)</h4>
+                    <h4 id="seating-col-d1-title" class="font-black text-sm">DÃY 1 (Phía Cửa Sổ - Bên Phải GV)</h4>
                     <p class="text-[11px] text-blue-200">12 Bàn • 24 Chỗ ngồi • Gồm Tổ 1, Tổ 2, Tổ 3</p>
                   </div>
                 </div>
@@ -1188,15 +1196,15 @@
 
             </div>
 
-            <!-- ================= DÃY 2 (BÊN PHẢI - 12 BÀN - TỔ 4, 5, 6) ================= -->
-            <div class="space-y-6">
+            <!-- ================= DÃY 2 (12 BÀN - TỔ 4, 5, 6) ================= -->
+            <div id="seating-col-d2" class="space-y-6 flex-1 w-full">
               
               <!-- Tiêu Đề Dãy 2 -->
               <div class="p-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-2xl shadow-sm flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
                   <span class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center font-black text-xs">2</span>
                   <div>
-                    <h4 class="font-black text-sm">DÃY 2 (Phía Cửa Ra Vào)</h4>
+                    <h4 id="seating-col-d2-title" class="font-black text-sm">DÃY 2 (Phía Cửa Ra Vào - Bên Trái GV)</h4>
                     <p class="text-[11px] text-emerald-200">12 Bàn • 24 Chỗ ngồi • Gồm Tổ 4, Tổ 5, Tổ 6</p>
                   </div>
                 </div>
@@ -1889,6 +1897,11 @@
           </div>
         </div>
         <div class="flex items-center space-x-2">
+          <!-- Nút đổi góc nhìn trong modal xem trước bản in -->
+          <button id="btn-print-toggle-orientation" onclick="toggleSeatingOrientation()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 rounded-lg text-xs font-bold border border-indigo-200 transition" title="Đổi góc nhìn in: Bàn GV (180°) hoặc Học sinh (0°)">
+            <i class="fa-solid fa-arrows-rotate text-indigo-600"></i>
+            <span id="btn-print-orientation-text">Góc Nhìn: Bàn GV (180°)</span>
+          </button>
           <button onclick="printSeatingChart()" class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold shadow-xs transition">
             <i class="fa-solid fa-print"></i>
             <span>Bấm Để In Ngay</span>
@@ -1989,7 +2002,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="app.js?v=6.0"></script>
+  <script src="app.js?v=6.1"></script>
 
 
   <!-- ==================== MODAL RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU ==================== -->

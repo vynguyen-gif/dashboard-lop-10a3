@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Kiểm tra URL hash (vd: #scoring, #students, #forms, #duties) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
   if (initialHash && ['dashboard', 'leaderboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup', 'duties'].includes(initialHash)) {
-    if (initialHash === 'seating' && appState.currentUserRole !== 'gvcn') {
+    if (['seating', 'forms', 'backup'].includes(initialHash) && appState.currentUserRole !== 'gvcn') {
       switchTab('dashboard');
     } else {
       switchTab(initialHash);
@@ -318,10 +318,17 @@ function getGroupStats() {
 
 // ==================== GIAO DIỆN & ĐIỀU HƯỚNG TAB ====================
 function switchTab(tabName) {
-  // BẢO MẬT SƠ ĐỒ LỚP HỌC: Chỉ duy nhất GVCN mới được vào xem sơ đồ lớp học
-  if (tabName === 'seating' && appState.currentUserRole !== 'gvcn') {
-    showToast('Sơ đồ lớp học được bảo mật riêng tư! Chỉ GVCN mới có quyền truy cập.', 'warning');
+  // BẢO MẬT KHU VỰC GVCN: Chỉ duy nhất GVCN mới được vào xem Sơ đồ lớp, Biểu mẫu sư phạm và Dữ liệu & Cài đặt
+  if (['seating', 'forms', 'backup'].includes(tabName) && appState.currentUserRole !== 'gvcn') {
+    const tabLabels = {
+      seating: 'Sơ đồ lớp học',
+      forms: 'Biểu mẫu sư phạm',
+      backup: 'Dữ liệu & Cài đặt'
+    };
+    const label = tabLabels[tabName] || tabName;
+    showToast(`Khu vực "${label}" được bảo mật! Vui lòng nhập mã PIN GVCN để truy cập.`, 'warning');
     appState.pendingRoleId = 'gvcn';
+    appState.targetTabAfterAuth = tabName;
     openRolePinModal('gvcn');
     return;
   }
@@ -4736,6 +4743,11 @@ function submitRolePin() {
   closeRolePinModal();
   executeChangeRole(targetRole);
   showToast(`🎉 Xác thực thành công! Đã kích hoạt vai trò: ${roleMeta.label}`, 'success');
+  if (targetRole === 'gvcn' && appState.targetTabAfterAuth) {
+    const nextTab = appState.targetTabAfterAuth;
+    appState.targetTabAfterAuth = null;
+    setTimeout(() => switchTab(nextTab), 150);
+  }
 }
 
 function executeChangeRole(roleId) {

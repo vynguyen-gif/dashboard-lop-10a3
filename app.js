@@ -16,8 +16,9 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULT_PINS = {
-  gvcn: '1030',   // Mã PIN GVCN: 1030 (Toàn quyền quản trị & reset điểm)
-  cadre: '10a3'   // Mã PIN Cán sự: 10a3 (Lớp trưởng & 6 Tổ trưởng được quyền chấm điểm)
+  gvcn: '261030',        // Mã PIN GVCN nâng cao (chấp nhận cả 1030)
+  cadre: '832610',       // Mã PIN Cán sự mới: 832610 (khó đoán, bảo mật cao)
+  cadreAlpha: 'cs10a3@26' // Mã chữ phụ nếu muốn nhập ký tự
 };
 
 // ==================== HỆ THỐNG PHÂN QUYỀN VAI TRÒ (RBAC) ====================
@@ -4586,8 +4587,8 @@ function openRolePinModal(targetRoleId) {
   }
   if (hintEl) {
     hintEl.innerHTML = isGVCN 
-      ? '* Mã PIN GVCN mặc định: <strong>1030</strong>' 
-      : '* Mã PIN Cán sự mặc định: <strong>10a3</strong> (hoặc dùng PIN GVCN <strong>1030</strong>)';
+      ? '* Chỉ Giáo viên chủ nhiệm mới có mã xác thực quản trị này.' 
+      : '* Mã PIN bảo mật nội bộ do GVCN Thầy Nguyễn Vỹ cấp riêng cho Ban Cán Sự.';
   }
 
   if (inputEl) {
@@ -4636,16 +4637,21 @@ function submitRolePin() {
   const errEl = document.getElementById('modal-pin-error');
   const errText = document.getElementById('modal-pin-error-text');
 
+  const validGvcnPins = ['261030', '1030'];
+  const validCadrePins = ['832610', 'cs10a3@26'];
+
   let isValid = false;
   if (isGVCN) {
-    isValid = (pinVal === DEFAULT_PINS.gvcn);
+    isValid = validGvcnPins.includes(pinVal);
   } else {
-    isValid = (pinVal === DEFAULT_PINS.cadre || pinVal === DEFAULT_PINS.gvcn);
+    isValid = validCadrePins.includes(pinVal) || validGvcnPins.includes(pinVal);
   }
 
   if (!isValid) {
     if (errEl) errEl.classList.remove('hidden');
-    if (errText) errText.textContent = isGVCN ? 'Sai mã PIN GVCN! Vui lòng nhập đúng PIN 1030.' : 'Sai mã PIN! Vui lòng nhập đúng PIN 10a3 hoặc PIN GVCN 1030.';
+    if (errText) errText.textContent = isGVCN 
+      ? 'Sai mã PIN GVCN! Vui lòng kiểm tra lại mã quản trị của Thầy.' 
+      : 'Sai mã PIN! Vui lòng nhập đúng mã bảo mật Ban Cán Sự do Thầy Vỹ cấp.';
     if (input) {
       input.classList.add('border-rose-500');
       input.focus();
@@ -4657,7 +4663,7 @@ function submitRolePin() {
   // Đúng PIN
   const remember = document.getElementById('checkbox-remember-pin')?.checked !== false;
   if (remember) {
-    if (pinVal === DEFAULT_PINS.gvcn) {
+    if (validGvcnPins.includes(pinVal)) {
       addAuthenticatedRole('gvcn');
     } else {
       addAuthenticatedRole(targetRole);

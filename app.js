@@ -2677,8 +2677,8 @@ function generatePrintSeatingHTML() {
   return `
     <div class="print-page-box bg-white text-black font-sans text-[11px] leading-tight w-full max-w-[285mm] mx-auto p-2">
       <div class="text-center pb-2">
-        <h1 class="text-sm md:text-base font-extrabold uppercase tracking-wide text-black">
-          GVCN: Thầy Nguyễn Vỹ | Năm học: 2026 – 2027
+        <h1 class="text-base md:text-lg font-extrabold text-black">
+          Sơ đồ lớp 10A3 (2026-2027). GVCN: Nguyễn Vỹ
         </h1>
         <p class="text-xs italic font-semibold text-blue-900 mt-0.5">
           &ldquo;Kỷ luật tạo sức mạnh - Tri thức dẫn tương lai&rdquo;

@@ -2729,19 +2729,78 @@ function generatePrintSeatingHTML() {
       <div class="mt-4 pt-2 border-t border-slate-300">
         <div class="grid grid-cols-12 gap-3 items-center">
           <div class="col-span-3">
-            <div class="border-2 border-slate-800 rounded px-3 py-2 text-center font-extrabold text-xs uppercase bg-white flex items-center justify-center space-x-2">
+            <div class="border-2 border-slate-800 rounded px-3 py-2 text-center font-extrabold text-xs uppercase bg-white flex items-center justify-center space-x-2 min-h-[50px]">
               <span class="tracking-widest">CỬA VÀO</span>
               <span class="text-base font-black">&rArr;</span>
             </div>
           </div>
           <div class="col-span-6">
-            <div class="border-2 border-slate-800 rounded py-2 text-center font-extrabold text-sm uppercase bg-white tracking-widest">
+            <div class="border-2 border-slate-800 rounded py-2 text-center font-extrabold text-sm uppercase bg-white tracking-widest min-h-[50px] flex items-center justify-center">
               BẢNG
             </div>
           </div>
           <div class="col-span-3">
-            <div class="border-2 border-slate-800 rounded py-2 text-center font-extrabold text-xs uppercase bg-white">
-              BÀN GIÁO VIÊN
+            <div class="border-2 border-slate-800 rounded px-2.5 py-1.5 bg-white min-h-[50px] flex items-center justify-center space-x-2 shadow-2xs">
+              <svg class="h-10 w-9 shrink-0 drop-shadow-xs select-none" viewBox="0 0 64 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="32" cy="66" rx="14" ry="3.5" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
+                <path d="M 19,43 C 15,51 16,62 19,66 C 22,68 42,68 45,66 C 48,62 49,51 45,43 C 42,39 37,38 32,38 C 27,38 22,39 19,43 Z" fill="url(#vaseGradPrint)" stroke="#334155" stroke-width="1.6"/>
+                <path d="M 19,53 C 25,56 39,56 45,53 C 44,56 43,58 42,59 C 37,61 27,61 22,59 C 21,58 20,56 19,53 Z" fill="#d97706" stroke="#b45309" stroke-width="0.8"/>
+                <ellipse cx="32" cy="54" rx="10" ry="2" fill="#fef08a" opacity="0.6"/>
+                <ellipse cx="32" cy="39" rx="9" ry="2.8" fill="#f8fafc" stroke="#334155" stroke-width="1.6"/>
+                <path d="M 32,39 C 18,37 8,43 4,41 C 4,35 12,30 24,35 Z" fill="#15803d" stroke="#14532d" stroke-width="1"/>
+                <path d="M 32,39 C 46,37 56,43 60,41 C 60,35 52,30 40,35 Z" fill="#16a34a" stroke="#14532d" stroke-width="1"/>
+                <path d="M 32,36 C 21,28 14,20 10,16 C 17,15 25,20 29,28 Z" fill="#15803d" stroke="#14532d" stroke-width="1"/>
+                <path d="M 32,36 C 43,28 50,20 54,16 C 47,15 39,20 35,28 Z" fill="#16a34a" stroke="#14532d" stroke-width="1"/>
+                <g transform="translate(18, 23)">
+                  <path d="M 0,0 C -9,-6 -15,-3 -17,0 C -14,4 -8,5 0,0 Z" fill="#dc2626"/>
+                  <path d="M 0,0 C -6,-11 -2,-15 0,-16 C 3,-13 4,-7 0,0 Z" fill="#ef4444"/>
+                  <path d="M 0,0 C 7,-9 12,-6 13,-1 C 10,3 5,4 0,0 Z" fill="#b91c1c"/>
+                  <path d="M 0,0 C -9,5 -11,11 -9,13 C -5,12 0,6 0,0 Z" fill="#dc2626"/>
+                  <circle cx="0" cy="0" r="2.5" fill="#facc15" stroke="#ca8a04" stroke-width="0.8"/>
+                </g>
+                <g transform="translate(46, 23)">
+                  <path d="M 0,0 C 9,-6 15,-3 17,0 C 14,4 8,5 0,0 Z" fill="#dc2626"/>
+                  <path d="M 0,0 C 6,-11 2,-15 0,-16 C -3,-13 -4,-7 0,0 Z" fill="#ef4444"/>
+                  <path d="M 0,0 C -7,-9 -12,-6 -13,-1 C -10,3 -5,4 0,0 Z" fill="#b91c1c"/>
+                  <path d="M 0,0 C 9,5 11,11 9,13 C 5,12 0,6 0,0 Z" fill="#dc2626"/>
+                  <circle cx="0" cy="0" r="2.5" fill="#facc15" stroke="#ca8a04" stroke-width="0.8"/>
+                </g>
+                <g transform="translate(32, 17)">
+                  <path d="M 0,0 C -5,-17 -1,-23 0,-25 C 2,-23 6,-17 0,0 Z" fill="#b91c1c"/>
+                  <path d="M 0,0 C -17,-13 -23,-9 -25,-6 C -21,-2 -14,0 0,0 Z" fill="#b91c1c"/>
+                  <path d="M 0,0 C 17,-13 23,-9 25,-6 C 21,-2 14,0 0,0 Z" fill="#b91c1c"/>
+                  <path d="M 0,0 C -17,11 -19,17 -17,20 C -12,18 -7,11 0,0 Z" fill="#991b1b"/>
+                  <path d="M 0,0 C 17,11 19,17 17,20 C 12,18 7,11 0,0 Z" fill="#991b1b"/>
+                  <path d="M 0,0 C -13,-17 -9,-21 -4,-22 C -1,-17 0,-11 0,0 Z" fill="#dc2626"/>
+                  <path d="M 0,0 C 13,-17 9,-21 4,-22 C 1,-17 0,-11 0,0 Z" fill="#dc2626"/>
+                  <path d="M 0,0 C -19,-5 -21,-1 -19,3 C -14,4 -7,2 0,0 Z" fill="#ef4444"/>
+                  <path d="M 0,0 C 19,-5 21,-1 19,3 C 14,4 7,2 0,0 Z" fill="#ef4444"/>
+                  <path d="M 0,0 C -11,13 -13,18 -10,19 C -5,16 -2,10 0,0 Z" fill="#dc2626"/>
+                  <path d="M 0,0 C 11,13 13,18 10,19 C 5,16 2,10 0,0 Z" fill="#dc2626"/>
+                  <path d="M 0,0 C -5,-12 0,-16 0,-16 C 2,-14 4,-10 0,0 Z" fill="#f87171"/>
+                  <path d="M 0,0 C -12,-3 -14,0 -13,2 C -9,3 -4,1 0,0 Z" fill="#ef4444"/>
+                  <path d="M 0,0 C 12,-3 14,0 13,2 C 9,3 4,1 0,0 Z" fill="#ef4444"/>
+                  <circle cx="-2" cy="-2" r="2.2" fill="#fde047" stroke="#ca8a04" stroke-width="0.7"/>
+                  <circle cx="2" cy="-2" r="2.2" fill="#facc15" stroke="#ca8a04" stroke-width="0.7"/>
+                  <circle cx="0" cy="2" r="2.4" fill="#f59e0b" stroke="#b45309" stroke-width="0.7"/>
+                  <circle cx="-3.2" cy="2" r="1.5" fill="#facc15"/>
+                  <circle cx="3.2" cy="2" r="1.5" fill="#fde047"/>
+                  <circle cx="0" cy="-4.2" r="1.6" fill="#facc15"/>
+                </g>
+                <path d="M 23,45 C 22,50 23,58 24,62" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                <defs>
+                  <linearGradient id="vaseGradPrint" x1="16" y1="39" x2="48" y2="66" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="35%" stop-color="#f8fafc"/>
+                    <stop offset="70%" stop-color="#e2e8f0"/>
+                    <stop offset="100%" stop-color="#cbd5e1"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="flex flex-col text-left">
+                <span class="font-black text-xs uppercase tracking-wide text-slate-900 leading-tight">BÀN GIÁO VIÊN</span>
+                <span class="text-[9.5px] font-extrabold text-rose-700 tracking-tight leading-none mt-0.5">🌺 Hoa Trạng Nguyên</span>
+              </div>
             </div>
           </div>
         </div>

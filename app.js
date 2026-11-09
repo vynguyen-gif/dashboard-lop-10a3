@@ -7,12 +7,12 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v32',
+  STUDENTS: 'dashboard10a3_official_45_students_v33',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v32'
+  SEATING: 'dashboard10a3_official_45_seating_v33'
 };
 
 const DEFAULT_PINS = {
@@ -131,6 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             appState.students.some(s => s.fullName === 'Nguyễn Hoàng Gia Nguyên' && s.role === 'Tổ trưởng') &&
                             appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Tổ trưởng' && s.groupNumber === 3) &&
                             appState.students.some(s => s.id === 'hs_10a3_36' && s.role === 'Thành viên' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.id === 'hs_10a3_14' && s.groupNumber === 1) &&
+                            appState.students.some(s => s.id === 'hs_10a3_07' && s.groupNumber === 4) &&
                             appState.students.some(s => s.fullName === 'Ngô Thị Diễm Hằng' && s.groupNumber === 4);
   if (!hasBalancedRoster) {
     injectOfficial45Students(false);
@@ -221,6 +223,16 @@ function loadDataFromStorage() {
       appState.currentUserRole = 'member';
     }
     appState.activeLeaderboardWeek = '9';
+
+    // Đồng bộ nhóm nếu Vinh Khang hoặc Ngọc Giàu chưa cập nhật nhóm mới
+    if (appState.students && appState.students.length === 45) {
+      const vk = appState.students.find(s => s.id === 'hs_10a3_14');
+      const ng = appState.students.find(s => s.id === 'hs_10a3_07');
+      let changed = false;
+      if (vk && vk.groupNumber !== 1) { vk.groupNumber = 1; changed = true; }
+      if (ng && ng.groupNumber !== 4) { ng.groupNumber = 4; changed = true; }
+      if (changed) saveDataToStorage();
+    }
 
     loadSeatingData();
   } catch (err) {
@@ -1401,12 +1413,12 @@ function inject10SampleStudents(notify = true) {
 // Danh sách chuẩn xác 100% theo ảnh chụp sổ điểm lớp 10A3 (STT 1 đến 45)
 // Phân bố đều 6 tổ theo điểm lực học đầu vào, đã loại các học sinh chuyển lớp/nghỉ học
 const OFFICIAL_10A3_STUDENTS = [
-  // ===== TỔ 1 (8 học sinh • Điểm TB Lực Học: 34.50) =====
+  // ===== TỔ 1 (8 học sinh • Điểm TB Lực Học: 34.75) =====
   { id: 'hs_10a3_43', code: '1704246671', fullName: 'Dương Lục Yến Vy', dob: '24/09/2011', academicScore: 34, groupNumber: 1, role: 'Tổ trưởng', isSpecialSupport: false },
   { id: 'hs_10a3_41', code: '1701472685', fullName: 'Lê Gia Vũ', dob: '08/03/2011', academicScore: 35, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_26', code: '1703554579', fullName: 'Cao Ngọc An Nhiên', dob: '14/12/2011', academicScore: 39, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_30', code: '1701941035', fullName: 'Trần Thị Ngọc Phúc', dob: '09/09/2011', academicScore: 36, groupNumber: 1, role: 'Sao đỏ', isSpecialSupport: false },
-  { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tạ Thanh Ngọc Giàu', dob: '13/02/2011', academicScore: 26, groupNumber: 1, role: 'Bí thư', isSpecialSupport: true },
+  { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 28, groupNumber: 1, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_25', code: '1702780397', fullName: 'Võ Thị Yến Nhi', dob: '16/04/2011', academicScore: 34, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_32', code: '1704379981', fullName: 'Lê Tuấn Phát Tài', dob: '17/07/2011', academicScore: 34, groupNumber: 1, role: 'Cán sự Toán', isSpecialSupport: false },
   { id: 'hs_10a3_28', code: '1805586438', fullName: 'Võ Thành Phát', dob: '14/11/2011', academicScore: 36, groupNumber: 1, role: 'Thành viên', isSpecialSupport: false },
@@ -1430,9 +1442,9 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
 
-  // ===== TỔ 4 (8 học sinh • Điểm TB Lực Học: 35.56) =====
+  // ===== TỔ 4 (8 học sinh • Điểm TB Lực Học: 35.31) =====
   { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Tổ trưởng & CS Anh', isSpecialSupport: false },
-  { id: 'hs_10a3_14', code: '1704379491', fullName: 'Nguyễn Vinh Khang', dob: '16/10/2011', academicScore: 28, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
+  { id: 'hs_10a3_07', code: '1702780386', fullName: 'Tạ Thanh Ngọc Giàu', dob: '13/02/2011', academicScore: 26, groupNumber: 4, role: 'Bí thư', isSpecialSupport: true },
   { id: 'hs_10a3_45', code: '1703509575', fullName: 'Đỗ Khôi Vỹ', dob: '08/12/2011', academicScore: 36, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_44', code: '2511977424', fullName: 'Phạm Ngọc Tường Vy', dob: '01/08/2010', academicScore: 34.5, groupNumber: 4, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_39', code: '1702759627', fullName: 'Nguyễn Thị Thanh Tuyền (14/06)', dob: '14/06/2011', academicScore: 38, groupNumber: 4, role: 'Thành viên', isSpecialSupport: false },
@@ -1658,7 +1670,7 @@ function getDefaultSeating() {
       title: 'Bàn 1',
       subtitle: 'Ghép Bàn 2',
       leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_41' }, // Lê Gia Vũ (35đ)
-      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Bí thư - 26đ, nhỏ con) [Ngồi bàn đầu thấy bảng rõ 100%, Kỳ kèm cặp]
+      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (Hỗ trợ - 28đ) [Đổi chỗ với Ngọc Giàu - Bàn 1 Dãy 1 sát bục giảng]
     },
     {
       tableId: 'tbl_d1_t2',
@@ -1815,7 +1827,7 @@ function getDefaultSeating() {
       title: 'Bàn 1',
       subtitle: 'Ghép Bàn 2',
       leftSeat: { seatId: 'seat_r2_g4_t1_l', position: 'left', studentId: 'hs_10a3_22' }, // Nguyễn Hữu Đan Mạch (39đ, học giỏi, nghiêm túc)
-      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (Hỗ trợ - 28đ) [Bàn 1 sát bục giảng: Đan Mạch kèm & kiểm tra bài vở đầu giờ]
+      rightSeat: { seatId: 'seat_r2_g4_t1_r', position: 'right', studentId: 'hs_10a3_07' } // Tạ Thanh Ngọc Giàu (Bí thư - 26đ, nhỏ con) [Đổi chỗ với Vinh Khang - Bàn 1 Dãy 2 sát bục giảng: Đan Mạch kèm]
     },
     {
       tableId: 'tbl_d2_t2',
@@ -1971,6 +1983,18 @@ function loadSeatingData() {
       const parsed = JSON.parse(raw);
       // Kiểm tra tính toàn vẹn (đủ 24 bàn và chứa các học sinh của lớp)
       if (Array.isArray(parsed) && parsed.length === 24) {
+        // Tự động cập nhật nếu dữ liệu cũ còn lưu Ngọc Giàu ở Bàn 1 Dãy 1 và Vinh Khang ở Bàn 1 Dãy 2
+        const t1 = parsed.find(t => t.tableId === 'tbl_d1_t1');
+        const t4 = parsed.find(t => t.tableId === 'tbl_d2_t1');
+        if (t1 && t1.rightSeat.studentId === 'hs_10a3_07') {
+          t1.rightSeat.studentId = 'hs_10a3_14';
+          if (t4 && t4.rightSeat.studentId === 'hs_10a3_14') {
+            t4.rightSeat.studentId = 'hs_10a3_07';
+          }
+          appState.seating = parsed;
+          saveSeatingData();
+          return;
+        }
         appState.seating = parsed;
         return;
       }

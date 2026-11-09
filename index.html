@@ -103,6 +103,12 @@
           <span class="ml-auto text-[10px] bg-teal-900/60 text-teal-300 border border-teal-700/50 px-1.5 py-0.5 rounded font-semibold">2 Dãy • 24 Bàn</span>
         </button>
 
+        <button id="nav-duties" onclick="switchTab('duties')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+          <i class="fa-solid fa-clipboard-list w-5 text-center text-amber-400"></i>
+          <span class="flex-1 text-left">Nhiệm Vụ Ban Cán Sự</span>
+          <span class="ml-auto text-[10px] bg-amber-900/60 text-amber-300 border border-amber-700/50 px-1.5 py-0.5 rounded font-semibold">Word / In</span>
+        </button>
+
         <button id="nav-logs" onclick="switchTab('logs')" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
           <i class="fa-solid fa-book-bookmark w-5 text-center text-indigo-400"></i>
           <span>Sổ Nhật Ký Thi Đua</span>
@@ -930,6 +936,10 @@
               <i class="fa-solid fa-user-plus"></i>
               <span>Thêm Học Sinh</span>
             </button>
+            <button onclick="switchTab('duties')" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg text-xs font-bold shadow-xs transition flex items-center space-x-1.5" title="Xem bảng phân công nhiệm vụ và xuất file Word">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <span>Nhiệm Vụ & Xuất Word</span>
+            </button>
             <button onclick="injectFull45StudentsPrompt()" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition flex items-center space-x-1.5" title="Khởi tạo chuẩn 45 học sinh lớp 10A3">
               <i class="fa-solid fa-arrows-rotate"></i>
               <span>Chuẩn Hóa 45 HS</span>
@@ -1529,6 +1539,121 @@
         </div>
       </section>
 
+      <!-- ==================== TAB: NHIỆM VỤ BAN CÁN SỰ & TỰ QUẢN (XUẤT WORD / IN A4) ==================== -->
+      <section id="section-duties" class="hidden space-y-6">
+        <!-- Hero Banner with Word Download & Print Buttons -->
+        <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-2xl p-6 shadow-md border border-blue-800/40">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div>
+              <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold mb-2">
+                <i class="fa-solid fa-graduation-cap text-blue-300"></i>
+                <span>Chương trình GDPT 2018 • Tự Quản & Nêu Gương • Trường Học Hạnh Phúc</span>
+              </div>
+              <h2 class="text-xl md:text-2xl font-black text-white flex items-center space-x-2.5">
+                <i class="fa-solid fa-clipboard-list text-amber-400"></i>
+                <span>Bảng Phân Công Nhiệm Vụ Ban Cán Sự & Tự Quản Lớp 10A3</span>
+              </h2>
+              <p class="text-blue-200 text-xs md:text-sm mt-1 max-w-2xl leading-relaxed">
+                Quy định chi tiết chức trách & nhiệm vụ của Lớp trưởng, Lớp phó, 6 Tổ trưởng, Đội Sao đỏ, Cán sự các bộ môn, Thủ quỹ, Bí thư và toàn thể học sinh. Xuất ngay file Word (.docx) chuẩn hành chính để gửi cho phụ huynh và học sinh.
+              </p>
+            </div>
+            
+            <!-- Quick Actions Toolbar -->
+            <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+              <!-- Primary: Download Word (.docx) pre-generated -->
+              <a href="Bang_Phan_Cong_Nhiem_Vu_Ban_Can_Su_Lop_10A3.docx" download="Bang_Phan_Cong_Nhiem_Vu_Ban_Can_Su_Lop_10A3.docx" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition cursor-pointer">
+                <i class="fa-solid fa-file-word text-base text-blue-200"></i>
+                <span>Tải File Word (.docx) Chuẩn</span>
+              </a>
+              <!-- Secondary: Live Word Export (always up to date with live appState) -->
+              <button type="button" onclick="exportCadreDutiesToWord()" class="inline-flex items-center space-x-2 px-3.5 py-2.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md transition cursor-pointer" title="Tạo & tải file Word (.doc) theo dữ liệu học sinh hiện tại">
+                <i class="fa-solid fa-file-arrow-down text-indigo-200"></i>
+                <span>Xuất Word Live</span>
+              </button>
+              <!-- Print / PDF A4 -->
+              <button type="button" onclick="openPrintDutiesModal()" class="inline-flex items-center space-x-2 px-3.5 py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold shadow-md transition cursor-pointer">
+                <i class="fa-solid fa-print text-teal-200"></i>
+                <span>In / Lưu PDF (A4)</span>
+              </button>
+              <!-- Copy for Zalo -->
+              <button type="button" onclick="copyCadreDutiesForZalo()" class="inline-flex items-center space-x-2 px-3.5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md transition cursor-pointer" title="Sao chép toàn bộ văn bản để dán gửi Zalo lớp">
+                <i class="fa-solid fa-copy text-amber-200"></i>
+                <span>Sao Chép Gửi Zalo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <!-- Role Filters -->
+          <div class="flex flex-wrap items-center gap-1.5" id="cadre-duties-filter-buttons">
+            <button type="button" onclick="filterCadreDuties('all')" class="cadre-filter-btn active px-3 py-1.5 text-xs font-bold rounded-lg border bg-blue-600 text-white border-blue-600 transition" data-filter="all">Tất cả chức vụ (14)</button>
+            <button type="button" onclick="filterCadreDuties('leadership')" class="cadre-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-500 transition" data-filter="leadership">Ban Lãnh Đạo Lớp</button>
+            <button type="button" onclick="filterCadreDuties('team_leaders')" class="cadre-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-500 transition" data-filter="team_leaders">6 Tổ Trưởng</button>
+            <button type="button" onclick="filterCadreDuties('red_star')" class="cadre-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-500 transition" data-filter="red_star">Đội Sao Đỏ</button>
+            <button type="button" onclick="filterCadreDuties('subject_cadres')" class="cadre-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-500 transition" data-filter="subject_cadres">Cán Sự Bộ Môn</button>
+            <button type="button" onclick="filterCadreDuties('members')" class="cadre-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-500 transition" data-filter="members">Thành Viên (Toàn Lớp)</button>
+          </div>
+
+          <!-- Search Input -->
+          <div class="relative w-full md:w-72">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="cadre-search-input" oninput="searchCadreDuties(this.value)" placeholder="Tìm kiếm chức vụ, học sinh, nhiệm vụ..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+          </div>
+        </div>
+
+        <!-- Duties Grid Container (Cards) -->
+        <div id="cadre-duties-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <!-- Dynamically populated by renderCadreDuties() -->
+        </div>
+
+        <!-- Quy Chế Khen Thưởng & Kỷ Luật Card -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-xs space-y-4">
+          <div class="flex items-center space-x-3 pb-3 border-b border-slate-100 dark:border-slate-700">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
+              <i class="fa-solid fa-award"></i>
+            </div>
+            <div>
+              <h4 class="font-black text-slate-900 dark:text-white text-sm">Chế Độ Đãi Ngộ, Khen Thưởng & Xử Lý Trách Nhiệm</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Nguyên tắc tự quản văn minh, dân chủ và tích cực của tập thể Lớp 10A3</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl space-y-1.5">
+              <div class="font-black text-emerald-800 dark:text-emerald-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>1. Điểm Thưởng & Đãi Ngộ</span>
+              </div>
+              <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Cán sự lớp, Tổ trưởng, Sao đỏ và Cán sự bộ môn hoàn thành tốt nhiệm vụ được <strong>cộng +10 đến +20 điểm thi đua/tuần</strong>; ưu tiên xét khen thưởng Rèn luyện Tốt/Xuất sắc và nhận quà biểu dương từ Quỹ lớp.
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl space-y-1.5">
+              <div class="font-black text-blue-800 dark:text-blue-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                <span>2. Quyền Hạn Tự Quản</span>
+              </div>
+              <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Ban cán sự được cấp mã PIN bảo mật riêng để <strong>chấm điểm thi đua thành viên</strong>; có quyền điều hành tổ/lớp, phân công trực nhật và đề xuất GVCN tuyên dương hoặc nhắc nhở các bạn trong tiết sinh hoạt.
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl space-y-1.5">
+              <div class="font-black text-rose-800 dark:text-rose-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                <span>3. Trách Nhiệm & Nêu Gương</span>
+              </div>
+              <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Cán sự phải là tấm gương sáng về học tập và đạo đức. Nếu vi phạm kỷ luật, bao che khuyết điểm hoặc bỏ bê nhiệm vụ quá 02 tuần liên tiếp, lớp sẽ góp ý và <strong>GVCN xem xét điều chuyển hoặc bãi miễn</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 
@@ -1795,9 +1920,6 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-  <!-- Scripts -->
-  <script src="app.js?v=5.5"></script>
-
   <!-- MODAL IN BẢNG XẾP HẠNG THI ĐUA TUẦN (A4) -->
   <div id="modal-print-leaderboard" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">
     <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
@@ -1829,6 +1951,45 @@
       </div>
     </div>
   </div>
+
+  <!-- ==================== MODAL IN / XUẤT BẢNG NHIỆM VỤ BAN CÁN SỰ (A4) ==================== -->
+  <div id="modal-print-duties" class="fixed inset-0 z-50 bg-slate-900/70 modal-backdrop hidden items-center justify-center p-3 sm:p-5 no-print">
+    <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="p-3.5 px-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-800 text-sm">Xem Trước Bản In & Xuất Bảng Phân Công Nhiệm Vụ (Khổ A4)</h3>
+            <p class="text-[11px] text-slate-500">Định dạng chuẩn thể thức văn bản hành chính sư phạm THPT theo Nghị định 30/2020/NĐ-CP</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <a href="Bang_Phan_Cong_Nhiem_Vu_Ban_Can_Su_Lop_10A3.docx" download="Bang_Phan_Cong_Nhiem_Vu_Ban_Can_Su_Lop_10A3.docx" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center space-x-1.5 cursor-pointer">
+            <i class="fa-solid fa-file-word"></i>
+            <span>Tải File Word (.docx)</span>
+          </a>
+          <button onclick="printDutiesDirectly()" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-print"></i>
+            <span>In Ra Giấy / Lưu PDF</span>
+          </button>
+          <button onclick="closePrintDutiesModal()" class="w-8 h-8 rounded-lg hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Body -->
+      <div id="print-duties-content" class="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-100/70 flex justify-center">
+        <!-- Rendered by generatePrintDutiesHTML() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js?v=5.7"></script>
 
 
   <!-- ==================== MODAL RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU ==================== -->

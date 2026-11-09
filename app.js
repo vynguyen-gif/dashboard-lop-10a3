@@ -7,12 +7,12 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v34',
+  STUDENTS: 'dashboard10a3_official_45_students_v35',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v34'
+  SEATING: 'dashboard10a3_official_45_seating_v35'
 };
 
 const DEFAULT_PINS = {
@@ -133,14 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             appState.students.some(s => s.id === 'hs_10a3_10' && s.role === 'Thành viên' && s.groupNumber === 3) &&
                             appState.students.some(s => s.id === 'hs_10a3_14' && s.groupNumber === 1) &&
                             appState.students.some(s => s.id === 'hs_10a3_07' && s.groupNumber === 4) &&
+                            appState.students.some(s => s.id === 'hs_10a3_37' && s.groupNumber === 3) &&
+                            appState.students.some(s => s.id === 'hs_10a3_19' && s.groupNumber === 6) &&
                             appState.students.some(s => s.fullName === 'Ngô Thị Diễm Hằng' && s.groupNumber === 4);
   if (!hasBalancedRoster) {
     injectOfficial45Students(false);
   }
 
-  // Kiểm tra URL hash (vd: #scoring, #students, #forms) để mở tab tương ứng
+  // Kiểm tra URL hash (vd: #scoring, #students, #forms, #duties) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
-  if (initialHash && ['dashboard', 'leaderboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup'].includes(initialHash)) {
+  if (initialHash && ['dashboard', 'leaderboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup', 'duties'].includes(initialHash)) {
     switchTab(initialHash);
   } else if (initialHash === 'print-preview') {
     switchTab('seating');
@@ -224,17 +226,21 @@ function loadDataFromStorage() {
     }
     appState.activeLeaderboardWeek = '9';
 
-    // Đồng bộ nhóm và vai trò Tổ trưởng Tổ 3 (Kim Trúc thay Phi Hoàng)
+    // Đồng bộ nhóm và vai trò khi đổi vị trí học sinh
     if (appState.students && appState.students.length === 45) {
       const vk = appState.students.find(s => s.id === 'hs_10a3_14');
       const ng = appState.students.find(s => s.id === 'hs_10a3_07');
       const ph = appState.students.find(s => s.id === 'hs_10a3_10');
       const kt = appState.students.find(s => s.id === 'hs_10a3_36');
+      const hl = appState.students.find(s => s.id === 'hs_10a3_19');
+      const bt = appState.students.find(s => s.id === 'hs_10a3_37');
       let changed = false;
       if (vk && vk.groupNumber !== 1) { vk.groupNumber = 1; changed = true; }
       if (ng && ng.groupNumber !== 4) { ng.groupNumber = 4; changed = true; }
       if (ph && ph.role === 'Tổ trưởng') { ph.role = 'Thành viên'; changed = true; }
       if (kt && kt.role !== 'Tổ trưởng') { kt.role = 'Tổ trưởng'; changed = true; }
+      if (hl && hl.groupNumber !== 6) { hl.groupNumber = 6; changed = true; }
+      if (bt && bt.groupNumber !== 3) { bt.groupNumber = 3; changed = true; }
       if (changed) saveDataToStorage();
     }
 
@@ -311,7 +317,8 @@ function switchTab(tabName) {
     seating: document.getElementById('section-seating'),
     logs: document.getElementById('section-logs'),
     forms: document.getElementById('section-forms'),
-    backup: document.getElementById('section-backup')
+    backup: document.getElementById('section-backup'),
+    duties: document.getElementById('section-duties')
   };
 
   const navButtons = {
@@ -322,7 +329,8 @@ function switchTab(tabName) {
     seating: document.getElementById('nav-seating'),
     logs: document.getElementById('nav-logs'),
     forms: document.getElementById('nav-forms'),
-    backup: document.getElementById('nav-backup')
+    backup: document.getElementById('nav-backup'),
+    duties: document.getElementById('nav-duties')
   };
 
   const titles = {
@@ -333,7 +341,8 @@ function switchTab(tabName) {
     seating: 'Sơ Đồ Chỗ Ngồi Lớp Học 10A3 (2 Dãy • 6 Tổ • 24 Bàn)',
     logs: 'Sổ Tra Cứu & Nhật Ký Ghi Nhận Điểm',
     forms: 'Trung Tâm Biểu Mẫu Sư Phạm & Kế Hoạch Tiến Bộ (GDPT 2018)',
-    backup: 'Trung Tâm Dữ Liệu, Cài Đặt & Sao Lưu'
+    backup: 'Trung Tâm Dữ Liệu, Cài Đặt & Sao Lưu',
+    duties: 'Bảng Phân Công Nhiệm Vụ Ban Cán Sự & Tự Quản Lớp 10A3'
   };
 
   // Hide all sections, remove active class
@@ -372,6 +381,8 @@ function switchTab(tabName) {
     renderLogsTable();
   } else if (tabName === 'forms') {
     initFormsTab();
+  } else if (tabName === 'duties') {
+    renderCadreDuties();
   }
 
   const hSel = document.getElementById('header-user-role-selector');
@@ -1437,14 +1448,14 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_03', code: '1805425255', fullName: 'Từ Diệu Yên Diễm', dob: '13/05/2011', academicScore: 33, groupNumber: 2, role: 'Thủ quỹ & CS Sử', isSpecialSupport: false },
   { id: 'hs_10a3_16', code: '1701502268', fullName: 'Nguyễn Tấn Kỳ', dob: '26/12/2011', academicScore: 37, groupNumber: 2, role: 'Thành viên', isSpecialSupport: false },
 
-  // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.50) =====
+  // ===== TỔ 3 (8 học sinh • Điểm TB Lực Học: 34.00) =====
   { id: 'hs_10a3_10', code: '1703554565', fullName: 'Trần Bảo Phi Hoàng', dob: '16/12/2011', academicScore: 39, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_01', code: '1702997113', fullName: 'Phan Thị Ngọc Ẩn', dob: '09/04/2011', academicScore: 35, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_20', code: '1702880874', fullName: 'Nguyễn Bảo Long', dob: '24/04/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_05', code: '2201723937', fullName: 'Trần Hữu Đồng', dob: '01/03/2011', academicScore: 33, groupNumber: 3, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_04', code: '1703398860', fullName: 'Võ Ngọc Mỹ Duyên', dob: '30/01/2011', academicScore: 37, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_36', code: '1701981797', fullName: 'Lê Thị Kim Trúc', dob: '25/08/2011', academicScore: 34, groupNumber: 3, role: 'Tổ trưởng', isSpecialSupport: false },
-  { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 3, role: 'Thành viên', isSpecialSupport: false },
+  { id: 'hs_10a3_37', code: '1701981799', fullName: 'Võ Bách Tùng', dob: '19/08/2011', academicScore: 34, groupNumber: 3, role: 'Sao đỏ', isSpecialSupport: false },
 
   // ===== TỔ 4 (8 học sinh • Điểm TB Lực Học: 35.31) =====
   { id: 'hs_10a3_15', code: '1704121058', fullName: 'Võ Quốc Duy Khôi', dob: '06/07/2011', academicScore: 35, groupNumber: 4, role: 'Tổ trưởng & CS Anh', isSpecialSupport: false },
@@ -1465,13 +1476,13 @@ const OFFICIAL_10A3_STUDENTS = [
   { id: 'hs_10a3_12', code: '1701384874', fullName: 'Đỗ Tuấn Hưng', dob: '17/06/2011', academicScore: 29, groupNumber: 5, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_40', code: '1803521194', fullName: 'Trần Phúc Vinh', dob: '06/09/2011', academicScore: 29, groupNumber: 5, role: 'Thành viên', isSpecialSupport: true },
 
-  // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 34.85) =====
+  // ===== TỔ 6 (7 học sinh • Điểm TB Lực Học: 35.43) =====
   { id: 'hs_10a3_23', code: '1704684195', fullName: 'Trương Thị Mỹ Ngân', dob: '23/02/2011', academicScore: 38, groupNumber: 6, role: 'Tổ trưởng & CS Sinh', isSpecialSupport: false },
   { id: 'hs_10a3_21', code: '1703805924', fullName: 'Trần Minh Luân', dob: '25/12/2011', academicScore: 25, groupNumber: 6, role: 'Thành viên', isSpecialSupport: true },
   { id: 'hs_10a3_29', code: '1702716688', fullName: 'Nguyễn Xuân Phúc', dob: '23/11/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_17', code: '1702780666', fullName: 'Lê Thị Mỹ Linh', dob: '15/10/2011', academicScore: 36, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_13', code: '1701502384', fullName: 'Lê Minh Khải', dob: '25/06/2011', academicScore: 37, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
-  { id: 'hs_10a3_37', code: '1701981799', fullName: 'Võ Bách Tùng', dob: '19/08/2011', academicScore: 34, groupNumber: 6, role: 'Sao đỏ', isSpecialSupport: false },
+  { id: 'hs_10a3_19', code: '1704303580', fullName: 'Bùi Nguyễn Hoàng Long', dob: '30/10/2011', academicScore: 38, groupNumber: 6, role: 'Thành viên', isSpecialSupport: false },
   { id: 'hs_10a3_11', code: '1701470035', fullName: 'Nguyễn Quốc Huy', dob: '19/09/2011', academicScore: 23, groupNumber: 6, role: 'Lớp phó Lao động', isSpecialSupport: true }
 ];
 
@@ -1600,6 +1611,9 @@ function refreshAllUI() {
   renderLogsTable();
   renderScoringPermissionsUI();
   updateResetButtonsVisibility();
+  if (typeof renderCadreDuties === 'function') {
+    renderCadreDuties();
+  }
 
   const countDisplay = document.getElementById('storage-count');
   if (countDisplay) {
@@ -1777,8 +1791,8 @@ function getDefaultSeating() {
       pairWithTable: 10,
       title: 'Bàn 9',
       subtitle: 'Ghép Bàn 10',
-      leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_19' }, // Bùi Nguyễn Hoàng Long (38đ)
-      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (38đ) [Bàn 9 Tổ 3: Hoàng Long & Bảo Long]
+      leftSeat: { seatId: 'seat_r1_g3_t1_l', position: 'left', studentId: 'hs_10a3_37' }, // Võ Bách Tùng (Sao đỏ - 34đ) [Đổi chỗ với Hoàng Long]
+      rightSeat: { seatId: 'seat_r1_g3_t1_r', position: 'right', studentId: 'hs_10a3_20' } // Nguyễn Bảo Long (38đ) [Bàn 9 Tổ 3: Bách Tùng & Bảo Long]
     },
     {
       tableId: 'tbl_d1_t10',
@@ -1947,7 +1961,7 @@ function getDefaultSeating() {
       title: 'Bàn 10',
       subtitle: 'Ghép Bàn 9',
       leftSeat: { seatId: 'seat_r2_g6_t2_l', position: 'left', studentId: 'hs_10a3_17' }, // Lê Thị Mỹ Linh (36đ)
-      rightSeat: { seatId: 'seat_r2_g6_t2_r', position: 'right', studentId: 'hs_10a3_37' } // Võ Bách Tùng (Sao đỏ - 34đ)
+      rightSeat: { seatId: 'seat_r2_g6_t2_r', position: 'right', studentId: 'hs_10a3_19' } // Bùi Nguyễn Hoàng Long (38đ) [Đổi chỗ với Bách Tùng]
     },
     // [HÀNG 6: BÀN 11 GHÉP BÀN 12 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
@@ -1990,6 +2004,8 @@ function loadSeatingData() {
         let changed = false;
         const t1 = parsed.find(t => t.tableId === 'tbl_d1_t1');
         const t4 = parsed.find(t => t.tableId === 'tbl_d2_t1');
+        const t9_d1 = parsed.find(t => t.tableId === 'tbl_d1_t9');
+        const t10_d2 = parsed.find(t => t.tableId === 'tbl_d2_t10');
         if (t1 && t1.rightSeat.studentId === 'hs_10a3_07') {
           t1.rightSeat.studentId = 'hs_10a3_14';
           changed = true;
@@ -2000,6 +2016,14 @@ function loadSeatingData() {
             t4.rightSeat.studentId = 'hs_10a3_22';
             changed = true;
           }
+        }
+        if (t9_d1 && t9_d1.leftSeat.studentId === 'hs_10a3_19') {
+          t9_d1.leftSeat.studentId = 'hs_10a3_37';
+          changed = true;
+        }
+        if (t10_d2 && t10_d2.rightSeat.studentId === 'hs_10a3_37') {
+          t10_d2.rightSeat.studentId = 'hs_10a3_19';
+          changed = true;
         }
         if (changed) {
           appState.seating = parsed;
@@ -4911,3 +4935,834 @@ function showPWAInstallGuideModal() {
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
+
+
+// ==================== QUẢN LÝ NHIỆM VỤ BAN CÁN SỰ & TỰ QUẢN (XUẤT WORD / IN A4) ====================
+
+const CADRE_DUTIES_DATA = [
+  {
+    stt: 1,
+    category: 'leadership',
+    role: 'Lớp trưởng',
+    studentId: 'hs_10a3_27', // Trần Lê Hồng Nhung
+    badgeColor: 'amber',
+    icon: 'fa-solid fa-crown',
+    permissions: 'Toàn quyền điều hành học sinh • Chấm điểm thi đua toàn lớp • Quản lý mã PIN Lớp trưởng',
+    duties: [
+      'Chịu trách nhiệm toàn diện trước GVCN và Ban Giám hiệu về mọi mặt nề nếp học tập, kỷ luật và phong trào của lớp 10A3.',
+      'Đại diện tiếng nói của tập thể lớp; tiếp nhận các kế hoạch, chỉ đạo từ nhà trường và GVCN để quán triệt, đôn đốc lớp thực hiện.',
+      'Điều hành 15 phút truy bài đầu giờ mỗi ngày và chủ trì tiết Sinh hoạt lớp vào cuối tuần.',
+      'Phối hợp với Lớp phó, 6 Tổ trưởng, Bí thư và Sao đỏ duy trì trật tự; xử lý bước đầu các bất đồng nội bộ; báo cáo ngay cho GVCN tình huống phát sinh vượt thẩm quyền.',
+      'Thực hiện chấm điểm thi đua khách quan và bảo mật mã PIN điều hành.'
+    ]
+  },
+  {
+    stt: 2,
+    category: 'leadership',
+    role: 'Lớp phó Học tập & CS Vật lý',
+    studentId: 'hs_10a3_42', // Lê Văn Vũ
+    badgeColor: 'blue',
+    icon: 'fa-solid fa-book-open-reader',
+    permissions: 'Quản lý 15p truy bài • Chỉ đạo Cán sự bộ môn • Mô hình Đôi bạn cùng tiến',
+    duties: [
+      'Phụ trách nề nếp học tập, chuẩn bị bài tập về nhà và kiểm tra bài cũ 15 phút đầu giờ.',
+      'Quản lý, đôn đốc mạng lưới Cán sự các bộ môn (Toán, Lý, Hóa, Sinh, Văn, Sử, Địa, Anh...); kiểm tra sổ đầu bài sau mỗi buổi học.',
+      'Xây dựng và theo dõi mô hình "Đôi bạn cùng tiến", phân công các bạn học tốt hỗ trợ bạn gặp khó khăn kiến thức.',
+      'Trực tiếp phụ trách bộ môn Vật lý: chuẩn bị dụng cụ thí nghiệm, hỗ trợ giáo viên bộ môn phát/thu đề cương.',
+      'Thay mặt Lớp trưởng điều hành lớp khi Lớp trưởng vắng mặt.'
+    ]
+  },
+  {
+    stt: 3,
+    category: 'leadership',
+    role: 'Lớp phó Lao động',
+    studentId: 'hs_10a3_11', // Nguyễn Quốc Huy
+    badgeColor: 'emerald',
+    icon: 'fa-solid fa-broom',
+    permissions: 'Phân công & kiểm tra trực nhật • Quản lý cơ sở vật chất, hệ thống điện quạt',
+    duties: [
+      'Phụ trách toàn bộ công tác vệ sinh, cảnh quan phòng học và nếp sống văn minh học đường.',
+      'Lập lịch và kiểm tra tổ trực nhật mỗi ngày (quét lớp, lau bảng, đổ rác, chuẩn bị nước uống và khăn lau bàn giáo viên).',
+      'Kiểm tra và chịu trách nhiệm tắt toàn bộ đèn, quạt, máy chiếu/tivi, đóng then cửa sổ và khóa cửa phòng học khi tan trường.',
+      'Quản lý, điều hành lực lượng lớp tham gia các đợt lao động toàn trường do Đoàn trường hoặc GVCN phân công.',
+      'Kịp thời phát hiện và báo cáo GVCN các hư hỏng về cơ sở vật chất (bàn ghế, bóng điện, quạt, cửa kính).'
+    ]
+  },
+  {
+    stt: 4,
+    category: 'leadership',
+    role: 'Bí thư Chi đoàn',
+    studentId: 'hs_10a3_07', // Tạ Thanh Ngọc Giàu
+    badgeColor: 'rose',
+    icon: 'fa-solid fa-flag',
+    permissions: 'Lãnh đạo Chi đoàn TNCS • Công tác Đoàn trường • Phong trào thanh niên xung kích',
+    duties: [
+      'Lãnh đạo Chi đoàn TNCS Hồ Chí Minh Lớp 10A3; trực tiếp liên hệ và chịu sự chỉ đạo của Ban Chấp hành Đoàn trường và GVCN.',
+      'Tổ chức sinh hoạt Chi đoàn định kỳ, phát động các phong trào xung kích, văn hóa văn nghệ, thể dục thể thao, đền ơn đáp nghĩa.',
+      'Quản lý sổ Chi đoàn, sổ Đoàn viên, thu nộp đoàn phí định kỳ đúng hạn.',
+      'Theo dõi, phát hiện và bồi dưỡng thanh niên ưu tú trong lớp để giới thiệu kết nạp Đoàn.',
+      'Cùng Lớp trưởng và Sao đỏ uốn nắn tác phong, đạo đức, xây dựng văn hóa ứng xử lành mạnh, không bạo lực học đường.'
+    ]
+  },
+  {
+    stt: 5,
+    category: 'leadership',
+    role: 'Thủ quỹ & CS Lịch sử',
+    studentId: 'hs_10a3_03', // Từ Diệu Yên Diễm
+    badgeColor: 'cyan',
+    icon: 'fa-solid fa-coins',
+    permissions: 'Quản lý thu - chi quỹ lớp công khai • Quyết toán hàng tháng • Kiêm CS môn Sử',
+    duties: [
+      'Quản lý thu – chi quỹ lớp theo nguyên tắc công khai, minh bạch, tiết kiệm và đúng quy định.',
+      'Chi tiêu cho các hoạt động thiết yếu: nước uống đóng bình, phấn viết, giẻ lau, dụng cụ vệ sinh, photo tài liệu, thăm hỏi bạn bè ốm đau, khen thưởng thi đua tuần.',
+      'Ghi chép sổ quỹ chi tiết từng khoản thu - chi (có ngày tháng, chữ ký người nhận hoặc hóa đơn kèm theo).',
+      'Báo cáo công khai tài chính định kỳ hàng tháng trước tập thể lớp và nộp báo cáo cho GVCN phê duyệt.',
+      'Kiêm phụ trách môn Lịch sử: nhắc nhở ôn bài, tổng hợp thắc mắc kiến thức lịch sử gửi giáo viên.'
+    ]
+  },
+  {
+    stt: 6,
+    category: 'team_leaders',
+    role: 'Tổ trưởng Tổ 1',
+    studentId: 'hs_10a3_43', // Dương Lục Yến Vy
+    badgeColor: 'teal',
+    icon: 'fa-solid fa-users',
+    permissions: 'Chấm điểm thi đua Tổ 1 (mã PIN T1) • Quản lý nề nếp & chuyên cần 8 thành viên Tổ 1',
+    duties: [
+      'Quản lý nề nếp, chuyên cần, trang phục của 8 thành viên Tổ 1; điểm danh đầu giờ báo Lớp trưởng.',
+      'Chấm điểm thi đua hàng ngày cho tổ viên trên hệ thống Dashboard (được cấp mã PIN Tổ 1).',
+      'Kiểm tra sách vở, bài tập về nhà của thành viên trong tổ trong 15 phút đầu giờ.',
+      'Phân công và giám sát các bạn trong tổ thực hiện trực nhật khi đến lượt Tổ 1.',
+      'Báo cáo tổng kết thi đua, nhận xét sự tiến bộ của các thành viên tổ trong tiết sinh hoạt cuối tuần.'
+    ]
+  },
+  {
+    stt: 7,
+    category: 'team_leaders',
+    role: 'Tổ trưởng Tổ 2 & CS Hóa học',
+    studentId: 'hs_10a3_25', // Nguyễn Hoàng Gia Nguyên
+    badgeColor: 'teal',
+    icon: 'fa-solid fa-flask',
+    permissions: 'Chấm điểm thi đua Tổ 2 (mã PIN T2) • Quản lý 7 thành viên Tổ 2 • Kiêm CS môn Hóa',
+    duties: [
+      'Bao quát nề nếp, chuyên cần và thái độ học tập của 7 thành viên Tổ 2; chấm điểm thi đua tổ hàng ngày.',
+      'Kiêm phụ trách môn Hóa học: liên hệ giáo viên bộ môn chuẩn bị tiết thí nghiệm, kiểm tra bài tập Hóa của lớp trước giờ học.',
+      'Đôn đốc, hỗ trợ các thành viên học tập và rèn luyện; phân công trực nhật chu đáo khi đến phiên Tổ 2.',
+      'Báo cáo kết quả rèn luyện tổ và gương tiến bộ cho GVCN.'
+    ]
+  },
+  {
+    stt: 8,
+    category: 'team_leaders',
+    role: 'Tổ trưởng Tổ 3',
+    studentId: 'hs_10a3_36', // Lê Thị Kim Trúc
+    badgeColor: 'teal',
+    icon: 'fa-solid fa-users',
+    permissions: 'Chấm điểm thi đua Tổ 3 (mã PIN T3) • Quản lý 8 thành viên Tổ 3 (Bàn 9-12 Dãy 1)',
+    duties: [
+      'Quản lý nề nếp, trật tự, tác phong của 8 thành viên Tổ 3; chấm điểm thi đua hàng ngày bằng mã PIN Tổ 3.',
+      'Đôn đốc tổ viên học bài, làm bài nghiêm túc; quản lý các bạn ngồi tại Dãy 1 (Bàn 9 đến Bàn 12).',
+      'Điều phối tổ viên trực nhật vệ sinh sạch sẽ, giữ gìn khu vực bàn ghế ngăn nắp.',
+      'Tổng kết điểm số, xếp hạng thi đua nội bộ tổ và phát biểu nhận xét cuối tuần.'
+    ]
+  },
+  {
+    stt: 9,
+    category: 'team_leaders',
+    role: 'Tổ trưởng Tổ 4 & CS Tiếng Anh',
+    studentId: 'hs_10a3_15', // Võ Quốc Duy Khôi
+    badgeColor: 'teal',
+    icon: 'fa-solid fa-language',
+    permissions: 'Chấm điểm thi đua Tổ 4 (mã PIN T4) • Quản lý 8 thành viên Tổ 4 • Kiêm CS Tiếng Anh',
+    duties: [
+      'Quản lý nề nếp và chấm điểm thi đua 8 thành viên Tổ 4 hàng ngày; nhắc nhở giữ trật tự và chuyên cần.',
+      'Kiêm phụ trách môn Tiếng Anh: hỗ trợ các bạn ôn từ vựng, ngữ pháp, phát đề kiểm tra, đôn đốc chuẩn bị bài trước khi giáo viên vào lớp.',
+      'Chỉ đạo tổ viên trực nhật đúng quy định; báo cáo kịp thời các trường hợp vi phạm nề nếp cho GVCN.'
+    ]
+  },
+  {
+    stt: 10,
+    category: 'team_leaders',
+    role: 'Tổ trưởng Tổ 5 & CS Ngữ văn',
+    studentId: 'hs_10a3_35', // Nguyễn Ngọc Trinh
+    badgeColor: 'teal',
+    icon: 'fa-solid fa-feather-pointed',
+    permissions: 'Chấm điểm thi đua Tổ 5 (mã PIN T5) • Quản lý 7 thành viên Tổ 5 • Kiêm CS Ngữ văn',
+    duties: [
+      'Quản lý nề nếp, chuyên cần và chấm điểm thi đua 7 thành viên Tổ 5 hàng ngày.',
+      'Kiêm phụ trách môn Ngữ văn: nhắc nhở soạn bài, đọc tác phẩm, thu vở bài tập nộp cho giáo viên Ngữ văn đúng hạn.',
+      'Phân công tổ viên trực nhật; theo dõi, động viên các bạn học sinh có điểm rèn luyện thấp vươn lên.'
+    ]
+  },
+  {
+    stt: 11,
+    category: 'team_leaders',
+    role: 'Tổ trưởng Tổ 6 & CS Sinh học',
+    studentId: 'hs_10a3_23', // Trương Thị Mỹ Ngân
+    badgeColor: 'teal',
+    icon: 'fa-solid fa-dna',
+    permissions: 'Chấm điểm thi đua Tổ 6 (mã PIN T6) • Quản lý 7 thành viên Tổ 6 • Kiêm CS Sinh học',
+    duties: [
+      'Bao quát nề nếp, tác phong và chấm điểm thi đua 7 thành viên Tổ 6; quản lý trật tự khu vực cuối Dãy 2.',
+      'Kiêm phụ trách môn Sinh học: liên hệ giáo viên chuẩn bị tranh ảnh, mẫu vật, đôn đốc làm bài tập Sinh học.',
+      'Phân công trực nhật nghiêm túc khi đến lượt Tổ 6; nhận xét thi đua tổ vào tiết sinh hoạt cuối tuần.'
+    ]
+  },
+  {
+    stt: 12,
+    category: 'red_star',
+    role: 'Đội ngũ Sao đỏ (Trực tuần thi đua)',
+    studentId: ['hs_10a3_28', 'hs_10a3_37'], // Trần Thị Ngọc Phúc & Võ Bách Tùng
+    assignedNames: '1. Trần Thị Ngọc Phúc (Tổ 1)\n2. Võ Bách Tùng (Tổ 3)',
+    badgeColor: 'rose',
+    icon: 'fa-solid fa-star',
+    permissions: 'Kiểm tra tác phong, đồng phục, nề nếp • Trực ban chéo theo Đoàn trường',
+    duties: [
+      'Kiểm tra nề nếp tác phong đầu giờ của lớp: đồng phục áo trắng/áo thể dục, phù hiệu, dép quai hậu/giày, đi học đúng giờ.',
+      'Theo dõi, phát hiện các trường hợp sử dụng điện thoại sai mục đích, ăn quà vặt, làm việc riêng trong giờ học.',
+      'Thực hiện nhiệm vụ chấm điểm trực ban chéo giữa các chi đoàn theo lịch phân công của Ban Thi đua Đoàn trường (đảm bảo công tâm, chính xác, trung thực).',
+      'Ghi chép gương người tốt, việc tốt (nhặt của rơi, giúp đỡ bạn) để đề xuất tuyên dương, cộng điểm thi đua.'
+    ]
+  },
+  {
+    stt: 13,
+    category: 'subject_cadres',
+    role: 'Mạng lưới Cán sự các Bộ môn',
+    studentId: null,
+    assignedNames: '• Toán: Lê Tuấn Phát Tài\n• Lý: Lê Văn Vũ\n• Hóa: Nguyễn Hoàng Gia Nguyên\n• Sinh: Trương Thị Mỹ Ngân\n• Văn: Nguyễn Ngọc Trinh / Kim Bơ\n• Sử: Từ Diệu Yên Diễm\n• Anh: Võ Quốc Duy Khôi\n• Địa, Tin, GDCD: Phân công kiêm nhiệm',
+    badgeColor: 'purple',
+    icon: 'fa-solid fa-shapes',
+    permissions: 'Cầu nối giữa GV bộ môn và lớp • Quản lý bài tập, sổ vở • Chuẩn bị đồ dùng, phòng thực hành',
+    duties: [
+      'Là cầu nối thông tin giữa thầy/cô giáo bộ môn và tập thể học sinh lớp 10A3.',
+      'Nhắc nhở cả lớp chuẩn bị đồ dùng, sách vở, hoàn thành bài tập về nhà trước mỗi tiết học chuyên môn.',
+      'Thu nhận, kiểm đếm và bàn giao bài kiểm tra, vở bài tập cho thầy/cô bộ môn đúng thời hạn.',
+      'Hỗ trợ giáo viên chuẩn bị máy chiếu, phòng thí nghiệm thực hành, thiết bị dạy học chuyên dụng.',
+      'Nhiệt tình hướng dẫn, giải đáp cho các bạn còn vướng mắc kiến thức môn học mình phụ trách.'
+    ]
+  },
+  {
+    stt: 14,
+    category: 'members',
+    role: 'Toàn thể Học sinh (Thành viên Lớp 10A3)',
+    studentId: null,
+    assignedNames: 'Tập thể 45 học sinh Lớp 10A3',
+    badgeColor: 'slate',
+    icon: 'fa-solid fa-user-group',
+    permissions: 'Chấp hành nội quy • Tham gia học tập & thi đua • Xây dựng Lớp học Hạnh phúc',
+    duties: [
+      'Chấp hành nghiêm túc Điều lệ trường THPT, nội quy nhà trường và Quy chế thi đua nội bộ lớp 10A3.',
+      'Đi học đúng giờ (có mặt trước 15 phút), mặc đồng phục chỉnh tề, giữ lễ phép với thầy cô và người lớn tuổi.',
+      'Trung thực trong học tập và thi cử; tích cực thảo luận, phát biểu xây dựng bài trong các tiết học.',
+      'Có ý thức giữ gìn vệ sinh chung, trực nhật đúng lịch, bảo quản bàn ghế và tài sản phòng học.',
+      'Đoàn kết, yêu thương, giúp đỡ lẫn nhau; không tham gia bạo lực học đường; cam kết tiến bộ từng bước nhỏ (Baby Steps).'
+    ]
+  }
+];
+
+let cadreDutiesFilterKey = 'all';
+let cadreDutiesSearchTerm = '';
+
+function getCadreStudentInfo(item) {
+  if (item.studentId && typeof item.studentId === 'string') {
+    const s = appState.students.find(st => st.id === item.studentId);
+    if (s) {
+      // Find seat info
+      let seatDesc = `Tổ ${s.groupNumber}`;
+      if (appState.seating && Array.isArray(appState.seating)) {
+        for (const tbl of appState.seating) {
+          if (tbl.leftSeat && tbl.leftSeat.studentId === s.id) {
+            seatDesc += ` • ${tbl.title} (${tbl.tableId.includes('d1') ? 'Dãy 1 - Trái' : 'Dãy 2 - Trái'})`;
+            break;
+          }
+          if (tbl.rightSeat && tbl.rightSeat.studentId === s.id) {
+            seatDesc += ` • ${tbl.title} (${tbl.tableId.includes('d1') ? 'Dãy 1 - Phải' : 'Dãy 2 - Phải'})`;
+            break;
+          }
+        }
+      }
+      return {
+        fullName: s.fullName,
+        code: s.code || '',
+        group: s.groupNumber,
+        seatDesc: seatDesc,
+        rawStudent: s
+      };
+    }
+  } else if (Array.isArray(item.studentId)) {
+    const names = item.studentId.map(id => {
+      const s = appState.students.find(st => st.id === id);
+      return s ? `${s.fullName} (Tổ ${s.groupNumber})` : id;
+    }).join(' • ');
+    return {
+      fullName: names,
+      code: '',
+      group: '',
+      seatDesc: 'Đội Sao Đỏ Trực Ban Toàn Trường',
+      rawStudent: null
+    };
+  }
+
+  return {
+    fullName: item.assignedNames || 'Tập thể Lớp 10A3',
+    code: '',
+    group: '',
+    seatDesc: item.category === 'members' ? 'Toàn bộ 45 học sinh' : 'Cán sự bộ môn',
+    rawStudent: null
+  };
+}
+
+function renderCadreDuties() {
+  const container = document.getElementById('cadre-duties-grid');
+  if (!container) return;
+
+  const filtered = CADRE_DUTIES_DATA.filter(item => {
+    // Category filter
+    if (cadreDutiesFilterKey !== 'all' && item.category !== cadreDutiesFilterKey) {
+      return false;
+    }
+    // Search keyword
+    if (cadreDutiesSearchTerm) {
+      const term = cadreDutiesSearchTerm.toLowerCase();
+      const info = getCadreStudentInfo(item);
+      const dutiesText = item.duties.join(' ').toLowerCase();
+      const match = item.role.toLowerCase().includes(term) ||
+                    info.fullName.toLowerCase().includes(term) ||
+                    dutiesText.includes(term) ||
+                    (item.permissions && item.permissions.toLowerCase().includes(term));
+      if (!match) return false;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-12 text-center text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+        <p class="text-sm font-semibold">Không tìm thấy chức vụ hoặc nhiệm vụ phù hợp với từ khóa.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const badgeColorMap = {
+    amber: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border-amber-300',
+    blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border-blue-300',
+    emerald: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200 border-emerald-300',
+    rose: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200 border-rose-300',
+    cyan: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-200 border-cyan-300',
+    teal: 'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200 border-teal-300',
+    purple: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200 border-purple-300',
+    slate: 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200 border-slate-300'
+  };
+
+  const cardHtml = filtered.map(item => {
+    const info = getCadreStudentInfo(item);
+    const badgeStyle = badgeColorMap[item.badgeColor] || badgeColorMap.slate;
+
+    const dutiesListHtml = item.duties.map(d => `
+      <li class="flex items-start space-x-2 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+        <span class="text-blue-500 dark:text-blue-400 mt-0.5 shrink-0"><i class="fa-solid fa-angle-right text-[10px]"></i></span>
+        <span>${escapeHtml(d)}</span>
+      </li>
+    `).join('');
+
+    return `
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+        <div class="space-y-3.5">
+          <!-- Card Header: STT, Role Badge, Icon -->
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center space-x-2.5">
+              <span class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-black text-xs shrink-0">
+                #${item.stt}
+              </span>
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-black border ${badgeStyle}">
+                  <i class="${item.icon} mr-1"></i>${escapeHtml(item.role)}
+                </span>
+              </div>
+            </div>
+            <button type="button" onclick="copySingleCadreDuty(${item.stt})" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 transition rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="Sao chép nhiệm vụ này để gửi riêng cho học sinh">
+              <i class="fa-solid fa-copy text-xs"></i>
+            </button>
+          </div>
+
+          <!-- Assignee Name & Seat -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+            <div class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Học sinh đảm nhiệm:</div>
+            <div class="font-black text-slate-900 dark:text-white text-sm whitespace-pre-line leading-snug">
+              ${escapeHtml(info.fullName)}
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center space-x-1.5 pt-0.5">
+              <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i>
+              <span>${escapeHtml(info.seatDesc)}</span>
+            </div>
+          </div>
+
+          <!-- Permissions Badge -->
+          <div class="text-[11px] px-2.5 py-1.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900/50 text-blue-800 dark:text-blue-300 font-medium">
+            <i class="fa-solid fa-shield-halved text-blue-600 dark:text-blue-400 mr-1"></i>
+            <strong>Quyền hạn:</strong> ${escapeHtml(item.permissions)}
+          </div>
+
+          <!-- Duties Bullet List -->
+          <div>
+            <div class="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+              Nhiệm vụ & Chức trách cụ thể:
+            </div>
+            <ul class="space-y-1.5 pl-0.5">
+              ${dutiesListHtml}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
+          <span class="text-slate-400 dark:text-slate-500">
+            <i class="fa-solid fa-star text-amber-500 mr-1"></i>Thưởng: +10 - 20đ/tuần
+          </span>
+          <button type="button" onclick="copySingleCadreDuty(${item.stt})" class="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center space-x-1">
+            <span>Sao chép</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = cardHtml;
+}
+
+function filterCadreDuties(filterKey) {
+  cadreDutiesFilterKey = filterKey;
+  const buttons = document.querySelectorAll('#cadre-duties-filter-buttons .cadre-filter-btn');
+  buttons.forEach(btn => {
+    if (btn.getAttribute('data-filter') === filterKey) {
+      btn.className = 'cadre-filter-btn active px-3 py-1.5 text-xs font-bold rounded-lg border bg-blue-600 text-white border-blue-600 transition';
+    } else {
+      btn.className = 'cadre-filter-btn px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-blue-500 transition';
+    }
+  });
+  renderCadreDuties();
+}
+
+function searchCadreDuties(keyword) {
+  cadreDutiesSearchTerm = keyword ? keyword.trim() : '';
+  renderCadreDuties();
+}
+
+// Sao chép nhanh toàn bộ bảng phân công nhiệm vụ để gửi Zalo lớp
+function copyCadreDutiesForZalo() {
+  let text = `📋 BẢNG PHÂN CÔNG CHỨC TRÁCH & NHIỆM VỤ BAN CÁN SỰ LỚP 10A3\n`;
+  text += `Năm học 2026 – 2027 • GVCN Lớp 10A3\n`;
+  text += `=========================================\n\n`;
+
+  CADRE_DUTIES_DATA.forEach(item => {
+    const info = getCadreStudentInfo(item);
+    text += `🔹 ${item.stt}. ${item.role.toUpperCase()}: ${info.fullName}\n`;
+    text += `   • Đơn vị: ${info.seatDesc}\n`;
+    text += `   • Quyền hạn: ${item.permissions}\n`;
+    text += `   • Nhiệm vụ trọng tâm:\n`;
+    item.duties.forEach(d => {
+      text += `     - ${d}\n`;
+    });
+    text += `\n`;
+  });
+
+  text += `=========================================\n`;
+  text += `🎁 CHẾ ĐỘ ĐÃI NGỘ & ĐIỂM THƯỞNG:\n`;
+  text += `+ Cán sự hoàn thành tốt nhiệm vụ: Cộng +10 đến +20 điểm thi đua/tuần.\n`;
+  text += `+ Ưu tiên xếp loại Rèn luyện Tốt/Xuất sắc và phần thưởng danh dự từ Quỹ lớp.\n`;
+  text += `+ Ban cán sự cam kết nêu gương, đoàn kết, trung thực vì một tập thể 10A3 vững mạnh!\n`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Đã sao chép nội dung bảng phân công để gửi Zalo lớp!', 'success');
+    }).catch(() => {
+      fallbackCopyText(text, 'Đã sao chép nội dung bảng phân công để gửi Zalo lớp!');
+    });
+  } else {
+    fallbackCopyText(text, 'Đã sao chép nội dung bảng phân công để gửi Zalo lớp!');
+  }
+}
+
+// Sao chép nhiệm vụ của 1 cá nhân
+function copySingleCadreDuty(stt) {
+  const item = CADRE_DUTIES_DATA.find(d => d.stt === stt);
+  if (!item) return;
+
+  const info = getCadreStudentInfo(item);
+  let text = `📌 NHIỆM VỤ CỦA ${item.role.toUpperCase()}: ${info.fullName}\n`;
+  text += `Vị trí: ${info.seatDesc}\n`;
+  text += `Quyền hạn: ${item.permissions}\n`;
+  text += `Chức trách & Nhiệm vụ cụ thể:\n`;
+  item.duties.forEach((d, idx) => {
+    text += `${idx + 1}. ${d}\n`;
+  });
+  text += `\nThầy/Cô GVCN tin tưởng và chúc em hoàn thành xuất sắc nhiệm vụ!`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`Đã sao chép nhiệm vụ của ${item.role}!`, 'success');
+    }).catch(() => {
+      fallbackCopyText(text, `Đã sao chép nhiệm vụ của ${item.role}!`);
+    });
+  } else {
+    fallbackCopyText(text, `Đã sao chép nhiệm vụ của ${item.role}!`);
+  }
+}
+
+function fallbackCopyText(text, successMsg) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    showToast(successMsg, 'success');
+  } catch (err) {
+    showToast('Không thể sao chép văn bản tự động!', 'error');
+  }
+  document.body.removeChild(textarea);
+}
+
+// ==================== XUẤT FILE WORD (.DOC) CHUẨN THỂ THỨC HÀNH CHÍNH ====================
+function exportCadreDutiesToWord() {
+  try {
+    showToast('Đang tạo file Word Bảng Phân Công Nhiệm Vụ...', 'info');
+
+    let tableRowsHtml = '';
+    CADRE_DUTIES_DATA.forEach(item => {
+      const info = getCadreStudentInfo(item);
+      const isEven = item.stt % 2 === 0;
+      const bg = isEven ? '#f8fafc' : '#ffffff';
+
+      const dutiesHtml = item.duties.map(d => `<div style="margin-bottom: 3pt;">• ${escapeHtml(d)}</div>`).join('');
+
+      tableRowsHtml += `
+        <tr style="background-color: ${bg};">
+          <td style="text-align: center; font-weight: bold; padding: 6pt; border: 1px solid #1e3a8a;">${item.stt}</td>
+          <td style="font-weight: bold; padding: 6pt; border: 1px solid #1e3a8a; color: #0f172a;">${escapeHtml(item.role)}</td>
+          <td style="font-weight: bold; padding: 6pt; border: 1px solid #1e3a8a; color: #1e3a8a;">${escapeHtml(info.fullName).replace(/\n/g, '<br>')}</td>
+          <td style="text-align: center; font-style: italic; padding: 6pt; border: 1px solid #1e3a8a;">${escapeHtml(info.seatDesc)}</td>
+          <td style="padding: 6pt; border: 1px solid #1e3a8a; font-size: 10pt; line-height: 1.25;">
+            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 2pt;">Quyền hạn: ${escapeHtml(item.permissions)}</div>
+            ${dutiesHtml}
+          </td>
+        </tr>
+      `;
+    });
+
+    const docHtml = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office"
+            xmlns:w="urn:schemas-microsoft-com:office:word"
+            xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+      <meta charset="utf-8">
+      <title>Bảng Phân Công Nhiệm Vụ Ban Cán Sự Lớp 10A3</title>
+      <!--[if gte mso 9]>
+      <xml>
+        <w:WordDocument>
+          <w:View>Print</w:View>
+          <w:Zoom>100</w:Zoom>
+          <w:DoNotOptimizeForBrowser/>
+        </w:WordDocument>
+      </xml>
+      <![endif]-->
+      <style>
+        @page Section1 {
+          size: 595.3pt 841.9pt; /* A4: 210mm x 297mm */
+          margin: 56.7pt 42.5pt 56.7pt 70.8pt; /* Trên 2cm, Dưới 2cm, Trái 2.5cm, Phải 1.5cm */
+          mso-header-margin: 36pt;
+          mso-footer-margin: 36pt;
+          mso-paper-source: 0;
+        }
+        div.Section1 { page: Section1; }
+        body {
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 11.5pt;
+          line-height: 1.22;
+          color: #0f172a;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 8pt;
+          margin-bottom: 12pt;
+        }
+        th {
+          background-color: #1e3a8a;
+          color: #ffffff;
+          font-weight: bold;
+          text-align: center;
+          padding: 7pt;
+          border: 1px solid #1e3a8a;
+          font-size: 10.5pt;
+        }
+        td {
+          padding: 6pt;
+          border: 1px solid #1e3a8a;
+          vertical-align: top;
+        }
+        .header-tbl td {
+          border: none !important;
+          padding: 2pt 4pt;
+        }
+        .sign-tbl td {
+          border: none !important;
+          padding: 4pt;
+          text-align: center;
+        }
+      </style>
+      </head>
+      <body>
+      <div class="Section1">
+        <!-- Quốc hiệu & Tên trường -->
+        <table class="header-tbl" style="width: 100%; margin-bottom: 10pt;">
+          <tr>
+            <td style="width: 45%; text-align: center; vertical-align: top;">
+              <div style="font-size: 10pt; font-weight: bold;">SỞ GIÁO DỤC VÀ ĐÀO TẠO</div>
+              <div style="font-size: 10.5pt; font-weight: bold;">TRƯỜNG THPT NGUYỄN BỈNH KHIÊM</div>
+              <div style="font-size: 11pt; font-weight: bold; color: #1e3a8a; margin-top: 2pt;">TẬP THỂ LỚP 10A3</div>
+              <div style="font-weight: bold;">***</div>
+            </td>
+            <td style="width: 55%; text-align: center; vertical-align: top;">
+              <div style="font-size: 10.5pt; font-weight: bold;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+              <div style="font-size: 11pt; font-weight: bold; font-style: italic;">Độc lập – Tự do – Hạnh phúc</div>
+              <div style="margin-top: 2pt;">-----------------------</div>
+            </td>
+          </tr>
+        </table>
+
+        <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 8pt;">
+          Lớp 10A3, ngày 09 tháng 11 năm 2026
+        </div>
+
+        <div style="text-align: center; margin-bottom: 4pt;">
+          <h1 style="font-size: 15pt; font-weight: bold; color: #0f172a; margin: 0;">BẢNG PHÂN CÔNG CHỨC TRÁCH & NHIỆM VỤ</h1>
+          <div style="font-size: 11.5pt; font-weight: bold; color: #1e3a8a; margin-top: 3pt;">BAN CÁN SỰ & ĐỘI NGŨ TỰ QUẢN LỚP 10A3 - NĂM HỌC 2026 – 2027</div>
+          <div style="font-size: 10.5pt; font-style: italic; color: #475569;">(Ban hành kèm theo Quy chế thi đua nội bộ & Chương trình GDPT 2018)</div>
+        </div>
+
+        <p style="text-align: justify; text-indent: 20pt; margin-top: 10pt; margin-bottom: 8pt; font-size: 11pt;">
+          Nhằm xây dựng tập thể Lớp 10A3 kỷ cương, đoàn kết, học tập tốt, hướng tới mô hình Trường học hạnh phúc; phát huy tính tự giác, tinh thần trách nhiệm và kỹ năng lãnh đạo bản thân của từng học sinh; Giáo viên chủ nhiệm công bố và phân công chức trách, nhiệm vụ cụ thể cho từng thành viên Ban Cán Sự, đội ngũ tự quản và toàn thể học sinh lớp 10A3 như sau:
+        </p>
+
+        <!-- Bảng danh sách nhiệm vụ -->
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%;">STT</th>
+              <th style="width: 17%;">Chức Vụ</th>
+              <th style="width: 18%;">Họ Và Tên Học Sinh</th>
+              <th style="width: 12%;">Đơn Vị / Vị Trí</th>
+              <th style="width: 48%;">Chức Trách & Nhiệm Vụ Trọng Tâm</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRowsHtml}
+          </tbody>
+        </table>
+
+        <!-- Chế độ khen thưởng -->
+        <div style="margin-top: 12pt; margin-bottom: 8pt;">
+          <div style="font-size: 11.5pt; font-weight: bold; color: #1e3a8a; margin-bottom: 4pt;">
+            CHẾ ĐỘ KHEN THƯỞNG, ĐÃI NGỘ & XỬ LÝ TRÁCH NHIỆM
+          </div>
+          <div style="font-size: 10.5pt; margin-bottom: 3pt; text-align: justify;">
+            <strong>1. Khen thưởng định kỳ:</strong> Cán sự lớp, Tổ trưởng, Sao đỏ và Cán sự bộ môn hoàn thành xuất sắc nhiệm vụ trong tuần/tháng sẽ được cộng điểm thi đua cá nhân (+10 đến +20 điểm), được ưu tiên xếp loại Rèn luyện Xuất sắc/Tốt cuối học kỳ và được nhận phần thưởng danh dự từ Quỹ lớp.
+          </div>
+          <div style="font-size: 10.5pt; margin-bottom: 3pt; text-align: justify;">
+            <strong>2. Quyền hạn tự quản:</strong> Ban Cán Sự và Tổ trưởng có toàn quyền ghi nhận, chấm điểm thi đua thành viên theo thang điểm quy định; có quyền nhắc nhở và đề xuất GVCN biểu dương hoặc kiểm điểm các trường hợp cụ thể.
+          </div>
+          <div style="font-size: 10.5pt; margin-bottom: 6pt; text-align: justify;">
+            <strong>3. Xử lý trách nhiệm:</strong> Nếu cán sự bao che khuyết điểm, thiếu gương mẫu hoặc không hoàn thành nhiệm vụ được giao quá 02 tuần liên tiếp, lớp sẽ tiến hành góp ý trong tiết sinh hoạt và GVCN sẽ xem xét miễn nhiệm, điều chuyển vị trí phù hợp.
+          </div>
+        </div>
+
+        <!-- Chữ ký -->
+        <table class="sign-tbl" style="width: 100%; margin-top: 15pt;">
+          <tr>
+            <td style="width: 33%; font-weight: bold; font-size: 10.5pt;">
+              ĐẠI DIỆN CHI ĐOÀN<br>
+              BÍ THƯ<br>
+              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(Ký và ghi rõ họ tên)</span>
+              <br><br><br><br>
+              Tạ Thanh Ngọc Giàu
+            </td>
+            <td style="width: 34%; font-weight: bold; font-size: 10.5pt;">
+              ĐẠI DIỆN BAN CÁN SỰ<br>
+              LỚP TRƯỞNG<br>
+              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(Ký và ghi rõ họ tên)</span>
+              <br><br><br><br>
+              Trần Lê Hồng Nhung
+            </td>
+            <td style="width: 33%; font-weight: bold; font-size: 10.5pt; color: #b91c1c;">
+              DUYỆT CỦA GVCN<br>
+              GIÁO VIÊN CHỦ NHIỆM<br>
+              <span style="font-weight: normal; font-style: italic; font-size: 9.5pt;">(Ký và ghi rõ họ tên)</span>
+              <br><br><br><br>
+              Thầy/Cô Chủ Nhiệm 10A3
+            </td>
+          </tr>
+        </table>
+      </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff', docHtml], { type: 'application/msword;charset=utf-8' });
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'Bang_Phan_Cong_Nhiem_Vu_Ban_Can_Su_Lop_10A3.doc';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(downloadUrl);
+
+    showToast('Xuất thành công file Word Bảng Phân Công Nhiệm Vụ!', 'success');
+  } catch (error) {
+    console.error('Lỗi khi xuất Word:', error);
+    showToast('Lỗi khi tạo file Word: ' + error.message, 'error');
+  }
+}
+
+// ==================== IN VÀ PREVIEW BẢNG PHÂN CÔNG NHIỆM VỤ (A4) ====================
+function openPrintDutiesModal() {
+  const modal = document.getElementById('modal-print-duties');
+  const content = document.getElementById('print-duties-content');
+  if (!modal || !content) return;
+
+  content.innerHTML = generatePrintDutiesHTML();
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closePrintDutiesModal() {
+  const modal = document.getElementById('modal-print-duties');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function generatePrintDutiesHTML() {
+  let tableRowsHtml = '';
+  CADRE_DUTIES_DATA.forEach(item => {
+    const info = getCadreStudentInfo(item);
+    const isEven = item.stt % 2 === 0;
+    const bg = isEven ? '#f8fafc' : '#ffffff';
+
+    const dutiesHtml = item.duties.map(d => `<div class="mb-1 text-[11px] leading-tight">• ${escapeHtml(d)}</div>`).join('');
+
+    tableRowsHtml += `
+      <tr style="background-color: ${bg};" class="border-b border-slate-300">
+        <td class="text-center font-bold p-2 border border-slate-400 text-xs">${item.stt}</td>
+        <td class="font-bold p-2 border border-slate-400 text-xs text-slate-900">${escapeHtml(item.role)}</td>
+        <td class="font-bold p-2 border border-slate-400 text-xs text-blue-900 whitespace-pre-line">${escapeHtml(info.fullName)}</td>
+        <td class="text-center italic p-2 border border-slate-400 text-[11px] text-slate-600">${escapeHtml(info.seatDesc)}</td>
+        <td class="p-2 border border-slate-400 text-xs">
+          <div class="font-bold text-blue-800 text-[11px] mb-1">Quyền hạn: ${escapeHtml(item.permissions)}</div>
+          ${dutiesHtml}
+        </td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="bg-white text-slate-900 p-8 sm:p-12 shadow-xl border border-slate-300 w-full max-w-[210mm] font-serif" style="min-height: 297mm; box-sizing: border-box;">
+      <!-- Header -->
+      <div class="flex justify-between items-start mb-4 border-b pb-3 border-slate-300">
+        <div class="text-center w-5/12">
+          <div class="text-xs font-bold uppercase">SỞ GIÁO DỤC VÀ ĐÀO TẠO</div>
+          <div class="text-xs font-bold uppercase">TRƯỜNG THPT NGUYỄN BỈNH KHIÊM</div>
+          <div class="text-sm font-black text-blue-900 mt-1 uppercase">TẬP THỂ LỚP 10A3</div>
+          <div class="text-xs font-bold mt-0.5">***</div>
+        </div>
+        <div class="text-center w-7/12">
+          <div class="text-xs font-bold uppercase">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+          <div class="text-xs font-bold italic">Độc lập – Tự do – Hạnh phúc</div>
+          <div class="text-xs font-bold mt-1">-----------------------</div>
+        </div>
+      </div>
+
+      <div class="text-right italic text-xs mb-3 text-slate-600">
+        Lớp 10A3, ngày 09 tháng 11 năm 2026
+      </div>
+
+      <!-- Title -->
+      <div class="text-center mb-5">
+        <h2 class="text-lg font-black text-slate-900 uppercase tracking-wide">BẢNG PHÂN CÔNG CHỨC TRÁCH & NHIỆM VỤ</h2>
+        <div class="text-sm font-bold text-blue-900 mt-1">BAN CÁN SỰ & ĐỘI NGŨ TỰ QUẢN LỚP 10A3 - NĂM HỌC 2026 – 2027</div>
+        <div class="text-xs italic text-slate-500 mt-0.5">(Ban hành kèm theo Quy chế thi đua nội bộ & Chương trình GDPT 2018)</div>
+      </div>
+
+      <p class="text-justify indent-6 text-xs leading-relaxed mb-4 text-slate-700">
+        Nhằm xây dựng tập thể Lớp 10A3 kỷ cương, đoàn kết, học tập tốt, hướng tới mô hình Trường học hạnh phúc; phát huy tính tự giác, tinh thần trách nhiệm và kỹ năng lãnh đạo bản thân của từng học sinh; Giáo viên chủ nhiệm công bố và phân công chức trách, nhiệm vụ cụ thể cho từng thành viên Ban Cán Sự, đội ngũ tự quản và toàn thể học sinh lớp 10A3 như sau:
+      </p>
+
+      <!-- Table -->
+      <table class="w-full border-collapse border border-slate-400 mb-5 text-left">
+        <thead>
+          <tr class="bg-blue-900 text-white text-xs font-bold">
+            <th class="p-2 border border-slate-400 text-center w-[5%]">STT</th>
+            <th class="p-2 border border-slate-400 w-[18%]">Chức Vụ</th>
+            <th class="p-2 border border-slate-400 w-[19%]">Họ Và Tên Học Sinh</th>
+            <th class="p-2 border border-slate-400 text-center w-[13%]">Vị Trí / Tổ</th>
+            <th class="p-2 border border-slate-400 w-[45%]">Chức Trách & Nhiệm Vụ Trọng Tâm</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRowsHtml}
+        </tbody>
+      </table>
+
+      <!-- Rules -->
+      <div class="text-xs space-y-1.5 mb-6 text-slate-800">
+        <div class="font-bold text-blue-900 uppercase">Chế độ khen thưởng, đãi ngộ & xử lý trách nhiệm:</div>
+        <p class="leading-relaxed"><strong>1. Khen thưởng định kỳ:</strong> Cán sự hoàn thành tốt nhiệm vụ được cộng +10 đến +20 điểm thi đua/tuần, ưu tiên xếp loại Rèn luyện Tốt/Xuất sắc và nhận quà biểu dương từ Quỹ lớp.</p>
+        <p class="leading-relaxed"><strong>2. Quyền hạn tự quản:</strong> Ban Cán Sự được cấp mã PIN bảo mật riêng để chấm điểm thi đua thành viên, đôn đốc nề nếp và đề xuất GVCN tuyên dương hoặc nhắc nhở.</p>
+        <p class="leading-relaxed"><strong>3. Xử lý trách nhiệm:</strong> Cán sự vi phạm kỷ luật, bao che hoặc bỏ bê nhiệm vụ quá 02 tuần liên tiếp sẽ bị góp ý và xem xét điều chuyển hoặc miễn nhiệm.</p>
+      </div>
+
+      <!-- Signatures -->
+      <div class="grid grid-cols-3 gap-4 text-center text-xs mt-6 pt-2">
+        <div>
+          <div class="font-bold uppercase">ĐẠI DIỆN CHI ĐOÀN<br>BÍ THƯ</div>
+          <div class="text-[10px] italic text-slate-500">(Ký và ghi rõ họ tên)</div>
+          <div class="h-16"></div>
+          <div class="font-bold text-slate-900">Tạ Thanh Ngọc Giàu</div>
+        </div>
+        <div>
+          <div class="font-bold uppercase">ĐẠI DIỆN BAN CÁN SỰ<br>LỚP TRƯỞNG</div>
+          <div class="text-[10px] italic text-slate-500">(Ký và ghi rõ họ tên)</div>
+          <div class="h-16"></div>
+          <div class="font-bold text-slate-900">Trần Lê Hồng Nhung</div>
+        </div>
+        <div>
+          <div class="font-bold uppercase text-rose-700">DUYỆT CỦA GVCN<br>GIÁO VIÊN CHỦ NHIỆM</div>
+          <div class="text-[10px] italic text-slate-500">(Ký và ghi rõ họ tên)</div>
+          <div class="h-16"></div>
+          <div class="font-bold text-slate-900">Thầy/Cô Chủ Nhiệm 10A3</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function printDutiesDirectly() {
+  let printContainer = document.getElementById('print-duties-export-container');
+  if (!printContainer) {
+    printContainer = document.createElement('div');
+    printContainer.id = 'print-duties-export-container';
+    printContainer.className = 'hidden print:block';
+    document.body.appendChild(printContainer);
+  }
+
+  printContainer.innerHTML = generatePrintDutiesHTML();
+  window.print();
+}

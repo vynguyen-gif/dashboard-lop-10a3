@@ -289,7 +289,7 @@ body {
 
   /* ẨN TOÀN BỘ GIAO DIỆN WEB KHI IN */
   aside, #top-bar, nav, header, .no-print, #toast-container, .modal-backdrop,
-  #section-dashboard, #section-scoring, #section-students, #section-logs, #section-backup, #section-forms,
+  #section-dashboard, #section-scoring, #section-students, #section-logs, #section-backup, #section-forms, #section-duties,
   #swap-mode-banner, #classroom-seating-container, .modal-open {
     display: none !important;
   }
@@ -789,7 +789,8 @@ html.dark .modal-backdrop > div {
 
 /* ==================== BẢNG XẾP HẠNG THI ĐUA THEO TUẦN (LEADERBOARD) ==================== */
 @media print {
-  #print-leaderboard-export-container {
+  #print-leaderboard-export-container,
+  #print-duties-export-container {
     display: block !important;
     position: absolute;
     top: 0;

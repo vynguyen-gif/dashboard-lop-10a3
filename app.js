@@ -144,10 +144,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Kiểm tra URL hash (vd: #scoring, #students, #forms, #duties) để mở tab tương ứng
   const initialHash = window.location.hash.replace('#', '');
   if (initialHash && ['dashboard', 'leaderboard', 'scoring', 'students', 'seating', 'logs', 'forms', 'backup', 'duties'].includes(initialHash)) {
-    switchTab(initialHash);
+    if (initialHash === 'seating' && appState.currentUserRole !== 'gvcn') {
+      switchTab('dashboard');
+    } else {
+      switchTab(initialHash);
+    }
   } else if (initialHash === 'print-preview') {
-    switchTab('seating');
-    setTimeout(() => openPrintPreviewModal(), 200);
+    if (appState.currentUserRole === 'gvcn') {
+      switchTab('seating');
+      setTimeout(() => openPrintPreviewModal(), 200);
+    } else {
+      switchTab('dashboard');
+    }
   } else {
     refreshAllUI();
   }
@@ -310,6 +318,13 @@ function getGroupStats() {
 
 // ==================== GIAO DIỆN & ĐIỀU HƯỚNG TAB ====================
 function switchTab(tabName) {
+  // BẢO MẬT SƠ ĐỒ LỚP HỌC: Chỉ duy nhất GVCN mới được vào xem sơ đồ lớp học
+  if (tabName === 'seating' && appState.currentUserRole !== 'gvcn') {
+    showToast('Sơ đồ lớp học được bảo mật riêng tư! Chỉ GVCN mới có quyền truy cập.', 'warning');
+    appState.pendingRoleId = 'gvcn';
+    openRolePinModal('gvcn');
+    return;
+  }
   const sections = {
     dashboard: document.getElementById('section-dashboard'),
     leaderboard: document.getElementById('section-leaderboard'),
@@ -411,8 +426,22 @@ function renderDashboardStats() {
   });
 
   const avgScore = totalStudents > 0 ? (totalScoreAll / totalStudents).toFixed(1) : '100.0';
+  const isGVCN = (appState.currentUserRole === 'gvcn');
   document.getElementById('kpi-avg-score').textContent = avgScore;
-  document.getElementById('kpi-special-count').textContent = specialCount;
+  const kpiSpecialCount = document.getElementById('kpi-special-count');
+  const kpiSpecialTitle = document.getElementById('kpi-special-title');
+  const kpiSpecialDesc = document.getElementById('kpi-special-desc');
+  if (kpiSpecialCount) {
+    if (isGVCN) {
+      if (kpiSpecialTitle) kpiSpecialTitle.textContent = 'Diện Hỗ Trợ (GVCN)';
+      kpiSpecialCount.textContent = specialCount;
+      if (kpiSpecialDesc) kpiSpecialDesc.textContent = 'em cần kèm cặp';
+    } else {
+      if (kpiSpecialTitle) kpiSpecialTitle.textContent = 'Kỷ Luật Lớp';
+      kpiSpecialCount.textContent = '100%';
+      if (kpiSpecialDesc) kpiSpecialDesc.textContent = 'nề nếp ổn định';
+    }
+  }
 
   // Tổng điểm cộng & trừ trong nhật ký
   appState.dailyLogs.forEach(l => {
@@ -459,7 +488,7 @@ function renderDashboardStats() {
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-800 text-sm hover:text-blue-600 transition">${escapeHtml(stu.fullName)}</span>
               ${getRoleBadgeHtml(stu.role)}
-              ${stu.isSpecialSupport ? '<span class="text-[10px] px-1.5 py-0.2 bg-amber-100 text-amber-800 font-bold rounded">Ưu tiên kèm</span>' : ''}
+              ${(isGVCN && stu.isSpecialSupport) ? '<span class="text-[10px] px-1.5 py-0.2 bg-amber-100 text-amber-800 font-bold rounded">Ưu tiên kèm</span>' : ''}
             </div>
             <p class="text-[11px] text-slate-400">Tổ ${stu.groupNumber} • Quỹ chuẩn 100đ</p>
           </div>
@@ -477,9 +506,10 @@ function renderDashboardStats() {
   const warningContainer = document.getElementById('warning-students-list');
   warningContainer.innerHTML = '';
 
-  // Lọc học sinh có điểm < 90 hoặc có điểm trừ hoặc học sinh yếu cần kèm
+  // BẢO MẬT: Chỉ GVCN mới thấy học sinh diện hỗ trợ trong danh sách cần lưu ý
+  // Đối với học sinh / cán sự: CHỈ hiển thị nếu học sinh thực sự bị trừ điểm (<90đ), không làm các em tủi thân
   const needAttention = studentScoreMap
-    .filter(s => s.currentScore < 90 || s.isSpecialSupport)
+    .filter(s => s.currentScore < 90 || (isGVCN && s.isSpecialSupport))
     .sort((a, b) => a.currentScore - b.currentScore)
     .slice(0, 5);
 
@@ -500,12 +530,12 @@ function renderDashboardStats() {
       item.innerHTML = `
         <div class="flex items-center space-x-3">
           <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center text-xs">
-            <i class="fa-solid ${stu.isSpecialSupport ? 'fa-handshake-angle text-amber-600' : 'fa-circle-exclamation'}"></i>
+            <i class="fa-solid ${(isGVCN && stu.isSpecialSupport) ? 'fa-handshake-angle text-amber-600' : 'fa-circle-exclamation'}"></i>
           </span>
           <div>
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-800 text-sm hover:text-blue-600 transition">${escapeHtml(stu.fullName)}</span>
-              ${stu.isSpecialSupport ? '<span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded border border-amber-300">Cần theo dõi đặc biệt</span>' : ''}
+              ${(isGVCN && stu.isSpecialSupport) ? '<span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded border border-amber-300">Cần theo dõi đặc biệt</span>' : ''}
             </div>
             <p class="text-[11px] text-slate-400">Tổ ${stu.groupNumber} • ${isDeducted ? `Bị trừ ${100 - stu.currentScore} điểm` : 'Đang duy trì ổn định'}</p>
           </div>
@@ -934,12 +964,22 @@ function renderStudentsTable() {
   const filterSpecial = document.getElementById('filter-student-special')?.value || 'all';
   const filterRole = document.getElementById('filter-student-role')?.value || 'all';
 
+  const isGVCN = (appState.currentUserRole === 'gvcn');
+  
+  // Ẩn bộ lọc diện theo dõi đặc biệt đối với người không phải GVCN
+  const specialFilterWrap = document.getElementById('filter-student-special')?.parentElement;
+  if (specialFilterWrap) {
+    specialFilterWrap.style.display = isGVCN ? '' : 'none';
+  }
+
   const filtered = appState.students.filter(s => {
     const matchName = s.fullName.toLowerCase().includes(searchKeyword);
     const matchGroup = filterGroup === 'all' || Number(s.groupNumber) === Number(filterGroup);
     let matchSpecial = true;
-    if (filterSpecial === 'special') matchSpecial = s.isSpecialSupport === true;
-    if (filterSpecial === 'normal') matchSpecial = !s.isSpecialSupport;
+    if (isGVCN) {
+      if (filterSpecial === 'special') matchSpecial = s.isSpecialSupport === true;
+      if (filterSpecial === 'normal') matchSpecial = !s.isSpecialSupport;
+    }
     let matchRole = true;
     if (filterRole !== 'all') matchRole = s.role === filterRole;
     return matchName && matchGroup && matchSpecial && matchRole;
@@ -1053,7 +1093,7 @@ function renderStudentsTable() {
         ${getRoleBadgeHtml(stu.role)}
       </td>
       <td class="py-3 px-4 text-center">
-        ${stu.isSpecialSupport 
+        ${(isGVCN && stu.isSpecialSupport) 
           ? '<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"><i class="fa-solid fa-shield-heart text-amber-600 dark:text-amber-400"></i><span>Cần theo dõi</span></span>' 
           : '<span class="text-slate-300 dark:text-slate-600 text-xs">—</span>'}
       </td>
@@ -1162,6 +1202,10 @@ function openEditStudentModal(id) {
   document.getElementById('student-form-group').value = stu.groupNumber;
   document.getElementById('student-form-role').value = stu.role;
   document.getElementById('student-form-special').checked = stu.isSpecialSupport;
+  const specialCheckRow = document.getElementById('student-form-special')?.closest('.bg-amber-50') || document.getElementById('student-form-special')?.parentElement;
+  if (specialCheckRow) {
+    specialCheckRow.style.display = (appState.currentUserRole === 'gvcn') ? '' : 'none';
+  }
 
   const modal = document.getElementById('modal-student');
   modal.classList.remove('hidden');
@@ -1327,7 +1371,8 @@ function openStudentDetailModal(studentId) {
   const stuLogs = appState.dailyLogs.filter(l => l.studentId === studentId);
 
   document.getElementById('detail-student-name').textContent = stu.fullName;
-  document.getElementById('detail-student-meta').textContent = `Tổ ${stu.groupNumber} • ${stu.role}${stu.code ? ` • Mã: ${stu.code}` : ''}${stu.dob ? ` • NS: ${stu.dob}` : ''}${stu.academicScore ? ` • Điểm đầu vào: ${stu.academicScore}đ` : ''}${stu.isSpecialSupport ? ' • [Cần hỗ trợ đặc biệt]' : ''}`;
+  const isGVCN = (appState.currentUserRole === 'gvcn');
+  document.getElementById('detail-student-meta').textContent = `Tổ ${stu.groupNumber} • ${stu.role}${stu.code ? ` • Mã: ${stu.code}` : ''}${stu.dob ? ` • NS: ${stu.dob}` : ''}${stu.academicScore ? ` • Điểm đầu vào: ${stu.academicScore}đ` : ''}${(isGVCN && stu.isSpecialSupport) ? ' • [Cần hỗ trợ đặc biệt]' : ''}`;
   document.getElementById('detail-student-score').textContent = `${score} đ`;
   document.getElementById('detail-student-rank').textContent = tier.label;
   document.getElementById('detail-student-rank').className = `text-sm font-bold ${tier.color} px-2 py-0.5 rounded border inline-block`;
@@ -1612,6 +1657,9 @@ function refreshAllUI() {
   renderLogsTable();
   renderScoringPermissionsUI();
   updateResetButtonsVisibility();
+  if (typeof renderSeatingTab === 'function') {
+    renderSeatingTab();
+  }
   if (typeof renderCadreDuties === 'function') {
     renderCadreDuties();
   }
@@ -2206,8 +2254,9 @@ function renderSeatSlot(table, seat) {
     roleBadgeHtml = badges.join('');
   }
 
-  const peerBadgeHtml = student.isSpecialSupport ? 
-    '<span class="text-[9px] text-amber-600 font-bold ml-1" title="Diện kèm cặp">🤝</span>' : '';
+  const isGVCN = (appState.currentUserRole === 'gvcn');
+  const peerBadgeHtml = (isGVCN && student.isSpecialSupport) ? 
+    '<span class="text-[9px] text-amber-600 font-bold ml-1" title="Diện kèm cặp (Chỉ GVCN thấy)">🤝</span>' : '';
 
   slot.innerHTML = `
     <div class="w-full flex items-center justify-between mb-0.5 px-0.5 text-[10px]">
@@ -2812,6 +2861,12 @@ function generatePrintSeatingHTML() {
 }
 
 function openPrintPreviewModal() {
+  if (appState.currentUserRole !== 'gvcn') {
+    showToast('Chức năng Xuất / In sơ đồ lớp học chỉ dành riêng cho GVCN!', 'warning');
+    appState.pendingRoleId = 'gvcn';
+    openRolePinModal('gvcn');
+    return;
+  }
   const modal = document.getElementById('modal-print-preview');
   const content = document.getElementById('print-preview-content');
   if (!modal || !content) {

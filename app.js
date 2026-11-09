@@ -7,12 +7,12 @@
 
 // ==================== HẰNG SỐ & CẤU HÌNH QUY CHẾ ====================
 const STORAGE_KEYS = {
-  STUDENTS: 'dashboard10a3_official_45_students_v35',
+  STUDENTS: 'dashboard10a3_official_45_students_v36',
   LOGS: 'dashboard10a3_official_45_logs_v10',
   LOCKED_WEEKS: 'dashboard10a3_locked_weeks_v4',
   CURRENT_ROLE: 'dashboard10a3_current_role_v2',
   AUTH_ROLES: 'dashboard10a3_authenticated_roles_v1',
-  SEATING: 'dashboard10a3_official_45_seating_v35'
+  SEATING: 'dashboard10a3_official_45_seating_v36'
 };
 
 const DEFAULT_PINS = {
@@ -1688,7 +1688,7 @@ function getDefaultSeating() {
       title: 'Bàn 1',
       subtitle: 'Ghép Bàn 2',
       leftSeat: { seatId: 'seat_r1_g1_t1_l', position: 'left', studentId: 'hs_10a3_41' }, // Lê Gia Vũ (35đ)
-      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (Hỗ trợ - 28đ) [Đổi chỗ với Ngọc Giàu - Bàn 1 Dãy 1 sát bục giảng]
+      rightSeat: { seatId: 'seat_r1_g1_t1_r', position: 'right', studentId: 'hs_10a3_25' } // Võ Thị Yến Nhi (34đ) [Đổi chỗ với Vinh Khang - Bàn 1 Dãy 1 sát bục giảng]
     },
     {
       tableId: 'tbl_d1_t2',
@@ -1699,8 +1699,8 @@ function getDefaultSeating() {
       pairWithTable: 1,
       title: 'Bàn 2',
       subtitle: 'Ghép Bàn 1',
-      leftSeat: { seatId: 'seat_r1_g1_t2_l', position: 'left', studentId: 'hs_10a3_26' }, // Cao Ngọc An Nhiên (39đ, học rất giỏi, nghiêm túc)
-      rightSeat: { seatId: 'seat_r1_g1_t2_r', position: 'right', studentId: 'hs_10a3_25' } // Võ Thị Yến Nhi (34đ) [Bàn đầu sát mắt giáo viên, An Nhiên kèm không cho bấm điện thoại]
+      leftSeat: { seatId: 'seat_r1_g1_t2_l', position: 'left', studentId: 'hs_10a3_26' }, // Cao Ngọc An Nhiên (39đ, học rất giỏi, gương mẫu)
+      rightSeat: { seatId: 'seat_r1_g1_t2_r', position: 'right', studentId: 'hs_10a3_14' } // Nguyễn Vinh Khang (Hỗ trợ - 28đ) [Đổi chỗ với Yến Nhi - An Nhiên kèm Vinh Khang]
     },
     // [HÀNG 2: BÀN 3 GHÉP BÀN 4 - TỔ TRƯỞNG NGỒI HÀNG SAU ĐỂ BAO QUÁT TỔ]
     {
@@ -2003,11 +2003,17 @@ function loadSeatingData() {
       if (Array.isArray(parsed) && parsed.length === 24) {
         let changed = false;
         const t1 = parsed.find(t => t.tableId === 'tbl_d1_t1');
+        const t2_d1 = parsed.find(t => t.tableId === 'tbl_d1_t2');
         const t4 = parsed.find(t => t.tableId === 'tbl_d2_t1');
         const t9_d1 = parsed.find(t => t.tableId === 'tbl_d1_t9');
         const t10_d2 = parsed.find(t => t.tableId === 'tbl_d2_t10');
         if (t1 && t1.rightSeat.studentId === 'hs_10a3_07') {
           t1.rightSeat.studentId = 'hs_10a3_14';
+          changed = true;
+        }
+        if (t1 && t1.rightSeat.studentId === 'hs_10a3_14' && t2_d1 && t2_d1.rightSeat.studentId === 'hs_10a3_25') {
+          t1.rightSeat.studentId = 'hs_10a3_25';
+          t2_d1.rightSeat.studentId = 'hs_10a3_14';
           changed = true;
         }
         if (t4) {

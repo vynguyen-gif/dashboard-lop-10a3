@@ -36,14 +36,14 @@ const ROLES = {
   member: { id: 'member', label: '👁️ Học sinh (Chỉ xem)', canScore: false, canLock: false, canReset: false, allowedGroups: [] }
 };
 
-const BASE_WEEKLY_SCORE = 100;
+const BASE_WEEKLY_SCORE = 50;
 
 // Thang Xếp Loại Tháng: Tốt (>= 90), Khá (70-89), Đạt (50-69), Chưa đạt (<50)
 // Thang Xếp Loại: Tốt (>= 95), Khá (80-94), Đạt (60-79), Chưa đạt (<60)
 const RANKING_TIERS = {
-  GOOD: { label: 'Tốt', min: 95, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
-  FAIR: { label: 'Khá', min: 80, color: 'text-blue-700 bg-blue-50 border-blue-300' },
-  PASS: { label: 'Đạt', min: 60, color: 'text-amber-700 bg-amber-50 border-amber-300' },
+  GOOD: { label: 'Tốt', min: 90, color: 'text-emerald-700 bg-emerald-50 border-emerald-300' },
+  FAIR: { label: 'Khá', min: 75, color: 'text-blue-700 bg-blue-50 border-blue-300' },
+  PASS: { label: 'Đạt', min: 50, color: 'text-amber-700 bg-amber-50 border-amber-300' },
   FAIL: { label: 'Chưa đạt', min: 0, color: 'text-rose-700 bg-rose-50 border-rose-300' },
   RESTRICTED: { label: 'Chưa đạt (Khống chế ⚠️)', min: 0, color: 'text-rose-900 bg-rose-100 dark:bg-rose-950/80 border-rose-500 dark:border-rose-700 font-black' }
 };
@@ -52,7 +52,7 @@ const RANKING_TIERS = {
 const BONUS_RULES = [
   // IV. THƯỞNG CHUYÊN CẦN & TẬP THỂ
   { key: 'bonus_class_attendance', group: 'attendance', label: 'Lớp / Tổ đi học đủ 100% cả tuần (Không vắng, không trễ)', points: 50, icon: 'fa-trophy' },
-  { key: 'bonus_individual_attendance', group: 'attendance', label: 'HS đi học đủ cả tuần (Không vắng, không trễ, đúng đồng phục, tóc nghiêm túc)', points: 40, icon: 'fa-medal' },
+  { key: 'bonus_individual_attendance', group: 'attendance', label: 'HS đi học đủ cả tuần (Không vắng, không trễ, chuyên cần tốt)', points: 50, icon: 'fa-medal' },
   { key: 'bonus_full_10_lesson', group: 'lesson', label: 'Tiết học xếp loại Tốt Full 10 điểm (Cả tổ/lớp)', points: 50, icon: 'fa-crown' },
   { key: 'bonus_good_lesson', group: 'lesson', label: 'Tiết học xếp loại Tốt (Cả tổ)', points: 25, icon: 'fa-star' },
 
@@ -502,7 +502,7 @@ function renderDashboardStats() {
               ${getRoleBadgeHtml(stu.role)}
               ${(isGVCN && stu.isSpecialSupport) ? '<span class="text-[10px] px-1.5 py-0.2 bg-amber-100 text-amber-800 font-bold rounded">Ưu tiên kèm</span>' : ''}
             </div>
-            <p class="text-[11px] text-slate-400">Tổ ${stu.groupNumber} • Quỹ chuẩn 100đ</p>
+            <p class="text-[11px] text-slate-400">Tổ ${stu.groupNumber} • Quỹ sàn 50đ (+50đ chuyên cần)</p>
           </div>
         </div>
         <div class="text-right">
@@ -1902,6 +1902,128 @@ function importDataJSON(event) {
 }
 
 // ==================== TIỆN ÍCH HỆ THỐNG ====================
+
+// ==================== TÍNH NĂNG CHỐT & THƯỞNG +50Đ CHUYÊN CẦN TUẦN ====================
+function awardWeeklyAttendanceSmart(targetWeek) {
+  const currentRole = appState.currentUserRole || 'member';
+  const roleMeta = ROLES[currentRole] || ROLES.member;
+  if (!roleMeta.canScore) {
+    showToast('Bạn đang ở Chế độ Chỉ Xem! Vui lòng đăng nhập GVCN hoặc Cán sự để chốt chuyên cần.', 'warning');
+    openRolePinModal('gvcn');
+    return;
+  }
+
+  const week = targetWeek || document.getElementById('score-input-week')?.value || document.getElementById('leaderboard-week-select')?.value || appState.activeLeaderboardWeek || '10';
+
+  if (isWeekLocked(week) && currentRole !== 'gvcn') {
+    showToast(`Tuần ${week} đã chốt sổ và khóa điểm! Chỉ GVCN mới có quyền mở khóa để cập nhật.`, 'error');
+    return;
+  }
+
+  // Xác định người ghi nhận
+  let recorder = 'GVCN Lớp 10A3';
+  const recEl = document.getElementById('score-input-recorder') || document.getElementById('score-recorder-select');
+  if (recEl && recEl.value) {
+    recorder = recEl.value;
+  } else if (currentRole === 'monitor') {
+    recorder = 'Lớp trưởng (Trần Lê Hồng Nhung)';
+  } else if (currentRole === 'redstar_phuc') {
+    recorder = 'Sao đỏ (Trần Thị Ngọc Phúc)';
+  } else if (currentRole === 'redstar_tung') {
+    recorder = 'Sao đỏ (Võ Bách Tùng)';
+  }
+
+  const eligible = [];
+  const disqualified = [];
+  const alreadyAwarded = [];
+
+  const weekLogs = appState.dailyLogs.filter(l => String(l.week) === String(week));
+
+  let targetStudents = appState.students;
+  if (currentRole.startsWith('lead_t')) {
+    const leaderGroup = parseInt(currentRole.replace('lead_t', ''), 10);
+    targetStudents = appState.students.filter(s => Number(s.groupNumber) === leaderGroup);
+  }
+
+  targetStudents.forEach(stu => {
+    const stuLogs = weekLogs.filter(l => l.studentId === stu.id);
+    
+    // Kiểm tra xem đã nhận thưởng chuyên cần tuần này chưa
+    const hasAwarded = stuLogs.some(l => l.ruleKey === 'bonus_individual_attendance' || (Number(l.pointsChanged) === 50 && (l.ruleLabel || '').includes('chuyên cần')));
+    if (hasAwarded) {
+      alreadyAwarded.push(stu);
+      return;
+    }
+
+    // Kiểm tra các lỗi vi phạm liên quan đến vắng / trễ / cúp tiết
+    const attendViolations = stuLogs.filter(l => {
+      if (Number(l.pointsChanged) >= 0) return false;
+      const rKey = (l.ruleKey || '').toLowerCase();
+      const rLabel = (l.ruleLabel || '').toLowerCase();
+      return rKey.includes('truancy') || rKey.includes('absence') || rKey.includes('late') ||
+             rLabel.includes('vắng') || rLabel.includes('trễ') || rLabel.includes('muộn') || rLabel.includes('trốn');
+    });
+
+    if (attendViolations.length > 0) {
+      const reasons = attendViolations.map(v => v.ruleLabel || 'Vắng/Trễ').join(', ');
+      disqualified.push({ stu, reasons });
+    } else {
+      eligible.push(stu);
+    }
+  });
+
+  if (eligible.length === 0) {
+    if (alreadyAwarded.length > 0) {
+      showToast(`Tuần ${week} đã hoàn tất chốt chuyên cần (${alreadyAwarded.length} em đã nhận thưởng +50đ trước đó)!`, 'info');
+    } else if (disqualified.length > 0) {
+      showToast(`Tất cả ${disqualified.length} học sinh xét duyệt đều có vi phạm vắng/trễ trong Tuần ${week}!`, 'warning');
+    } else {
+      showToast(`Không có học sinh nào cần xét chuyên cần cho Tuần ${week}!`, 'info');
+    }
+    return;
+  }
+
+  let msg = `⚡ XÁC NHẬN CHỐT & THƯỞNG ĐIỂM CHUYÊN CẦN TUẦN ${week}:\n\n`;
+  msg += `✅ ĐỦ ĐIỀU KIỆN (+50đ): ${eligible.length} học sinh (Đi học đủ cả tuần, không vắng, không trễ).\n`;
+  if (disqualified.length > 0) {
+    msg += `\n❌ LOẠI TRỪ (Có ghi nhận vắng/trễ): ${disqualified.length} học sinh:\n`;
+    disqualified.slice(0, 8).forEach(d => {
+      msg += `   • ${d.stu.fullName} (Tổ ${d.stu.groupNumber}): ${d.reasons}\n`;
+    });
+    if (disqualified.length > 8) msg += `   • ... và ${disqualified.length - 8} học sinh khác.\n`;
+  }
+  if (alreadyAwarded.length > 0) {
+    msg += `\nℹ️ ĐÃ NHẬN TRƯỚC ĐÓ: ${alreadyAwarded.length} học sinh.\n`;
+  }
+  msg += `\nThầy/Cô có xác nhận cộng +50 điểm chuyên cần cho ${eligible.length} học sinh đủ điều kiện này không?`;
+
+  if (!confirm(msg)) {
+    return;
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const newLogs = eligible.map(stu => ({
+    id: generateUUID(),
+    date: today,
+    week: String(week),
+    studentId: stu.id,
+    type: 'bonus',
+    ruleKey: 'bonus_individual_attendance',
+    ruleLabel: 'HS đi học đủ cả tuần (Không vắng, không trễ, chuyên cần tốt)',
+    pointsChanged: 50,
+    recordedBy: recorder,
+    note: 'Chốt chuyên cần tuần tự động',
+    timestamp: Date.now()
+  }));
+
+  appState.dailyLogs.unshift(...newLogs);
+  saveDataToStorage();
+  refreshAllUI();
+
+  showToast(`🎉 Đã chốt và thưởng thành công +50đ chuyên cần cho ${eligible.length} học sinh Tuần ${week}!`, 'success');
+}
+
+
 function refreshAllUI() {
   renderDashboardStats();
   renderCharts();
@@ -4082,7 +4204,7 @@ function calculateStudentWeeklyStats(studentId, weekFilter) {
       }
     });
 
-    const baseScore = BASE_WEEKLY_SCORE; // 100 điểm sàn tuần
+    const baseScore = BASE_WEEKLY_SCORE; // 50 điểm sàn tuần
     const totalScore = baseScore + bonusPts + violPts;
 
     return {
@@ -4843,7 +4965,7 @@ function confirmResetWeekDiscipline() {
   else if (weekVal === 'all_year') targetDesc = 'CẢ NĂM HỌC (Tuần 1 - 35)';
 
   const confirmed = confirm(
-    `[XÁC NHẬN RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU]\n\nThầy/Cô có chắc chắn muốn đưa điểm của tất cả 45 học sinh trong ${targetDesc} về mốc 100 ĐIỂM SÀN BAN ĐẦU không?\n\n(Toàn bộ điểm cộng và điểm trừ của giai đoạn này sẽ được làm mới về 0)`
+    `[XÁC NHẬN RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU]\n\nThầy/Cô có chắc chắn muốn đưa điểm của tất cả 45 học sinh trong ${targetDesc} về mốc 50 ĐIỂM SÀN BAN ĐẦU không?\n\n(Toàn bộ điểm cộng và điểm trừ của giai đoạn này sẽ được làm mới về 0)`
   );
 
   if (!confirmed) return;
@@ -4866,7 +4988,7 @@ function confirmResetWeekDiscipline() {
 
   saveDataToStorage();
   refreshAllUI();
-  showToast(`Đã reset thành công điểm thi đua của ${targetDesc} về 100 điểm ban đầu!`, 'success');
+  showToast(`Đã reset thành công điểm thi đua của ${targetDesc} về 50 điểm ban đầu!`, 'success');
 }
 
 function onRoleSelectorChange(roleId) {
@@ -5211,7 +5333,7 @@ function executeResetWeekOnly(weekVal) {
   refreshAllUI();
   closeResetDisciplineModal();
 
-  showToast(`Đã reset sạch sẽ điểm Tuần ${wStr}! Tất cả 45 học sinh ở Tuần ${wStr} đã về đúng 100 điểm ban đầu (đã xóa ${deletedCount} lượt điểm).`, 'success');
+  showToast(`Đã reset sạch sẽ điểm Tuần ${wStr}! Tất cả 45 học sinh ở Tuần ${wStr} đã về đúng 50 điểm ban đầu (đã xóa ${deletedCount} lượt điểm).`, 'success');
 }
 
 function executeResetAllToBaseline() {
@@ -5227,7 +5349,7 @@ function executeResetAllToBaseline() {
   refreshAllUI();
   closeResetDisciplineModal();
 
-  showToast(`Đã xóa sạch toàn bộ ${countBefore} lượt điểm cũ! Tất cả 45 học sinh đã trở về đúng 100 điểm sàn ban đầu để bắt đầu từ Tuần 9.`, 'success');
+  showToast(`Đã xóa sạch toàn bộ ${countBefore} lượt điểm cũ! Tất cả 45 học sinh đã trở về đúng 50 điểm sàn ban đầu để bắt đầu từ Tuần 9.`, 'success');
 }
 
 function executeLoadSampleLogs() {

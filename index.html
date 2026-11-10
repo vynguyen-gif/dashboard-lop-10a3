@@ -469,9 +469,13 @@
                 <span id="btn-toggle-lock-text">Khóa Tuần Này</span>
               </button>
 
-              <button id="btn-leaderboard-reset-discipline" type="button" onclick="openResetDisciplineModal()" class="hidden inline-flex items-center space-x-1.5 px-3 py-2 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl text-xs transition" title="Reset toàn bộ điểm tuần này về 100 điểm sàn ban đầu (Chỉ GVCN)">
+              <button id="btn-leaderboard-attendance-award" type="button" onclick="awardWeeklyAttendanceSmart()" class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-600 hover:to-emerald-700 active:scale-95 text-white font-black rounded-xl text-xs shadow-md shadow-emerald-500/20 transition cursor-pointer" title="Tự động kiểm tra và thưởng +50đ chuyên cần cho tất cả học sinh đi học đủ trong tuần">
+                <i class="fa-solid fa-award"></i>
+                <span>⚡ Chốt Chuyên Cần Tuần (+50đ)</span>
+              </button>
+              <button id="btn-leaderboard-reset-discipline" type="button" onclick="openResetDisciplineModal()" class="hidden inline-flex items-center space-x-1.5 px-3 py-2 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold rounded-xl text-xs transition" title="Reset toàn bộ điểm tuần này về 50 điểm sàn ban đầu (Chỉ GVCN)">
                 <i class="fa-solid fa-rotate-left"></i>
-                <span>Reset Về 100đ</span>
+                <span>Reset Về 50đ</span>
               </button>
             </div>
 
@@ -717,7 +721,7 @@
                     <option value="">-- Bấm vào đây để chọn điểm cộng (+5 đến +50đ) --</option>
                     <optgroup label="🏆 IV. KHEN THƯỞNG CHUYÊN CẦN & TIẾT HỌC">
                       <option value="bonus_class_attendance">[+50đ] 🏆 Lớp / Tổ đi học đủ 100% cả tuần</option>
-                      <option value="bonus_individual_attendance">[+40đ] 🎖️ Cá nhân đi học đủ cả tuần (Đúng giờ, nghiêm túc)</option>
+                      <option value="bonus_individual_attendance">[+50đ] 🎖️ HS đi học chuyên cần đủ cả tuần (Không vắng, không trễ)</option>
                       <option value="bonus_full_10_lesson">[+50đ] 🌟 Tiết học xếp loại Tốt Full 10 điểm (Cả tổ/lớp)</option>
                       <option value="bonus_good_lesson">[+25đ] ✨ Tiết học xếp loại Tốt (Cả tổ)</option>
                     </optgroup>
@@ -858,6 +862,10 @@
                   </button>
                   <button type="button" onclick="clearSelectedStudents()" class="text-xs px-2.5 py-1.5 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition cursor-pointer" title="Bỏ chọn tất cả">
                     Bỏ chọn
+                  </button>
+                  <button type="button" onclick="awardWeeklyAttendanceSmart()" class="text-xs px-3 py-1.5 bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-600 hover:to-emerald-700 text-white font-black rounded-lg shadow-xs flex items-center space-x-1 transition cursor-pointer shrink-0" title="Chốt và thưởng +50đ chuyên cần tuần cho các em đi học đủ">
+                    <i class="fa-solid fa-award text-[10px]"></i>
+                    <span>⚡ Chốt Chuyên Cần (+50đ)</span>
                   </button>
                 </div>
               </div>
@@ -2044,7 +2052,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="app.js?v=10.1"></script>
+  <script src="app.js?v=11.0"></script>
 
 
   <!-- ==================== MODAL RESET ĐIỂM THI ĐUA VỀ BAN ĐẦU ==================== -->
